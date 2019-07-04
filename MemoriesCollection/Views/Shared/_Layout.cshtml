@@ -1,43 +1,147 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - 我的 ASP.NET 應用程式</title>
-    @Styles.Render("~/Content/css")
+    <title>@ViewBag.Title - 回憶冊</title>
+    @Styles.Render("~/Content/ThirdPartyCss")
+    @Styles.Render("~/Content/WjCss")
     @Scripts.Render("~/bundles/modernizr")
+    <script language="javascript" type="text/javascript" src="~/Scripts/My97DatePicker/WdatePicker.js"></script>
 </head>
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                @Html.ActionLink("應用程式名稱", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+    <div id="navBar">
+        <ul>
+            <li><a href="#" id="menu-trigger"><i class="fa fa-bars"></i></a></li>
+            <li><a class="active" href="@Url.Action("Index", "Home")">Home</a></li>
+            <li><a href="@Url.Action("TimeLine", "Home")">時間軸</a></li>
+        </ul>
+    </div>
+    <div id="menu" style="display: none;">
+        <ul class="cd-accordion-menu animated">
+            <li><a href="@Url.Action("AddPhoto","Photo")" menu><i class="fa fa-plus"></i>新增相片</a></li>
+            <li><a href="#" onclick="OpenAlbum();" class="crtAlbum" menu><i class="fa fa-plus"></i>新增相簿</a></li>
+            <li><a href="#" onclick="UploadVideo();" class="crtVideo" menu><i class="fa fa-plus"></i>新增影片</a></li>
+            <li><a href="@Url.Action("Index","Photo")" menu> <i class="fa fa-camera-retro"></i>相片 </a></li>
+            <li><a href="@Url.Action("Index","Album")" menu><i class="fa fa-picture-o"></i>相簿</a></li>
+            <li><a href="@Url.Action("Index","Video")" menu><i class="fa fa-video-camera"></i>影片</a></li>
+            <li><a href="@Url.Action("Index","LogInfo")" menu><i class="fa fa-video-camera"></i>錯誤記錄</a></li>
+        </ul> <!-- cd-accordion-menu -->
+    </div>
+
+    <div class="container">
+        <div class="" id="navbar-sum">
+            <a href="@Url.Action("Index","Photo")">相片</a><span class='wj-badge' id="sum-photos">0</span>
+            <a href="@Url.Action("Index","Album")">相簿</a><span class='wj-badge' id="sum-albums">0</span>
+            <a href="@Url.Action("Index","Video")">影片</a><span class='wj-badge' id="sum-videos">0</span>
+        </div>
+        @RenderBody()
+        <div id="photo-action" class="sticky-bottom" style="display:none;">
+            <span>已勾選<span id="photo-cnt">0</span>張圖片</span>
+            <button class="button btn-secondary sm-button" func="ChoseAll">全選</button>
+            <button class="button btn-red sm-button" func="Delete">刪除</button>
+            <button class="button btn-black sm-button" func="Reset">清除</button>
+        </div>
+    </div>
+
+    <footer id="footer">
+        <a href="#" class="info fa fa-info-circle"><span>About</span></a>
+        <div class="inner">
+            <div class="content">
+                <h3>標題</h3>
+                <p></p>
             </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("首頁", "Index", "Home")</li>
-                    <li>@Html.ActionLink("關於", "About", "Home")</li>
-                    <li>@Html.ActionLink("連絡方式", "Contact", "Home")</li>
+            <div class="copyright">
+                <h3>Follow me</h3>
+                <ul class="icons">
+                    <li><a href="#" class="icon fa-twitter"><span class="label">Twitter</span></a></li>
+                    <li><a href="#" class="icon fa-facebook"><span class="label">Facebook</span></a></li>
+                    <li><a href="#" class="icon fa-instagram"><span class="label">Instagram</span></a></li>
+                    <li><a href="#" class="icon fa-dribbble"><span class="label">Dribbble</span></a></li>
                 </ul>
+                &copy;
+            </div>
+        </div>
+    </footer>
+
+    <div id="AlbumPanel">
+        <div id="album-modal" class="wj-modal wj-animate-top">
+            <div class="wj-modal-content">
+                <header class="wj-container wj-teal">
+                    <span class="wj-button wj-large wj-display-topright" dissmiss-modal>×</span>
+                    <h3>建立相簿</h3>
+                </header>
+                <div class="wj-container">
+                    <input type="search" id="albumName" name="albumName" value="" placeholder="相簿名稱" />
+                    <textarea rows="10" maxlength="50" name="albumDesc" placeholder="相簿描述"></textarea>
+                </div>
+                <footer class="wj-container wj-teal">
+                    <button type="button" class="button btn-red" id="saveAlbum">建立</button>
+                    <button type="button" class="button btn-secondary" dissmiss-modal>關閉</button>
+                </footer>
             </div>
         </div>
     </div>
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - 我的 ASP.NET 應用程式</p>
-        </footer>
-    </div>
 
     @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/ThirdPartyJs")
+
     @RenderSection("scripts", required: false)
+    <script>
+        var _UaSpec = new UAParser().getResult();
+        var _IsDesktop = !(_UaSpec.device.type == "mobile" || _UaSpec.device.type == "tablet")
+
+        if (_IsDesktop) {
+            $('.wj-dropBlock').show();
+        }
+
+        // 建立相簿
+        function OpenAlbum() {
+            SaveScrollTop();
+            $('#album-modal').show();
+        };
+
+        // 儲存相簿
+        $('#album-modal #saveAlbum').on('click', function () {
+            var tags = $('#album-modal').tags();
+            var msg = [];
+            msg.push(IsEmpty(tags.albumName) ? "相簿名稱不可為空 !" : "");
+            msg = msg.filter(Boolean);
+
+            if (msg.length > 0) {
+                layer.alert(msg.join("<br>"), { title: '請輸入正確資料', icon: 7 });
+            } else {
+                $.wait();
+                Sys.AjaxExec("/Album/Save", tags, function (data) {
+                    layer.alert(data[1], { icon: 1 }, function (index) {
+                        layer.close(index);
+                        $('#album-modal').hide();
+                        GetSum();
+                        if (Controller() == "album") {
+                            location.reload();
+                        }
+                    });
+                    $.close();
+                });
+            }
+        });
+
+        // 清除Text
+        $(document).on('click', '.clearText', function () {
+            var $this = $(this);
+            var obj = $this.attr('clearText');
+            if (obj.indexOf(',') > -1) {
+                $.each(obj.split(','), function (i) {
+                    $('#' + $(this)).val('');
+                    $('#' + $(this)).text('');
+                });
+            } else {
+                $('#' + obj).val('');
+                $('#' + obj).text('');
+            }
+        });
+
+    </script>
 </body>
 </html>

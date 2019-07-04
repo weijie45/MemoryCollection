@@ -1,0 +1,178 @@
+﻿/*Upload Video*/
+
+#video-container {
+    /*width: 400px;*/
+    margin: 40px auto;
+    text-align: center;
+}
+
+#main-video {
+    display: none;
+    /*max-width: 400px;*/
+    max-height: 300px;
+    margin: 0 auto;
+    width: 400px;
+}
+
+/*show video*/
+
+
+#vedioBlock .thumbnails {
+    display: -moz-flex;
+    display: -webkit-flex;
+    display: -ms-flex;
+    display: flex;
+    -moz-align-items: stretch;
+    -webkit-align-items: stretch;
+    -ms-align-items: stretch;
+    align-items: stretch;
+    -moz-flex-wrap: wrap;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+    #vedioBlock .thumbnails .box {
+        padding: 1em;
+        margin: 1em 0;
+        width: 17%;
+    }
+
+    #vedioBlock .thumbnails .inner h3 {
+        word-break: break-all;
+    }
+
+.image.fit {
+    border-radius: 4px 4px 0 0;
+    border: 2px solid #ffffff;
+}
+
+#vedioBlock .box {
+    border-radius: 4px;
+    margin-bottom: 2em;
+    background: #44a7ce;
+    text-align: center;
+}
+
+    #vedioBlock .box .image img {
+        max-height: 300px;
+        width: auto;
+        max-width: 100%;
+        margin: 0 auto;
+        /*border-radius: 4px 4px 0 0;
+        border: 2px solid #ffffff;*/
+    }
+
+    #vedioBlock .box .image.fit {
+        margin: 0;
+    }
+
+    #vedioBlock .box .inner {
+        padding: 1em;
+        width: 100% !important;
+    }
+
+        #vedioBlock .box .inner h3 {
+            word-break: break-all;
+            color: #fff;
+            font-weight: 400;
+            line-height: 1.5;
+            margin: 0 0 1em 0;
+            font-size: 20px;
+        }
+
+        #vedioBlock .box .inner p {
+            word-break: break-all;
+            color: #9e9e9e;
+            font-weight: 400;
+            line-height: 1.5;
+            margin: 0 0 2em 0;
+            font-size: 18px;
+        }
+
+/*自訂影片model*/
+.VideoModal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0,0,0,0.9);
+}
+
+
+/* When the body has the loading class, we turn
+        the scrollbar off with overflow:hidden */
+body.loadingVideo {
+    overflow: hidden;
+}
+
+    /* Anytime the body has the loading class, our
+        modal element will be visible */
+    body.loadingVideo .VideoModal {
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+.video-wrap {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    text-align: center;
+    outline: none !important;
+}
+
+.video-container {
+    position: relative;
+    text-align: left;
+    vertical-align: middle;
+    display: inline-block;
+    white-space: normal;
+    max-width: 100%;
+    max-height: 100%;
+    outline: none !important;
+}
+
+.video-content {
+    text-align: center;
+    z-index: 9993;
+    width: 100%;
+    -webkit-transform: scale(1);
+    -ms-transform: scale(1);
+    -o-transform: scale(1);
+    transform: scale(1);
+    -webkit-transition: -webkit-transform .3s ease;
+    transition: -webkit-transform .3s ease;
+    -o-transition: -o-transform .3s ease;
+    transition: transform .3s ease;
+    transition: transform .3s ease, -webkit-transform .3s ease, -o-transform .3s ease;
+}
+
+.video-close {
+    width: 35px;
+    height: 35px;
+    position: fixed;
+    right: 0;
+    top: 0;
+    -webkit-appearance: none;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    padding: 0;
+    color: #fff;
+    font-style: normal;
+    font-size: 35px;
+    font-family: Arial,Baskerville,monospace;
+    line-height: 35px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+    border: 0;
+    background: none;
+    outline: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}

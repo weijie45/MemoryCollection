@@ -1,31 +1,83 @@
-﻿@{
-    ViewBag.Title = "Home Page";
+﻿
+@{
+    ViewBag.Title = "首頁";
 }
-
-<div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="http://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+<div id="main-div-data">
+    <p class="wj-l" style="display:none">
+        <a href="@Url.Action("AddPhoto","Photo")" class="txt-deepPink"><i class="fa fa-upload"> 上傳相片</i></a>
+    </p>
+    <div id="ListPanel-1">
+        <section id="blockSection"></section>
+    </div>
+    <!-- Detail -->
+    <div id="ListPanel-2" style="display:none;"></div>
+    <!-- Edit -->
+    <div id="ListPanel-3" style="display:none;"></div>
 </div>
+@section Scripts {
+    <script>
+        var _IsData = '@ViewBag.IsData';
+        var _Loading = true;
+        var _IsEnd = false;
+        var _Gallery;
+        var _Num = 0; // 張數
+        var _PhotoKey = -1; // 照片編號
 
-<div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
-        </p>
-        <p><a class="btn btn-default" href="http://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="http://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="http://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
-    </div>
-</div>
+        $(window).scroll(function () {
+            //最後一頁scrollTop=body-window，50是預留空間
+            var last = $("body").height() - $(window).height() - $('#footer').height();
+            if ($(window).scrollTop() >= last && !_IsEnd && _Loading) {
+                _IsEnd = true;
+                _Num += parseInt(@(AppConfig.PhotoLimit));
+                MorePhoto();
+            }
+        });
+
+        $(document).on('click', '#main-div-data [func]', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var $this = $(this);
+            var func = $this.attr('func');
+            var tags = {
+                "Func": func
+            };
+            var isValid = true;
+            var errMsg = "";
+            var url = '';
+
+            CommonFunc(func, $this);
+
+        });
+
+
+
+        function MorePhoto() {
+            var tags = {
+                TargetID: "blockSection",
+                SPic: _Num,
+                Append: true
+            }
+            $.wait();
+            Sys.AjaxExec("Home/Photo", tags, function (data) {
+                $('.lazy').Lazy();
+                _IsEnd = data[2] == "Y" ? true : false;
+                InitGallery();
+                $.close();
+            });
+        }
+
+        function InitGallery() {
+            if (typeof _Gallery != "undefined") {
+                $("#blockSection").data('lightGallery').destroy(true);
+            }
+            _Gallery = $("#blockSection").lightGallery({ selector: '.item', pause: 2000, share: false, setBg: false, actualSize: false });
+        }
+
+        if (_IsData == 'True') {
+            MorePhoto();
+        } else {
+            $('#main-div-data .wj-l').show();
+        }
+
+    </script>
+}

@@ -1,0 +1,21 @@
+{
+  "AppConfig.IsTestSite": "Y",
+
+  "ParamError": "參數錯誤 !",
+  "NoData": "查無資料 !",
+  "DataExist": "資料已存在 !",
+  "NoFolder": "查無目錄 !",
+  "NoFile": "查無圖片",
+
+  "FtpIp": "127.0.0.1",
+  "FtpUser": "W",
+  "FtpPassword": "1234",
+  "VideoPath": "/Upload/Videos/",
+  "VideoThumbnailPath": "/Upload/Videos/Thumbnail/",
+  "ImagePath": "/Upload/Images/",
+  "ImageThumbnailPath": "/Upload/Images/Thumbnail/",
+  "VideoLimit": 20,
+  "PhotoLimit": 50,
+  "MaxPixel": 300,
+  "ZipPath": "/ZipFile/"
+}
