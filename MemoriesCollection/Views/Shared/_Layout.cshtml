@@ -36,6 +36,7 @@
             <a href="@Url.Action("Index","Album")">相簿</a><span class='wj-badge' id="sum-albums">0</span>
             <a href="@Url.Action("Index","Video")">影片</a><span class='wj-badge' id="sum-videos">0</span>
         </div>
+
         @RenderBody()
         <div id="photo-action" class="sticky-bottom" style="display:none;">
             <span>已勾選<span id="photo-cnt">0</span>張圖片</span>
@@ -84,9 +85,20 @@
         </div>
     </div>
 
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/ThirdPartyJs")
+    <div id="LoadingModal">
+        <div>
+            <img src="..\Images\Loading.gif" style="vertical-align:middle;">
+            <span id="LoadingMsg"></span>
+        </div>
+    </div><!-- ajax loading -->
+    <div id="ProgressBarBlock"><div id="bar"></div></div>
+    <button onclick="topFunction()" id="backToTopBtn" title="Go to top"><i class="fa fa-arrow-up"></i></button>
 
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/WjJs")
+    @Scripts.Render("~/bundles/ThirdPartyJs")
+    <script src="~/Scripts/jquery.signalR-2.4.1.min.js"></script>
+    <script src="~/signalr/hubs"></script>
     @RenderSection("scripts", required: false)
     <script>
         var _UaSpec = new UAParser().getResult();
@@ -141,6 +153,17 @@
                 $('#' + obj).text('');
             }
         });
+
+        function GetSum() {
+            Sys.AjaxExec('@Url.Action("GetSum", "Home")', function (data) {
+                var json = JSON.parse(data[1]);
+                $('#sum-photos').text(json.Photos);
+                $('#sum-videos').text(json.Videos);
+                $('#sum-albums').text(json.Albums);
+            });
+        }
+
+        GetSum();
 
     </script>
 </body>

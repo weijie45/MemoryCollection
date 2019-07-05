@@ -24,6 +24,7 @@ Main Components
     box-sizing: border-box;
     line-height: 1.5rem;
     background: #FFFFFF;
+    border-right: 1px solid #ccc;
 }
 
 

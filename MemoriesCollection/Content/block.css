@@ -3,12 +3,12 @@
     text-align: center;
 }
 
-.wj-block--l {
+.wj-block-l {
     margin: 8px 0;
     text-align: left;
 }
 
-.wj-block--r {
+.wj-block-r {
     margin: 8px 0;
     text-align: right;
 }

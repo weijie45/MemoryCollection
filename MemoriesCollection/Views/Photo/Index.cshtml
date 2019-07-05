@@ -1,0 +1,94 @@
+﻿@{
+    ViewBag.Title = "相片";
+}
+<p class="wj-block-l">
+    <a href="@Url.Action("AddPhoto","Photo")" class="txt-deepPink"><i class="fa fa-upload"> 上傳相片</i></a>
+</p>
+
+<section id="blockSection"></section>
+@section Scripts {
+    <script>
+        var _Loading = true;
+        var _IsEnd = false;
+        var _Gallery;
+        var _Num = 0; // 張數
+
+        $(window).scroll(function () {
+            //最後一頁scrollTop=body-window，50是預留空間
+            var last = $("body").height() - $(window).height() - $('#footer').height();
+            if ($(window).scrollTop() >= last && !_IsEnd && _Loading) {
+                _IsEnd = true;
+                _Num += parseInt(@(AppConfig.PhotoLimit));
+                MorePhoto();
+            }
+        });
+
+
+        $(document).on('click', '[func]', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var $this = $(this);
+            var func = $this.attr('func');
+            var tags = {
+                "Func": func
+            };
+            switch (func) {
+                case "ChoseImg":
+                    var $chk = $('[type=checkbox]', $this).prop('checked');
+                    $('[type=checkbox]', $this).prop('checked', !$chk);
+                    $('#photo-cnt').text($('#blockSection [type=checkbox]:checked').length);
+                    break;
+                case "ChoseAll":
+                    $('#blockSection [type=checkbox]').prop('checked', true);
+                    $('#photo-cnt').text($('#blockSection [type=checkbox]:checked').length);
+                    break;
+                case "Reset":
+                    $('#blockSection [type=checkbox]').prop('checked', false);
+                    $('#photo-cnt').text($('#blockSection [type=checkbox]:checked').length);
+                    break;
+                case "Delete":
+                    var list = $('#blockSection [type=checkbox]:checked').vals();
+                    if (list.length > 0) {
+                        tags.ImgList = list.join(",");
+                        $.wait();
+                        layer.confirm('確認 ?', { title: '刪除現有記錄維護', icon: 3 }, function (index) {
+                            $.wait("刪除資料中，請稍候...");
+                            Sys.AjaxExec("Photo/Delete", tags, function () {
+                                location.reload();
+                            });
+                        });
+                    } else {
+                        layer.alert("沒有符合條件的資料 !", { icon: 7 });
+                    }
+                    break;
+            }
+        });
+
+        function InitGallery() {
+            if (typeof _Gallery != "undefined") {
+                $("#blockSection").data('lightGallery').destroy(true);
+            }
+            _Gallery = $("#blockSection").lightGallery({ selector: '.item', pause: 2000, share: false, setBg: true, actualSize: false });
+        }
+
+        function MorePhoto() {
+            var tags = {
+                TargetID: "blockSection",
+                SPic: _Num,
+                Append: true
+            }
+
+            $.wait();
+            Sys.AjaxExec("Photo/Photos", tags, function (data) {
+                $('.spanBlock').show();
+                $('.lazy').Lazy();
+                _IsEnd = data[2] == "Y" ? true : false;
+                InitGallery();
+                $.close();
+            });
+        }
+
+        MorePhoto();
+        $('#photo-action').show();
+    </script>
+}

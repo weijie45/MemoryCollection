@@ -1,14 +1,15 @@
-var g_iTopScrollTop = 0;
+ï»¿var g_iTopScrollTop = 0;
 var g_useParentScrollTop = false;
 var _Percent = 0;
 
 
 $(document).on('click', '[dissmiss-modal]', function () {
     $(this).parents('.wj-modal:first').hide();
+    RestoreScrollTop();
 });
 
 
-//Àx¦s««ª½°¾²¾(¦V¤Wºu°Ê)­È
+//å„²å­˜å‚ç›´åç§»(å‘ä¸Šæ»¾å‹•)å€¼
 function SaveScrollTop(iTop) {
     if (typeof iTop != "undefined") {
         g_iTopScrollTop = iTop;
@@ -18,7 +19,7 @@ function SaveScrollTop(iTop) {
     sessionStorage.setItem('KeepH', g_iTopScrollTop);
 }
 
-//­«³]««ª½°¾²¾(¦V¤Wºu°Ê)­È
+//é‡è¨­å‚ç›´åç§»(å‘ä¸Šæ»¾å‹•)å€¼
 function RestoreScrollTop(iTop) {
     var topN = 0;
     if (typeof iTop != "undefined") {
@@ -67,7 +68,7 @@ function FixTopFunction() {
     }
 }
 
-// ¨ú±o¥Ø«eªºcontroller name
+// å–å¾—ç›®å‰çš„controller name
 function Controller() {
     var url = window.location.pathname.split("/");
     return url[1].toLowerCase();
@@ -75,18 +76,18 @@ function Controller() {
 
 // Over write Jquery Function
 (function (b) {
-    b.fn.tags = function () { //­¶­±/ª©­±¤Wªº¦UºØÄæ¦ì­È
+    b.fn.tags = function () { //é é¢/ç‰ˆé¢ä¸Šçš„å„ç¨®æ¬„ä½å€¼
         var args = $.extend.apply(true, arguments);
         return $.extend(NameVals(this), args);
     };
 })(jQuery)
 
-// ±NformÂà¦¨json
+// å°‡formè½‰æˆjson
 function ToJson($form) {
     var formData = $form.serializeArray();
     var json = {};
 
-    //¦³¦hºØnameªº³¡¤À
+    //æœ‰å¤šç¨®nameçš„éƒ¨åˆ†
     $.map(formData, function (n, i) {
         var key = n['name'].trim();
         var val = n['value'].trim();
@@ -114,10 +115,11 @@ function ToJson($form) {
 
 var Sys = (function (Sys) {
     var res = "";
-    // JSON ®æ¦¡
+    // JSON æ ¼å¼
     Sys.AjaxExec = function (url, tags, model, fn) {
         var params = {};
         var isAsync = true;
+        var isAppend = false;
         switch (arguments.length) {
             case 1:
                 tags = {};
@@ -146,12 +148,13 @@ var Sys = (function (Sys) {
                 "SN": tags
             }
         }
+        isAppend = tags.Append;
         params._tags = JSON.stringify(tags);
         $.ajax({
             type: 'Post',
             url: url,
             data: JSON.stringify(params),
-            async: isAsync, //±Ò¥Î¦P¨B½Ğ¨D
+            async: isAsync, //å•Ÿç”¨åŒæ­¥è«‹æ±‚
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',//dataType,
             beforeSend: function () {
@@ -169,7 +172,11 @@ var Sys = (function (Sys) {
                             layer.alert(data[0]);
                             $.close();
                         } else if (typeof tags.TargetID != "undefined" && data[1] != "") {
-                            $("#{0}".format(tags.TargetID)).html(data[1]).show();
+                            if (typeof (isAppend) != "undefined" && isAppend) {
+                                $("#{0}".format(tags.TargetID)).append(data[1]).show();
+                            } else {
+                                $("#{0}".format(tags.TargetID)).html(data[1]).show();
+                            }
                             fn(data);
                         } else {
                             fn(data);
@@ -180,7 +187,7 @@ var Sys = (function (Sys) {
                 }
             },
             error: function (response) {
-                layer.alert(url + ' ajax¿ù»~ !', {
+                layer.alert(url + ' ajax Error !', {
                     icon: 7
                 });
                 $.close();
@@ -191,7 +198,7 @@ var Sys = (function (Sys) {
         });
     };
 
-    // ÀÉ®×¤W¶Ç
+    // æª”æ¡ˆä¸Šå‚³
     Sys.AjaxUpload = function (url, fd, fn) {
         $.ajax({ // JQuery Ajax
             type: 'POST',
@@ -231,12 +238,13 @@ var Sys = (function (Sys) {
             xhr: function () {
                 var xhr = $.ajaxSettings.xhr();
                 xhr.upload.onprogress = function (e) {
-                    var pourc = (e.loaded / e.total * 100) - (Math.floor(Math.random() * (9 - 1 + 0.62)) + 1);
-                    console.log(pourc);
+                    var pourc = (e.loaded / e.total * 100) / 2 - (Math.floor(Math.random() * (9 - 1 + 0.62)) + 1);
                     if (_Percent < pourc) {
                         _Percent = pourc;
                     }
-                    UpdateProgress();
+                    if (pourc < 50) {
+                        UpdateProgress();
+                    }
                 };
                 return xhr;
             },
@@ -252,11 +260,9 @@ var Sys = (function (Sys) {
 
 
 function UpdateProgress() {
-    console.log(_Percent);
+
     $('#ProgressBarBlock #bar').html("{0}{1}".format($.number(_Percent, 2), "%"));
-    if (parseInt(_Percent) == 100) {
-        setTimeout(function () { $.closeProgress(); }, 500);
-    }
+
 }
 
 
@@ -319,7 +325,7 @@ function NameVals(sSelector) {
     }
     return info;
 }
-//¨ú±o©Ò¿ï¶µ¥Ø­È¬°¤@­Ó°}¦C
+//å–å¾—æ‰€é¸é …ç›®å€¼ç‚ºä¸€å€‹é™£åˆ—
 function Vals(sNameList, sSelector) {
     var aList = new Array;
     if (sNameList == "") {
@@ -401,10 +407,10 @@ function Vals(sNameList, sSelector) {
 }
 
 
-//  «Ì½ª
+//  å±è”½
 $.wait = function (msg) {
     $("body").addClass("loading");
-    if (!msg) { msg = "¸ê®Æ¬d¸ß¤¤..."; }
+    if (!msg) { msg = "è³‡æ–™æŸ¥è©¢ä¸­..."; }
     $('#LoadingMsg').text(msg);
 };
 
@@ -413,7 +419,7 @@ $.close = function () {
     //$('#ListPanel-loading').hide();
 };
 
-// ¶i«×±ø«Ì½ª
+// é€²åº¦æ¢å±è”½
 $.waitProgress = function () {
     $("body").addClass("progressing");
 };
@@ -430,7 +436,7 @@ Array.prototype.min = function () {
     return Math.min.apply(null, this);
 };
 
-// °}¦C¤º¬O§_¥]§t«ü©wªº­È
+// é™£åˆ—å…§æ˜¯å¦åŒ…å«æŒ‡å®šçš„å€¼
 Array.prototype.contains = function (aValue) {
     if (aValue.constructor === Array) {
         for (var i = 0; i < aValue.length; i++) {
@@ -446,7 +452,7 @@ Array.prototype.contains = function (aValue) {
     return true;
 };
 
-// °}¦C¤º¬O§_¥]§t«ü©wªº­È
+// é™£åˆ—å…§æ˜¯å¦åŒ…å«æŒ‡å®šçš„å€¼
 Array.prototype.contains = function (aValue) {
     if (aValue.constructor === Array) {
         for (var i = 0; i < aValue.length; i++) {
@@ -462,7 +468,7 @@ Array.prototype.contains = function (aValue) {
     return true;
 };
 
-//¸ê®Æ®æ¦¡¤Æ³]©w
+//è³‡æ–™æ ¼å¼åŒ–è¨­å®š
 String.prototype.format = function () {
     var txt = this.toString();
     var args = arguments;
@@ -478,25 +484,25 @@ String.prototype.format = function () {
     }
     return txt;
 };
-//®æ¦¡¤Æ³]©w¡F¥¿«hªí¥Ü¦¡
+//æ ¼å¼åŒ–è¨­å®šï¼›æ­£å‰‡è¡¨ç¤ºå¼
 function getStringFormatPlaceHolderRegEx(placeHolderIndex) {
     return new RegExp("({)?\\{" + placeHolderIndex + "\\}(?!})", "gm");
 }
 
 
-// ¦V¥ª¸É­È
+// å‘å·¦è£œå€¼
 String.prototype.padLeft = function (l, c) {
     return Array(l - this.length + 1).join(c || " ") + this;
 }
 
-// ¦V¥k¸É´Ó
+// å‘å³è£œæ¤
 String.prototype.padRight = function (l, c) {
     return this + Array(l - this.length + 1).join(c || " ");
 }
 
 
-// ²¾°£¦r¦êªÅ¥Õ
-// ¦^¶Ç: string
+// ç§»é™¤å­—ä¸²ç©ºç™½
+// å›å‚³: string
 String.prototype.trim = function (v) {
     if (this == undefined) {
         return "";
@@ -509,8 +515,8 @@ String.prototype.trim = function (v) {
     return this.replace(re, "");
 };
 
-// ²¾°£¦r¦ê¥ªÃäªÅ¥Õ
-// ¦^¶Ç: string
+// ç§»é™¤å­—ä¸²å·¦é‚Šç©ºç™½
+// å›å‚³: string
 String.prototype.ltrim = function (v) {
     if (this == undefined) {
         return "";
@@ -523,8 +529,8 @@ String.prototype.ltrim = function (v) {
     return this.replace(re, "");
 };
 
-// ²¾°£¦r¦ê¥kÃäªÅ¥Õ
-// ¦^¶Ç: string
+// ç§»é™¤å­—ä¸²å³é‚Šç©ºç™½
+// å›å‚³: string
 String.prototype.rtrim = function (v) {
     if (this == undefined) {
         return "";
@@ -538,38 +544,38 @@ String.prototype.rtrim = function (v) {
 }
 
 
-// §PÂ_¦r¦ê¶}ÀY¬O§_¬°«ü©wªº¦r
-// ¦^¶Ç: bool
+// åˆ¤æ–·å­—ä¸²é–‹é ­æ˜¯å¦ç‚ºæŒ‡å®šçš„å­—
+// å›å‚³: bool
 String.prototype.startWith = function (v) {
     return (this.length > 0 && this.length >= v.length) && this.substr(0, v.length).toLowerCase() === v.toLowerCase();
 };
 
-// §PÂ_¦r¦êµ²§À¬O§_¬°«ü©wªº¦r
-// ¦^¶Ç: bool
+// åˆ¤æ–·å­—ä¸²çµå°¾æ˜¯å¦ç‚ºæŒ‡å®šçš„å­—
+// å›å‚³: bool
 String.prototype.endWith = function (v) {
     return (this.length > 0 && this.length >= v.length) && this.substr(this.length - v.length).toLowerCase() === v.toLowerCase();
 };
 
-// §PÂ_¦r¦ê¬O§_¦³¥]§t«ü©wªº¦r
-// ¦^¶Ç: bool
+// åˆ¤æ–·å­—ä¸²æ˜¯å¦æœ‰åŒ…å«æŒ‡å®šçš„å­—
+// å›å‚³: bool
 String.prototype.contain = function (v) {
     return this.indexOf(v) >= 0;
 };
 
-// ±q¦r¦ê¥ªÃä¶}©l¨ú­È¡A¨Ã¦^¶Ç
-// ¦^¶Ç:string
+// å¾å­—ä¸²å·¦é‚Šé–‹å§‹å–å€¼ï¼Œä¸¦å›å‚³
+// å›å‚³:string
 String.prototype.left = function (i) {
     return this.substr(0, i);
 };
 
-// ±q¦r¦ê¥kÃä¶}©l¨ú­È¡A¨Ã¦^¶Ç
-// ¦^¶Ç:string
+// å¾å­—ä¸²å³é‚Šé–‹å§‹å–å€¼ï¼Œä¸¦å›å‚³
+// å›å‚³:string
 String.prototype.right = function (i) {
     return this.substr(this.length - i, i);
 };
 
-// ±q¦r¦ê²Äs­Ó¶}©l¨ú­È¡A¦@¨úi­Ó¦r¤¸
-// ¦^¶Ç:string
+// å¾å­—ä¸²ç¬¬så€‹é–‹å§‹å–å€¼ï¼Œå…±å–iå€‹å­—å…ƒ
+// å›å‚³:string
 String.prototype.mid = function (s, i) {
     return this.substr(s - 1, i);
 }
@@ -579,7 +585,7 @@ String.prototype.replaceAt = function (index, replacement) {
 }
 
 
-// °}¦CÂà¦¨JSON®æ¦¡
+// é™£åˆ—è½‰æˆJSONæ ¼å¼
 Array.prototype.parseJSON = function () {
     var engine = typeof JSON == "undefined" ? 2 : 1;
     for (var i = 0; i < this.length; i++) {

@@ -3,7 +3,7 @@
     ViewBag.Title = "首頁";
 }
 <div id="main-div-data">
-    <p class="wj-l" style="display:none">
+    <p class="wj-block-l">
         <a href="@Url.Action("AddPhoto","Photo")" class="txt-deepPink"><i class="fa fa-upload"> 上傳相片</i></a>
     </p>
     <div id="ListPanel-1">
@@ -17,7 +17,6 @@
 @section Scripts {
     <script>
         var _IsData = '@ViewBag.IsData';
-        var _Loading = true;
         var _IsEnd = false;
         var _Gallery;
         var _Num = 0; // 張數
@@ -26,7 +25,7 @@
         $(window).scroll(function () {
             //最後一頁scrollTop=body-window，50是預留空間
             var last = $("body").height() - $(window).height() - $('#footer').height();
-            if ($(window).scrollTop() >= last && !_IsEnd && _Loading) {
+            if ($(window).scrollTop() >= last && !_IsEnd) {
                 _IsEnd = true;
                 _Num += parseInt(@(AppConfig.PhotoLimit));
                 MorePhoto();
@@ -45,11 +44,9 @@
             var errMsg = "";
             var url = '';
 
-            CommonFunc(func, $this);
+            // CommonFunc(func, $this);
 
         });
-
-
 
         function MorePhoto() {
             var tags = {
@@ -58,7 +55,7 @@
                 Append: true
             }
             $.wait();
-            Sys.AjaxExec("Home/Photo", tags, function (data) {
+            Sys.AjaxExec("/Home/Photo", tags, function (data) {
                 $('.lazy').Lazy();
                 _IsEnd = data[2] == "Y" ? true : false;
                 InitGallery();
@@ -70,14 +67,16 @@
             if (typeof _Gallery != "undefined") {
                 $("#blockSection").data('lightGallery').destroy(true);
             }
-            _Gallery = $("#blockSection").lightGallery({ selector: '.item', pause: 2000, share: false, setBg: false, actualSize: false });
+            _Gallery = $("#blockSection").lightGallery({
+                selector: '.item',
+                pause: 2000,
+                share: false,
+                setBg: false,
+                actualSize: false
+            });
         }
 
-        if (_IsData == 'True') {
-            MorePhoto();
-        } else {
-            $('#main-div-data .wj-l').show();
-        }
+        MorePhoto();
 
     </script>
 }

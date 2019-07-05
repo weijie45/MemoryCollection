@@ -13,7 +13,8 @@ namespace MemoriesCollection
                           "~/Scripts/jquery-ui-1.12.1.min.js",
                          "~/Scripts/jquery.lazy.min.js",
                          "~/Scripts/jquery.number.min.js",
-                         "~/Scripts/jquery.batch.min.js"));
+                         "~/Scripts/jquery.batch.min.js",
+                         "~/Scripts/jquery.scrollstop.min.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.validate*"));

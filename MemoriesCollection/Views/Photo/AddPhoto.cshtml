@@ -1,0 +1,140 @@
+﻿@{
+    ViewBag.Title = "上傳相片";
+}
+
+@if (ViewBag.AlbumNo != "") {
+    <div class="wj-block-c">
+        <a href="@Url.Action("Detail","Album",new { k=Key.Encrypt(ViewBag.AlbumNo)})" class="button btn-black"><i class="fa fa-arrow-left"></i>回@(ViewBag.AlbumName)相簿</a>
+    </div>
+}
+
+<div class="wj-dropBlock">Drag & Drop Photos Here</div>
+<div class="wj-block-c">
+    <input type="file" name="file-1[]" id="imgUpload" class="inputfile inputfile-1" data-multiple-caption="{count} files selected" multiple />
+    <label for="imgUpload"><span>請選擇圖片&hellip;</span></label>
+</div>
+<div class="wj-gallery"></div>
+
+@section Scripts {
+    <script>
+
+
+        // 圖片上傳
+        $('#imgUpload').on('change', function (e) {
+            upload(e.target.files);
+        });
+
+        $(function () {
+            // 拖拉區塊
+            //http://www.tipocode.com/html/drag-and-drop-multiple-files-upload-with-html5-jquery-formdata/#
+            $('.wj-dropBlock').on('dragover', function (e) {
+                $(this).attr('class', 'drop_hover');
+                e.preventDefault();
+                e.stopPropagation();
+            });
+
+            // Add eventhandlers for dragenter and prevent the default actions for this event
+            $('.wj-dropBlock').on('dragenter', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+
+            $('.wj-dropBlock').on('dragleave', function (e) {
+                $(this).attr('class', 'wj-dropBlock');
+            });
+
+            $('.wj-dropBlock').on('drop', function (e) {
+                if (e.originalEvent.dataTransfer) {
+                    if (e.originalEvent.dataTransfer.files.length) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        upload(e.originalEvent.dataTransfer.files);
+                    }
+                }
+            });
+
+        });
+
+        // 上傳
+        function upload(files) { // upload function
+            var fd = new FormData(); // Create a FormData object
+            var html = "";
+            var totalSize = 1048000000; // 1g
+            var size = 0;
+            var pass = true;
+            var fileLen = files.length;
+            var msg = "確認上傳 <span class='red'>{0}</span>張相片 ?".format(fileLen);
+            var wrongExt = 0;
+            for (var i = 0; i < fileLen; i++) {
+                if (files[i].type.indexOf('image') == -1) {
+                    wrongExt++;
+                    msg = "上傳檔案共<span class='red'>{0}</span>筆<br>".format(fileLen);
+                    msg += "其中<span class='red'>{0}</span>筆<span class='red'>不符合檔案格式</span><br>".format(wrongExt);
+                    msg += "是否略過並上傳 ?";
+                }
+                size += files[i].size;
+            }
+            if (wrongExt == files.length) {
+                InitUpload();
+                layer.alert("僅提供圖片上傳 !", { icon: 7 });
+                return false;
+            }
+            if (size > totalSize) {
+                layer.alert("總檔案不可大於1GB !", { icon: 7 });
+                return false;
+            }
+            if (files.length > 500) {
+                layer.alert("不可超過500張照片 !", { icon: 7 });
+            } else {
+                // MDN
+                //https://developer.mozilla.org/en-US/docs/Web/API/File/Using_files_from_web_applications#Example_Using_object_URLs_to_display_images
+
+                for (var i = 0; i < files.length; i++) { // Loop all files
+                    var file = files[i];
+                    var fileName = file.name;
+                    var modifyDate = new Date(typeof (file.lastModified) == 'undefined' ? new Date() : file.lastModified);
+                    var deg = 0;
+                    //http://jsnwork.kiiuo.com/archives/2262/jquery-javascript-%E6%95%99%E4%BD%A0%E5%A6%82%E4%BD%95%E9%A1%AF%E7%A4%BA%E4%B8%8A%E5%82%B3%E5%89%8D%E7%9A%84%E5%A4%9A%E7%AD%86%E9%A0%90%E8%A6%BD%E5%9C%96/
+
+                    fd.append('file_{0}'.format(i), file); // Create an append() method, one for each file dropped
+                    fd.append('fileModDate_{0}'.format(i), modifyDate.toISOString().substring(0, 10) + " " + modifyDate.toTimeString().substring(0, 8));
+                }
+
+                fd.append('fileTsize', size);
+                fd.append('album', '@ViewBag.AlbumNo');
+
+                layer.confirm(msg, { icon: 3 }, function (index) {
+                    layer.close(index);
+                    $('#ProgressBarBlock #bar').html('0%');
+
+                    var progressNotifier = $.connection.progressHub;
+                    progressNotifier.client.sendMessage = function (message) {
+                        _Percent = message;
+                        UpdateProgress();
+                    };
+
+                    $.waitProgress();
+                    $.connection.hub.start().done(function () {
+                        Sys.AjaxUpload("/Photo/Upload", fd, function (data) {
+                            GetSum();
+                            var json = JSON.parse(data[1]);
+                            layer.alert("共上傳{0}筆資料 !<br>成功{1}筆 !<br>失敗<span style='color:red'>{2}</span>筆".format(json.Files, json.Photos, json.Success, json.Failed), { icon: 1 }, function (index) {
+                                layer.close(index);
+                                location.reload();
+                            });
+                        });
+                    });
+
+                });
+                InitUpload();
+            }
+
+        }
+
+        // 初始化
+        function InitUpload() {
+            $('#imgUpload').val('');
+            $('#imgUpload').next('label').html('<span>請選擇圖片&hellip;<span>');
+        }
+    </script>
+}

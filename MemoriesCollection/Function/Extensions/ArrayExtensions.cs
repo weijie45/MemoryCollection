@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace HeHeMemory.Function.Extensions
+namespace MemoriesCollection.Function.Extensions
 {
     public static class ArrayExtensions
     {

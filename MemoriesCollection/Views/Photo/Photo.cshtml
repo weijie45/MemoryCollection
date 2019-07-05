@@ -1,0 +1,33 @@
+﻿@model MemoriesCollection.ViewModels.PageTableViewModel
+@{
+    int cnt = 0;
+}
+@if (Model.ViewBag.IsData) {
+
+    foreach (var dr in Model.PhotoList) {
+        var imgNo = dr.ImgNo;
+        var name = dr.FileName;
+        var desc = dr.FileDesc;
+        var width = (double)dr.Width;
+        var height = (double)dr.Height;
+
+        var fileName = $"{imgNo}{dr.FileExt}";
+        var dwName = $"{dr.FileName}{dr.FileExt}";
+        var imgTbUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.ImgThbPath, Folder = "", FileName = fileName, DwName = dwName }) });
+        var imgUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.ImgPath, Folder = "", FileName = fileName, DwName = dwName }) });
+        double styleWidth = width * 200 / height;
+        double padding = height / width * 100;
+
+        <div id="p_@imgNo" style="width:@(styleWidth)px;flex-grow:@(styleWidth)" func="ChoseImg">
+            <i style="padding-bottom:@(padding)%"></i>
+            <a href="javascript:void();" data-src="@imgUrl">
+                <img class="lazy" src="" title="@name" data-src="@imgTbUrl" />
+            </a>
+            <div class="info">
+                <input type="checkbox" class="chk-parallel" id="@cnt" name="imgNo" value="@(imgNo)" />
+                <label for="@cnt" class="chk-parallel">@name</label>
+            </div>
+        </div>
+        cnt++;
+    }
+}

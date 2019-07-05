@@ -55,7 +55,7 @@
     left: 0;
     height: 100%;
     width: 100%;
-    background: rgba( 255, 255, 255, .8 ) url('../Content/Images/loading.gif') 50% 50% no-repeat;
+    background: rgba( 255, 255, 255, .8 ) url('../Images/ProgressLoading.gif') 50% 50% no-repeat;
 }
 
     #ProgressBarBlock #bar {
