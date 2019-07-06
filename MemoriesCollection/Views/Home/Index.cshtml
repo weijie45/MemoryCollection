@@ -6,6 +6,14 @@
     <p class="wj-block-l">
         <a href="@Url.Action("AddPhoto","Photo")" class="txt-deepPink"><i class="fa fa-upload"> 上傳相片</i></a>
     </p>
+    <div id="qry-block" class="wj-block-l">
+        <label for="">關鍵字</label>
+        <input type="search" name="KeyWord" value="" />
+        <label for="">拍攝日期</label>
+        <input type="search" id="fmDate" name="FmDate" onclick="WdatePicker({ maxDate: '#F{$dp.$D(\'toDate\');}' })" />
+        <input type="search" id="toDate" name="ToDate" onclick="WdatePicker({ minDate: '#F{$dp.$D(\'fmDate\');}' })" />
+        <input type="button" class="button btn-c1" func="Query" value="查詢" />
+    </div>
     <div id="ListPanel-1">
         <section id="blockSection"></section>
     </div>
@@ -21,13 +29,15 @@
         var _Gallery;
         var _Num = 0; // 張數
         var _PhotoKey = -1; // 照片編號
+        var _Params = ""; // 查詢參數
 
         $(window).scroll(function () {
             //最後一頁scrollTop=body-window，50是預留空間
-            var last = $("body").height() - $(window).height() - $('#footer').height();
+            var last = $("body").height() - $(window).height() - $('#footer').height() - $('#photo-action').height();
             if ($(window).scrollTop() >= last && !_IsEnd) {
                 _IsEnd = true;
                 _Num += parseInt(@(AppConfig.PhotoLimit));
+                _Params.Append = true;
                 MorePhoto();
             }
         });
@@ -44,7 +54,15 @@
             var errMsg = "";
             var url = '';
 
-            // CommonFunc(func, $this);
+            switch (func) {
+                case "Query":
+                    var tags = $('#qry-block').tags();
+                    tags.Append = false;
+                    _Params = tags;
+                    _Num = 0; //重置
+                    MorePhoto();
+                    break;
+            }
 
         });
 
@@ -54,6 +72,7 @@
                 SPic: _Num,
                 Append: true
             }
+            $.extend(tags, _Params);
             $.wait();
             Sys.AjaxExec("/Home/Photo", tags, function (data) {
                 $('.lazy').Lazy();

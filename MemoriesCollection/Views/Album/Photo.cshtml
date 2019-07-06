@@ -1,0 +1,45 @@
+﻿@model MemoriesCollection.ViewModels.PageTableViewModel
+@{
+    int cnt = 0;
+    var album = Model.Album;
+    var albumNo = album.AlbumNo;
+    var type = Model.ViewBag.Type;
+}
+@if (Model.ViewBag.IsData) {
+
+    foreach (var dr in Model.PhotoList) {
+        var imgNo = dr.ImgNo;
+        var name = dr.FileName;
+        var desc = dr.FileDesc;
+        var width = (double)dr.Width;
+        var height = (double)dr.Height;
+
+        var fileName = $"{imgNo}{dr.FileExt}";
+        var dwName = $"{dr.FileName}{dr.FileExt}";
+        var imgTbUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.ImgThbPath, Folder = "", FileName = fileName, DwName = dwName }) });
+        var imgUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.ImgPath, Folder = "", FileName = fileName, DwName = dwName }) });
+        double styleWidth = width * 200 / height;
+        double padding = height / width * 100;
+
+        <div id="p_@imgNo" style="width:@(styleWidth)px;flex-grow:@(styleWidth)">
+            <i style="padding-bottom:@(padding)%"></i>
+            @if (type == "tab_2") {
+                <a href="@imgUrl" class="item" data-sub-html="@name" onclick="return false;">
+                    <img class="lazy" src="" data-src="@imgTbUrl" func="RmImg" data-params="@(imgNo)" data-album="@(albumNo)" data-imgExt="@dr.FileExt" />
+                    <div class="info">
+                        <p>@name</p>
+                    </div>
+                </a>
+            } else {
+                <a href="@imgUrl">
+                    <img class="lazy" src="" title="@name" data-src="@imgTbUrl" />
+                </a>
+                <div class="info" func="ChoseImg">
+                    <input type="checkbox" id="@cnt" name="imgNo" value="@(imgNo)" />
+                    <label for="@cnt">@name</label>
+                </div>
+            }
+        </div>
+        cnt++;
+    }
+}

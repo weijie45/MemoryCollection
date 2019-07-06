@@ -13,7 +13,7 @@
 <body>
     <div id="navBar">
         <ul>
-            <li><a href="#" id="menu-trigger"><i class="fa fa-bars"></i></a></li>
+            <li><a href="javascript:void();" id="menu-trigger"><i class="fa fa-bars"></i></a></li>
             <li><a class="active" href="@Url.Action("Index", "Home")">Home</a></li>
             <li><a href="@Url.Action("TimeLine", "Home")">時間軸</a></li>
         </ul>
@@ -38,33 +38,41 @@
         </div>
 
         @RenderBody()
-        <div id="photo-action" class="sticky-bottom" style="display:none;">
-            <span>已勾選<span id="photo-cnt">0</span>張圖片</span>
-            <button class="button btn-secondary sm-button" func="ChoseAll">全選</button>
-            <button class="button btn-red sm-button" func="Delete">刪除</button>
-            <button class="button btn-black sm-button" func="Reset">清除</button>
-        </div>
-    </div>
 
+    </div>
+    <div id="photo-action" class="sticky-bottom" style="display:none;">
+        <span>已勾選<span id="photo-cnt">0</span>張圖片</span>
+        <button class="button btn-secondary" func="ChoseAll">全選</button>
+        <button class="button btn-red" func="Delete">刪除</button>
+        <button class="button btn-black" func="Reset">清除</button>
+    </div>
     <footer id="footer">
-        <a href="#" class="info fa fa-info-circle"><span>About</span></a>
-        <div class="inner">
-            <div class="content">
-                <h3>標題</h3>
-                <p></p>
-            </div>
-            <div class="copyright">
-                <h3>Follow me</h3>
-                <ul class="icons">
-                    <li><a href="#" class="icon fa-twitter"><span class="label">Twitter</span></a></li>
-                    <li><a href="#" class="icon fa-facebook"><span class="label">Facebook</span></a></li>
-                    <li><a href="#" class="icon fa-instagram"><span class="label">Instagram</span></a></li>
-                    <li><a href="#" class="icon fa-dribbble"><span class="label">Dribbble</span></a></li>
-                </ul>
-                &copy;
-            </div>
-        </div>
+
+        @*<a href="javascript:void();" class="info fa fa-info-circle" onclick="ShowFooter()"><span>About</span></a>
+            <div class="inner">
+                <div class="content">
+                    <h3>標題</h3>
+                    <p></p>
+                </div>
+                <div class="copyright">
+                    <h3>Follow me</h3>
+                    <ul class="icons">
+                        <li><a href="#" class="icon fa-twitter"><span class="label">Twitter</span></a></li>
+                        <li><a href="#" class="icon fa-facebook"><span class="label">Facebook</span></a></li>
+                        <li><a href="#" class="icon fa-instagram"><span class="label">Instagram</span></a></li>
+                        <li><a href="#" class="icon fa-dribbble"><span class="label">Dribbble</span></a></li>
+                    </ul>
+                    &copy;
+                </div>
+            </div>*@
     </footer>
+
+    <div id="photo-action" class="sticky-bottom" style="display:none;">
+        <span>已勾選<span id="photo-cnt">0</span>張圖片</span>
+        <button class="button btn-secondary" func="ChoseAll">全選</button>
+        <button class="button btn-red" func="Delete">刪除</button>
+        <button class="button btn-black" func="Reset">清除</button>
+    </div>
 
     <div id="AlbumPanel">
         <div id="album-modal" class="wj-modal wj-animate-top">
@@ -106,6 +114,10 @@
 
         if (_IsDesktop) {
             $('.wj-dropBlock').show();
+        }
+
+        function ShowFooter() {
+            $('#footer').attr('class', $('#footer').prop('class') == '' ? 'show' : '');
         }
 
         // 建立相簿

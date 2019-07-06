@@ -118,7 +118,7 @@
                         Sys.AjaxUpload("/Photo/Upload", fd, function (data) {
                             GetSum();
                             var json = JSON.parse(data[1]);
-                            layer.alert("共上傳{0}筆資料 !<br>成功{1}筆 !<br>失敗<span style='color:red'>{2}</span>筆".format(json.Files, json.Photos, json.Success, json.Failed), { icon: 1 }, function (index) {
+                            layer.alert("共上傳{0}筆資料 !<br>成功{1}筆 !<br>失敗<span style='color:red'>{2}</span>筆".format(json.Files, json.Success, json.Failed), { icon: 1 }, function (index) {
                                 layer.close(index);
                                 location.reload();
                             });

@@ -37,7 +37,13 @@ namespace MemoriesCollection.Controllers
             var tags = vt.Tags;
             var pv = new PageTableViewModel();
             var sPic = Key.Dict(ref tags, "SPic").FixInt();
-            var cond = Key.Dict(ref tags, "Cond"); // 時間軸的時間
+            var fmDate = Key.Dict(ref tags, "FmDate");
+            var toDate = Key.Dict(ref tags, "ToDate");
+            var keyWord = Key.Dict(ref tags, "KeyWord");
+            string cond = "";
+            cond += fmDate == "" ? "" : $"AND OrgCreateDateTime >= '{fmDate.Replace("-", "")}' ";
+            cond += toDate == "" ? "" : $"AND OrgCreateDateTime <= '{toDate.Replace("-", "")}' ";
+            cond += keyWord == "" ? "" : $"AND FileName like'%{keyWord}%'  ";
 
             Sql = " SELECT ";
             Sql += "  *  ";
@@ -45,9 +51,7 @@ namespace MemoriesCollection.Controllers
             Sql += "   ( ";
             Sql += "     SELECT *, ROW_NUMBER() OVER(ORDER BY ModifyDateTime Desc) as row  FROM Photo ";
             Sql += "        WHERE 1= 1 ";
-            if (cond != "") {
-                Sql += Key.Decrypt(cond);
-            }
+            Sql += cond == "" ? "" : cond;
             Sql += "   ) a ";
             Sql += " WHERE ";
             Sql += $"    a.row > {sPic} ";

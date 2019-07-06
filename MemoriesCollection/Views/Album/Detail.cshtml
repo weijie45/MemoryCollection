@@ -1,0 +1,174 @@
+﻿@model MemoriesCollection.ViewModels.PageTableViewModel
+@{
+    ViewBag.Title = "編輯相簿";
+    var album = Model.Album;
+    var albumNo = album.AlbumNo;
+    var bgImg = (album.BgImg.FixNull() != "") ? $"background-image:url(../..{AppConfig.ImgPath}{album.BgImg})" : "";
+    int imgCnt = (album.ImgNo.FixNull() == "") ? 0 : album.ImgNo.Split(',').Length;
+
+}
+<div id="main-div-data" class="album">
+    <div id="ListPanel-1">
+        <div class="wj-c">
+            <a href="@Url.Action("Index","Album")" class="button btn-black"><i class="fa fa-arrow-left"></i>回相簿</a>
+            <a href="@Url.Action("AddPhoto", "Photo", new { k = Key.Encrypt(new { AlbumNo = albumNo, album.AlbumName}) })" class="button btn-confirm"><i class="fa fa-upload">上傳</i></a>
+            <a href="#" class="button btn-red" id="addImg">儲存</a>
+        </div>
+        <div class="imgHead mb-4">
+            <div id="albumTitle" class="albumTitle" style="@(bgImg)">
+                <div>
+                    <input type="text" class="albumTxt" id="editAlbumName" name="albumName" value="@album.AlbumName" />
+                </div>
+                <div class="mt-3">
+                    <textarea class="albumTxt" id="editAlbumDesc" name="albumDesc" maxlength="50" rows="10">@album.AlbumDesc</textarea>
+                </div>
+            </div>
+        </div>
+        <div class="wj-r" id="albumTab" style="display:none;">
+            <span id="tab_2">相簿照片<span class="wj-badge"></span></span>
+            <span id="tab_3">非相簿照片<span class="wj-badge"></span></span>
+            <span id="tab_4">未分類照片<span class="wj-badge"></span></span>
+        </div>
+        <div class="wj-c" id="W1" style="display:none;">
+            <a href="@Url.Action("AddPhoto","Photo", new { k = Key.Encrypt(new { AlbumNo = albumNo, album.AlbumName}) })" class="txt-deepPink">
+                <i class="fa fa-upload">上傳相片</i>
+            </a>
+        </div>
+        <section id="blockSection"></section>
+    </div>
+    <!-- Detail -->
+    <div id="ListPanel-2" style="display:none;"></div>
+    <!-- Edit -->
+    <div id="ListPanel-3" style="display:none;"></div>
+</div>
+@section Scripts{
+    <script>
+        var imgCnt = "@imgCnt";
+        var _IsLoading = (parseInt(imgCnt)==0)?true:false;
+        var _Num = 0;
+        var _AlbumKey = '@albumNo';
+        var _PhotoKey = -1;
+        var gallery;
+
+        $(window).scroll(function () {
+            //最後一頁scrollTop=body-window，50是預留空間
+            var last = $("body").height() - $(window).height() - $('#footer').height();
+            if (last>0 &&$(window).scrollTop() >= last && _IsLoading == false && $('#blockSection').is(':visible')) {
+                _IsLoading = true;
+                _Num += @(AppConfig.PhotoLimit);
+                MorePhoto($('#albumTab span.active').attr('id'));
+            }
+        });
+
+        $(document).on('click', '[func]', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var $this = $(this);
+            var func = $this.attr('func');
+            var tags = {
+                "Func": func
+            };
+            var url = '@Url.Action("Index", "Album")';
+            switch (func) {
+                case "ChoseImg":
+                    var $chk = $('[type=checkbox]', $this).prop('checked');
+                    $('[type=checkbox]', $this).prop('checked', !$chk);
+                    break;
+
+                default:
+                    CommonFunc(func,$this);
+                    break;
+            }
+        });
+
+        $('#albumTab span').on('click', function () {
+            var $this = $(this);
+            var type = $this.attr("id");
+            if (type == "tab_2" && imgCnt == "0") {
+                layer.alert("尚無新增任何照片 !", { icon: 7 });
+                return false;
+            }
+            $('#albumTab span .wj-badge').removeClass('active').removeClass('bg-deepPink');
+            $('.wj-badge',$this).addClass('active').addClass('bg-deepPink');
+            InitPhoto();
+            MorePhoto(type);
+        });
+
+        $(document).on('click', '#addImg', function () {
+            layer.confirm('確認儲存 ?', { title: '儲存', icon: 3 }, function (index) {
+                layer.close(index);
+                $.wait();
+                var tags = {
+                    ImgNo: $('[name=imgNo]:checked').vals().toString(),
+                    AlbumNo: _AlbumKey,
+                    AlbumName: $('#editAlbumName').val(),
+                    AlbumDesc: $('#editAlbumDesc').val()
+                }
+                Sys.AjaxExec("/Album/AddImg", tags, function (data) {
+                    location.reload();
+                });
+            });
+        });
+
+        function InitPhoto(){
+            $('#blockSection').empty();
+            _Num = 0;
+        }
+
+        function InitGallery() {
+            if (typeof _Gallery != "undefined") {
+                $("#blockSection").data('lightGallery').destroy(true);
+            }
+            _Gallery = $("#blockSection").lightGallery({ selector: '.item', pause: 2000, share: false,setBg: true, actualSize:false });
+        }
+
+        function MorePhoto(type) {
+            var tags = {
+                TargetID: "blockSection",
+                SPic: _Num,
+                Append: true,
+                Type: type,
+                AlbumNo: _AlbumKey
+            }
+
+            $.wait();
+            Sys.AjaxExec("Photo", tags, function (data) {
+                var json = JSON.parse(data[2]);
+                _Cond = json.Cond;
+                _IsLoading = json.End=="Y"?true:false;
+                $('.spanBlock').show();
+                $('.lazy').Lazy();
+                InitGallery();
+                $.close();
+            });
+        }
+
+        function Init(){
+            var tags = {
+                AlbumNo : _AlbumKey
+            }
+
+            $.wait();
+            Sys.AjaxExec("InitDetail", tags, function (data) {
+                var json = JSON.parse(data[1]);
+                $('#tab_2 span').text(json.AlbumImgCnt);
+                $('#tab_3 span').text(json.ImgAmout);
+                $('#tab_4 span').text(json.Diff);
+
+                if(parseInt(json.ImgAmout)==0){
+                    $('#W1').show();
+                }
+                $('#albumTab').show();
+
+                var type = parseInt(json.AlbumImgCnt)==0?"tab_4":"tab_2";
+                $('#{0} .wj-badge'.format(type)).addClass('active').addClass('bg-deepPink');
+                MorePhoto(type);
+                $.close();
+            });
+        }
+
+        Init();
+
+    </script>
+}
+

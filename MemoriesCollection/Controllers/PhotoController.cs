@@ -61,8 +61,14 @@ namespace MemoriesCollection.Controllers
             }
             var tags = vt.Tags;
             var sPic = Key.Dict(ref tags, "SPic").FixInt();
+            var fmDate = Key.Dict(ref tags, "FmDate");
+            var toDate = Key.Dict(ref tags, "ToDate");
+            var keyWord = Key.Dict(ref tags, "KeyWord");
             string cond = "";
 
+            cond += fmDate == "" ? "" : $"AND OrgCreateDateTime >= '{fmDate.Replace("-", "")}' ";
+            cond += toDate == "" ? "" : $"AND OrgCreateDateTime <= '{toDate.Replace("-", "")}' ";
+            cond += keyWord == "" ? "" : $"AND FileName like'%{keyWord}%'  ";
 
             PageTableViewModel pv = new PageTableViewModel();
 
@@ -86,10 +92,7 @@ namespace MemoriesCollection.Controllers
 
             pv.ViewBag = ViewBag;
 
-            //rtn[0] = ViewBag.IsData ? "" : "請先上傳圖片 !";
             rtn[1] = page.View("Photo", pv);
-            //var obj = new { End = ViewBag.IsEnd ? "Y" : "", Cond = Key.Encrypt(cond) };
-            //rtn[2] = obj.ToJson();
             rtn[2] = ViewBag.IsEnd ? "Y" : "";
             return new JsonNetResult(rtn);
         }

@@ -5,34 +5,49 @@
     <a href="@Url.Action("AddPhoto","Photo")" class="txt-deepPink"><i class="fa fa-upload"> 上傳相片</i></a>
 </p>
 
+<div id="qry-block" class="wj-block-l">
+    <label for="">關鍵字</label>
+    <input type="search" name="KeyWord" value="" />
+    <label for="">拍攝日期</label>
+    <input type="search" id="fmDate" name="FmDate" onclick="WdatePicker({ maxDate: '#F{$dp.$D(\'toDate\');}' })" />
+    <input type="search" id="toDate" name="ToDate" onclick="WdatePicker({ minDate: '#F{$dp.$D(\'fmDate\');}' })" />
+    <input type="button" class="button btn-c1" func="Query" value="查詢" />
+</div>
+
 <section id="blockSection"></section>
 @section Scripts {
     <script>
-        var _Loading = true;
         var _IsEnd = false;
         var _Gallery;
         var _Num = 0; // 張數
+        var _Params = ""; // 查詢參數
 
         $(window).scroll(function () {
             //最後一頁scrollTop=body-window，50是預留空間
-            var last = $("body").height() - $(window).height() - $('#footer').height();
-            if ($(window).scrollTop() >= last && !_IsEnd && _Loading) {
+            var last = $("body").height() - $(window).height() - $('#footer').height() - $('#photo-action').height();
+            if ($(window).scrollTop() >= last && !_IsEnd) {
                 _IsEnd = true;
                 _Num += parseInt(@(AppConfig.PhotoLimit));
+                _Params.Append = true;
                 MorePhoto();
             }
         });
 
 
         $(document).on('click', '[func]', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
             var $this = $(this);
             var func = $this.attr('func');
             var tags = {
                 "Func": func
             };
             switch (func) {
+                case "Query":
+                    var tags = $('#qry-block').tags();
+                    tags.Append = false;
+                    _Params = tags;
+                    _Num = 0; //重置
+                    MorePhoto();
+                    break;
                 case "ChoseImg":
                     var $chk = $('[type=checkbox]', $this).prop('checked');
                     $('[type=checkbox]', $this).prop('checked', !$chk);
@@ -77,9 +92,9 @@
                 SPic: _Num,
                 Append: true
             }
-
+            $.extend(tags, _Params);
             $.wait();
-            Sys.AjaxExec("Photo/Photos", tags, function (data) {
+            Sys.AjaxExec("/Photo/Photos", tags, function (data) {
                 $('.spanBlock').show();
                 $('.lazy').Lazy();
                 _IsEnd = data[2] == "Y" ? true : false;
