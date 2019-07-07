@@ -20,7 +20,8 @@ namespace MemoriesCollection
                         "~/Scripts/jquery.validate*"));
 
             bundles.Add(new ScriptBundle("~/bundles/WjJs").Include(
-                         "~/Scripts/wj-tools.js"));
+                         "~/Scripts/wj-tools.js",
+                         "~/Scripts/verify.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/ThirdPartyJs").Include(
                         "~/Scripts/select2.min.js",

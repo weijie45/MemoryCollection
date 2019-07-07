@@ -57,7 +57,6 @@ namespace MemoriesCollection.Controllers
                 a.ModifyDateTime = now;
 
                 db.Insert(a);
-                rtn[1] = "新增成功 !";
             } else {
                 rtn[0] = AppConfig.ParamError;
             }
@@ -119,6 +118,10 @@ namespace MemoriesCollection.Controllers
             var type = Key.Dict(ref tags, "Type");
             var albumNo = Key.Dict(ref tags, "AlbumNo");
             var sPic = Key.Dict(ref tags, "SPic").FixInt();
+            var fmDate = Key.Dict(ref tags, "FmDate");
+            var toDate = Key.Dict(ref tags, "ToDate");
+            var keyWord = Key.Dict(ref tags, "KeyWord");
+            int cnt = 0;
             string cond = "";
 
             if (albumNo == "") {
@@ -139,13 +142,13 @@ namespace MemoriesCollection.Controllers
                         cond = "";
                         break;
                     case "tab_2": // 相簿照片
-                        cond = $" And imgNo IN ({albumInfo.ImgNo}) ";
+                        cond = albumInfo.ImgNo == "" ? "" : $" And imgNo IN ({albumInfo.ImgNo}) ";
                         break;
                     case "tab_3": // 非相簿照片
-                        cond = $" And imgNo NOT IN ({albumInfo.ImgNo}) ";
+                        cond = albumInfo.ImgNo == "" ? "" : $" And imgNo NOT IN ({albumInfo.ImgNo}) ";
                         break;
                     case "tab_4": // 未分類的相片
-                        var imgNoList = db.Query<string>("SELECT ImgNo FROM Album ").ToArray().Join(",").Trim(',');
+                        var imgNoList = db.Query<string>("SELECT ImgNo FROM Album WHERE ImgNo != '' ").ToArray().Join(",").Trim(',');
                         if (imgNoList != "") {
                             cond = $" and imgNo NOT IN ({Regex.Replace(imgNoList, ",,", ",")}) ";
                         }
@@ -154,6 +157,10 @@ namespace MemoriesCollection.Controllers
                         cond = "AND 1=2 ";
                         break;
                 }
+
+                cond += fmDate == "" ? "" : $"AND OrgCreateDateTime >= '{fmDate.Replace("-", "")}' ";
+                cond += toDate == "" ? "" : $"AND OrgCreateDateTime <= '{toDate.Replace("-", "")}' ";
+                cond += keyWord == "" ? "" : $"AND FileName like'%{keyWord}%'  ";
 
                 Sql = " SELECT ";
                 Sql += "  *  ";
@@ -169,6 +176,13 @@ namespace MemoriesCollection.Controllers
                 Sql += " Order By a.ModifyDateTime Desc ";
 
                 pv.PhotoList = db.Query<Photo>(Sql).ToList();
+
+                if (sPic == 0) {
+                    Sql = "     SELECT COUNT(1) FROM Photo ";
+                    Sql += "    WHERE 1=1 ";
+                    Sql += cond == "" ? "" : cond;
+                    cnt = db.Query<int>(Sql).FirstOrDefault().FixInt();
+                }
             }
 
             ViewBag.Type = type;
@@ -180,7 +194,7 @@ namespace MemoriesCollection.Controllers
 
             rtn[0] = ViewBag.IsData ? "" : "請先上傳圖片 !";
             rtn[1] = page.View("Photo", pv);
-            var obj = new { End = ViewBag.IsEnd ? "Y" : "", Cond = Key.Encrypt(cond) };
+            var obj = new { End = ViewBag.IsEnd ? "Y" : "", Cond = Key.Encrypt(cond), Cnt = cnt };
             rtn[2] = obj.ToJson();
             return new JsonNetResult(rtn);
         }
@@ -255,9 +269,7 @@ namespace MemoriesCollection.Controllers
 
                 if (bgImg != "" && (imgNo == bgImg.Substring(0, bgImg.IndexOf('.')))) {
                     album.BgImg = "";
-                }
-
-                rtn[1] = "移除成功 !";
+                }              
             } else {
                 rtn[0] = AppConfig.NoData;
             }
@@ -287,7 +299,6 @@ namespace MemoriesCollection.Controllers
                     photo.BgImg = fileName;
                     photo.ModifyDateTime = DateTime.Now;
                     db.Update(photo);
-                    rtn[1] = "設定成功 !";
                 }
 
             } else {
@@ -373,16 +384,23 @@ namespace MemoriesCollection.Controllers
                 return PageSettion.VarTagsError(vt.ErrorMsg);
             }
             var tags = vt.Tags;
+            var albumNo = Key.Dict(ref tags, "AlbumNo");
+            // 相簿照片數量
+            Sql = $" SELECT ImgNo FROM Album WHERE AlbumNo = '{albumNo}' ";
+            var albumImg = db.Query<string>(Sql).ToArray().Join(",").Trim(',');
+            var albumImgCnt = (albumImg == "") ? 0 : albumImg.Split(',').Length;
 
-            Sql = $" SELECT ImgNo FROM Album WHERE AlbumNo = '{Key.Dict(ref tags, "AlbumNo")}'";
-            var imgNoList = db.Query<string>(Sql).ToArray().Join(",").Trim(',');
-            var imgNoListCnt = (imgNoList == "") ? 0 : imgNoList.Split(',').Length;
+            // 其他相簿照片數量
+            Sql = $" SELECT ImgNo FROM Album WHERE AlbumNo != '{albumNo}' AND ImgNo !='' ";
+            var otherAlbumImg = db.Query<string>(Sql).ToArray().Join(",").Trim(',');
+            var otherAlbumImgCnt = (otherAlbumImg == "") ? 0 : otherAlbumImg.Split(',').Count();
 
+            // 總照片張數
             Sql = $"SELECT COUNT(ImgNo) FROM Photo ";
-            Sql += (imgNoListCnt == 0) ? "" : $" WHERE imgNo NOT IN ({imgNoList}) ";
+            Sql += (albumImgCnt == 0) ? "" : $" WHERE imgNo NOT IN ({albumImg}) ";
             var photoCnt = db.Query<int>(Sql).FirstOrDefault();
 
-            var obj = new { ImgAmout = photoCnt, AlbumImgCnt = imgNoListCnt, Diff = photoCnt - imgNoListCnt };
+            var obj = new { A = albumImgCnt, B = photoCnt - albumImgCnt, C = photoCnt - otherAlbumImgCnt - albumImgCnt };
             rtn[1] = obj.ToJson();
 
             return new JsonNetResult(rtn);

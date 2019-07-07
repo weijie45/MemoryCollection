@@ -179,6 +179,7 @@
     <Compile Include="Controllers\FilesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\PhotoController.cs" />
+    <Compile Include="Controllers\VideoController.cs" />
     <Compile Include="DAL\DbHelper.cs" />
     <Compile Include="Function\Base\JsHelper.cs" />
     <Compile Include="Function\Base\JsonNetResult.cs" />
@@ -271,6 +272,7 @@
     <Content Include="fonts\FontAwesome.otf" />
     <Content Include="fonts\fontawesome-webfont.woff2" />
     <Content Include="fonts\fontawesome-webfont.woff" />
+    <Content Include="Images\add_photo.png" />
     <Content Include="Images\loading.gif" />
     <Content Include="Scripts\i18n\af.js" />
     <Content Include="Scripts\i18n\ar.js" />
@@ -370,6 +372,7 @@
     <Content Include="Scripts\lg-setbgbutton.js" />
     <Content Include="Scripts\lightgallery-all.js" />
     <Content Include="Scripts\lightgallery-all.min.js" />
+    <Content Include="Scripts\verify.js" />
     <Content Include="Scripts\wj-tools.js" />
     <Content Include="Scripts\menu.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
@@ -412,6 +415,9 @@
     <Content Include="Views\Album\Detail.cshtml" />
     <Content Include="Views\Album\Index.cshtml" />
     <Content Include="Views\Album\Photo.cshtml" />
+    <Content Include="Views\Video\Edit.cshtml" />
+    <Content Include="Views\Video\Index.cshtml" />
+    <Content Include="Views\Video\Video.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

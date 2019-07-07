@@ -1,4 +1,4 @@
-(function ($, window, document, undefined) {
+﻿(function ($, window, document, undefined) {
 
     'use strict';
 
@@ -36,9 +36,9 @@
             var elements;
             var index = that.core.index;
             var $sel = $('#' + that.core.$el.children()[index].getAttribute('id')).find('img');
-            var title = "Delete Photo ? ";
+            var title = "刪除照片 ? ";
             if ($sel.attr('func') == "RmImg") {
-                title = "Remove Photo ? ";
+                title = "移除照片 ? ";
             }
             layer.confirm(title, { title: 'Delete', icon: 3 }, function (index) {
                 layer.close(index);
@@ -60,7 +60,7 @@
                 that.core.modules.Thumbnail.destroy();
 
 
-                CommonFunc($sel.attr('func'), $sel);
+                RmImg($sel);
 
                 elements.splice(that.core.index, 1);
 

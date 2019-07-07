@@ -27,5 +27,6 @@
 /// <reference path="respond.js" />
 /// <reference path="select2.min.js" />
 /// <reference path="ua-parser.js" />
+/// <reference path="verify.js" />
 /// <reference path="wj-tools.js" />
 /// <reference path="ww.jquery.min.js" />

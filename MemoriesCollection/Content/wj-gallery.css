@@ -10,10 +10,10 @@
     overflow: hidden;
     /*clear: both;*/
     display: inline-block;
-    margin: 0px 20px 20px 0;
+    margin: 8px 0;
     word-wrap: break-word;
     position: relative;
-    background-image: url(../Content/images/add_photo.png);
+    background-image: url(../Images/add_photo.png);
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;

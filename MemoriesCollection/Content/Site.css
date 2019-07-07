@@ -52,6 +52,10 @@ input, select, textarea {
         background-color: #ddd !important;
     }
 
+    input.lg, select.lg, textarea.lg {
+        width: 100%;
+    }
+
 a {
     text-decoration: none;
     cursor: pointer;
@@ -147,7 +151,7 @@ a {
     text-align: center;
     padding-top: 100px;
     margin: 0 auto;
-    margin-top: 1em;
+    /*margin-top: 1em;*/
 }
 
 .drop_hover {
@@ -160,7 +164,7 @@ a {
     text-align: center;
     padding-top: 100px;
     margin: 0 auto;
-    margin-top: 1em;
+    /*margin-top: 1em;*/
 }
 
 
@@ -537,6 +541,7 @@ input[type="radio"].rad-parallel {
     padding: 10px 16px;
     background: #eee;
     z-index: 1;
+    margin-bottom: 8px;
 }
 
 .sticky-bottom {

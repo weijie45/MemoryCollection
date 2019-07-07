@@ -3,10 +3,10 @@
     ViewBag.Title = "相簿";
 }
 <div id="main-div-data">
-    <div class="wj-l crtAlbum">
+    <div class="wj-block-l crtAlbum">
         <a href="#" onclick="OpenAlbum();" class="txt-deepPink"><i class="fa fa-upload">建立相簿</i></a>
     </div>
-    <div id="ListPanel-1">
+    <div id="ListPanel-1" style="display: flex;flex-wrap: wrap;justify-content: space-around;">
         @foreach (var a in Model.AlbumList) {
             var imgNo = a.ImgNo.FixNull();
             var bgImg = a.BgImg.FixNull() == "" ? "" : $"background-image:url(../..{AppConfig.ImgThbPath}{a.BgImg})";
@@ -50,17 +50,13 @@
         $('#main-div-data [func]').on('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log(2);
             var $this = $(this);
-            var func = $this.attr('func');
             var tags = {
-                "Func": func
+                "Func": $this.attr('func')
             };
-            var isValid = true;
-            var errMsg = "";
-            var url = '/Album/{0}'.format(func);
+            var url = '/Album/{0}'.format(tags.Func);
 
-            switch (func) {
+            switch (tags.Func) {
                 case "AlbumExport":
                     url = '@Url.Action("AlbumExport", "Album")';
                     tags.AlbumNo = $this.attr('data-params');
@@ -73,16 +69,13 @@
                     tags.AlbumNo = $this.attr('data-params');
                     layer.confirm('確認刪除相簿 ?', { title: '刪除', icon: 3 }, function (index) {
                         layer.close(index);
+                        $.wait("刪除資料中，請稍候...");
                         Sys.AjaxExec(url, tags, function () {
                             location.reload();
                         });
                     });
                     break;
             }
-            if (!isValid) {
-                layer.alert(errMsg, { icon: 7 });
-            }
-
         });
     </script>
 }

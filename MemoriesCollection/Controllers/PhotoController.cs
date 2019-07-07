@@ -119,38 +119,32 @@ namespace MemoriesCollection.Controllers
                     var album = db.Query<Album>(Sql).ToList();
 
                     using (var scope = new TransactionScope()) {
-                        try {
-                            Sql = $" SELECT * FROM Photo WHERE imgNo = '{imgNo}' ";
-                            var photo = db.Query<Photo>(Sql).FirstOrDefault();
-                            string ext = photo.FileExt;
-                            db.Delete(photo);
-                            foreach (var a in album) {
-                                var bgImg = a.BgImg;
-                                var imgList = a.ImgNo.Split(',').ToList();
+                        Sql = $" SELECT * FROM Photo WHERE imgNo = '{imgNo}' ";
+                        var photo = db.Query<Photo>(Sql).FirstOrDefault();
+                        string ext = photo.FileExt;
+                        db.Delete(photo);
+                        foreach (var a in album) {
+                            var bgImg = a.BgImg;
+                            var imgList = a.ImgNo.Split(',').ToList();
 
-                                if (imgList.Contains(imgNo.ToString())) {
-                                    imgList.Remove(imgNo.ToString());
-                                    a.ImgNo = imgList.ToArray().Join(",");
-                                }
-
-                                if (imgNo == bgImg.Substring(0, bgImg.IndexOf('.'))) {
-                                    a.BgImg = "";
-                                }
-
-                                a.ModifyDateTime = DateTime.Now;
-                                db.Update(a);
+                            if (imgList.Contains(imgNo.ToString())) {
+                                imgList.Remove(imgNo.ToString());
+                                a.ImgNo = imgList.ToArray().Join(",");
                             }
 
-                            if (Files.DelFile(ImgPath, imgNo, ext)) {
-                                scope.Complete();
-                                rtn[1] = "刪除成功 !";
-                            } else {
-                                rtn[0] = "刪除失敗 !";
+                            if (imgNo == bgImg.Substring(0, bgImg.IndexOf('.'))) {
+                                a.BgImg = "";
                             }
 
-                        } catch (Exception e) {
-                            //rtn[0] = $"刪除失敗 !";
-                            Log.ErrLog(e);
+                            a.ModifyDateTime = DateTime.Now;
+                            db.Update(a);
+                        }
+
+                        if (Files.DelFile(ImgPath, imgNo, ext)) {
+                            scope.Complete();
+                            rtn[1] = "刪除成功 !";
+                        } else {
+                            rtn[0] = "刪除失敗 !";
                         }
                     }
 

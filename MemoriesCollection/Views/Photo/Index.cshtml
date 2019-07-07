@@ -36,11 +36,10 @@
 
         $(document).on('click', '[func]', function (e) {
             var $this = $(this);
-            var func = $this.attr('func');
             var tags = {
-                "Func": func
+                "Func": $this.attr('func')
             };
-            switch (func) {
+            switch (tags.Func) {
                 case "Query":
                     var tags = $('#qry-block').tags();
                     tags.Append = false;
@@ -65,11 +64,14 @@
                     var list = $('#blockSection [type=checkbox]:checked').vals();
                     if (list.length > 0) {
                         tags.ImgList = list.join(",");
-                        $.wait();
-                        layer.confirm('確認 ?', { title: '刪除現有記錄維護', icon: 3 }, function (index) {
+                        layer.confirm('確認刪除{0}張圖片 ?'.format(list.length), { icon: 3 }, function (index) {
+                            layer.close(index);
                             $.wait("刪除資料中，請稍候...");
                             Sys.AjaxExec("Photo/Delete", tags, function () {
-                                location.reload();
+                                $('#blockSection input[type=checkbox]:checked').parents('[func=ChoseImg]').remove();
+                                $('[func=Reset]').trigger('click');
+                                GetSum();
+                                $.close();
                             });
                         });
                     } else {

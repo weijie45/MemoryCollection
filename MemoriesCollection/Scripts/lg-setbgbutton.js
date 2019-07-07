@@ -36,7 +36,7 @@
 
             var index = that.core.index;
             var $sel = $('#' + that.core.$el.children()[index].getAttribute('id')).find('img');
-            CommonFunc("SetBg", $sel);
+            SetAlbumBg($sel);
 
         });
     }

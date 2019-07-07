@@ -82,11 +82,48 @@
                     <h3>建立相簿</h3>
                 </header>
                 <div class="wj-container">
-                    <input type="search" id="albumName" name="albumName" value="" placeholder="相簿名稱" />
-                    <textarea rows="10" maxlength="50" name="albumDesc" placeholder="相簿描述"></textarea>
+                    <input type="search" class="lg" id="albumName" name="albumName" value="" placeholder="相簿名稱" maxlength="50" />
+                    <textarea rows="10" class="lg" name="albumDesc" placeholder="相簿描述" maxlength="500"></textarea>
                 </div>
                 <footer class="wj-container wj-teal">
                     <button type="button" class="button btn-red" id="saveAlbum">建立</button>
+                    <button type="button" class="button btn-secondary" dissmiss-modal>關閉</button>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <div id="VideoPanel">
+        <div id="Video-modal" class="wj-modal wj-animate-top">
+            <div class="wj-modal-content">
+                <header class="wj-container wj-teal">
+                    <span class="wj-button wj-large wj-display-topright" dissmiss-modal>×</span>
+                    <h3>上傳影片</h3>
+                </header>
+                <div class="wj-container">
+                    <div id="video-container">
+                        <div class="text-center">
+                            <input type="file" name="file-1" id="fileUplaod" class="inputfile inputfile-1" />
+                            <label for="fileUplaod"><span>請選擇影片&hellip;</span></label>
+                        </div>
+                        <video id="main-video" controls><source></video>
+                        <p id="video-waiting"></p>
+                        <img src="" id="main-video-Tb" style="display:none" />
+                        <div>
+                            <div class="wj-block-l">
+                                <label>檔名</label>
+                                <input type="search" id="videoName" name="videoName" value="" />
+                                <button class="button btn-secondary clearText" cleartext="videoName">清除</button>
+                            </div>
+                            <div class="wj-block-l">
+                                <label>描述</label>
+                                <textarea id="videoDesc" rows="5" name="videoDesc" class="lg"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <footer class="wj-container wj-teal">
+                    <button type="button" class="button btn-red" id="saveVideo" disabled>上傳</button>
                     <button type="button" class="button btn-secondary" dissmiss-modal>關閉</button>
                 </footer>
             </div>
@@ -120,6 +157,237 @@
             $('#footer').attr('class', $('#footer').prop('class') == '' ? 'show' : '');
         }
 
+        function PhotoDetail(imgNo) {
+            // 相片明細
+            var tags = {};
+            var url = '@Url.Action("Detail", "Home")';
+            _PhotoKey = imgNo;
+            tags.TargetID = "ListPanel-2";
+            tags.ImgNo = _PhotoKey;
+            tags.Cond = typeof (_Cond) == "undefined" ? "" : _Cond;
+            _Loading = false;
+            $.wait();
+            Sys.AjaxExec(url, tags, function () {
+                $('.lg-backdrop.in,.lg-outer.lg-visible,#ListPanel-1').hide();
+                $('#person').select2({ tags: true });
+                $('.lazy').Lazy();
+                $(window).scrollTop(0);
+                $.close();
+            });
+        }
+
+        // 上傳影片
+        function UploadVideo() {
+            SaveScrollTop();
+            $('#Video-modal').show();
+        };
+
+        // 上傳影片關閉
+        function CloseVideo() {
+            $('#main-video-Tb').attr('src', ''); // 清空縮圖
+            $("#main-video").hide();
+            $('#videoName,#videoDesc,#fileUplaod').val('');
+            $('label[for=fileUplaod] span').html('請選擇影片&hellip;');
+            $('#saveVideo').prop('disabled', false);
+            $('#video-waiting').text('');
+        }
+
+        $(document).on('click', '#Video-modal [dissmiss-modal]', function () {
+            CloseVideo();
+        });
+
+        $("#fileUplaod").on('change', function () {
+            var file = $("#fileUplaod").get(0).files[0];
+            var type = file.type;
+
+            if (['video/mp4', 'video/quicktime'].indexOf(type) == -1) {
+                layer.alert('Error : Only MP4 format allowed', { icon: 7 });
+                return;
+            }
+            var name = file.name;
+            $('#videoName').val(name.substr(0, name.lastIndexOf('.')));
+
+            var fileReader = new FileReader();
+            fileReader.onload = function () {
+                var blob = new Blob([fileReader.result], { type: file.type });
+                var url = URL.createObjectURL(blob);
+                var video = document.getElementById('main-video');
+
+                video.addEventListener('loadedmetadata', function () {
+                    $('#saveVideo').prop('disabled', true);
+                    videoThumbnail($("#fileUplaod").get(0).files);
+                });
+                var snapImage = function () { };
+
+                video.preload = 'metadata';
+                video.src = url;
+                video.muted = true;
+                video.playsInline = true;
+                video.play();
+                video.pause();
+            };
+            fileReader.readAsArrayBuffer(file);
+
+            $("#main-video").css('display', 'inline').show();
+            $('#videoFooter').show();
+            $('#video-waiting').text('縮圖預備中......');
+        });
+
+        // 儲存影片
+        $('#saveVideo').on('click', function () {
+            uploadVideo($("#fileUplaod").get(0).files);
+        });
+
+        function videoThumbnail(files) {
+            var fd = new FormData(); // Create a FormData object
+            var maxFileSize = 524000000; // 500M
+            var size = 0;
+            var msg = [];
+            msg.push(IsEmpty($('#videoName').val()) ? "檔名不可為空 !" : "");
+            msg = msg.filter(Boolean);
+
+            if (msg.length > 0) {
+                layer.alert(msg.join("<br>"), { title: '請輸入正確資料', icon: 7 });
+            } else {
+                $('#video-waiting').text('縮圖前置處理中......');
+                for (var i = 0; i < files.length; i++) {
+                    size += files[i].size;
+                }
+                if (size > maxFileSize) {
+                    layer.alert("檔案不可大於500M !", { icon: 7 });
+                    return false;
+                }
+
+                for (var i = 0; i < files.length; i++) {
+                    fd.append('file_' + i, files[i]);
+                }
+                var video = document.getElementById('main-video');
+
+                fd.append('w', video.videoWidth);
+                fd.append('h', video.videoHeight);
+
+                Sys.AjaxUpload("/Video/ChkSize", fd, function (data) {
+                    var j = JSON.parse(data[1]);
+                    $('#video-waiting').text('縮圖前置完成......');
+                    shoot('main-video', j.w, j.h);
+                });
+            }
+        }
+
+        function dataURLtoFile(dataurl, filename) {
+            var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new File([u8arr], filename, { type: mime });
+        }
+
+        function uploadVideo(files) { // upload function
+            var fd = new FormData(); // Create a FormData object
+            var maxFileSize = 524000000; // 500M
+            var size = 0;
+            var msg = [];
+            msg.push($("#fileUplaod").get(0).files.length == 0 ? "請上傳檔案 !" : "");
+            msg.push(IsEmpty($('#videoName').val()) ? "檔名不可為空 !" : "");
+            msg = msg.filter(Boolean);
+
+            if (msg.length > 0) {
+                layer.alert(msg.join("<br>"), { title: '請輸入正確資料', icon: 7 });
+            } else {
+
+                for (var i = 0; i < files.length; i++) {
+                    size += files[i].size;
+                }
+                if (size > maxFileSize) {
+                    layer.alert("檔案不可大於500M !", { icon: 7 });
+                    return false;
+                }
+
+                for (var i = 0; i < files.length; i++) {
+                    fd.append('file_' + i, files[i]);
+                }
+                fd.append('nbr_files', i);
+                fd.append('videoName', $('#videoName').val());
+                fd.append('videoDesc', $('#videoDesc').val());
+                fd.append('fileTsize', size);
+                fd.append('img', dataURLtoFile($('#main-video-Tb').attr('src'), 'filename.png'));
+                $('#ProgressBarBlock #bar').html('0%');
+
+                var progressNotifier = $.connection.progressHub;
+                progressNotifier.client.sendMessage = function (message) {
+                    _Percent = message;
+                    UpdateProgress();
+                };
+
+                $.waitProgress();
+                $.connection.hub.start().done(function () {
+                    Sys.AjaxUpload("/Video/ConfirmUpload", fd, function (data) {
+                        GetSum();
+                        CloseVideo();
+                        layer.alert("上傳成功 !", { icon: 1 }, function (index) {
+                            layer.close(index);
+                            $('#Video-modal').hide();
+                            if (Controller() == "video") {
+                                location.reload();
+                            }
+                        });
+                    });
+                });
+
+            }
+        }
+
+        var _ScaleFactor = 0.5;
+
+        function capture(video, aW, aH) {
+            $('#video-waiting').text('縮圖製作中......');
+            var w = video.videoWidth;
+            var h = video.videoHeight;
+            //if (w > h && w > 350) {
+            //    _ScaleFactor = 350 / w;
+            //} else if (h > w && h > 400) {
+            //    _ScaleFactor = 400 / h;
+            //}
+            w *= _ScaleFactor;
+            h *= _ScaleFactor;
+            var canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            var ctx = canvas.getContext('2d');
+
+            $("#info").text("縮小率:{4} ; 實際寬高:{0}*{1} / 寬高:{2}*{3}".format(aW, aH, video.videoWidth, video.videoHeight, _ScaleFactor));
+
+            var os = _UaSpec.os.name;
+            var browser = _UaSpec.browser.name;
+
+            if ((os == "iOS" || browser == "Firefox") &&
+                ((aW == video.videoHeight && aH == video.videoWidth) || aW == "0")) {
+                // translate and rotate
+                ctx.translate(w, h / w);
+                ctx.rotate(Math.PI / 2);
+                // draw the previows image, now rotated
+                if (browser == "Firefox") {
+                    ctx.drawImage(video, 0, 0, w * 2, w);
+                } else {
+                    ctx.drawImage(video, 0, 0, w * 2, w * 2);
+                }
+
+            } else {
+                ctx.drawImage(video, 0, 0, w, h);
+            }
+            $('#video-waiting').text('縮圖完成......');
+            $('#saveVideo').prop('disabled', false);
+            return canvas;
+        }
+
+        function shoot(videoId, w, h) {
+            var video = document.getElementById(videoId);
+            var output = document.getElementById('output');
+            var canvas = capture(video, w, h);
+            $('#{0}-Tb'.format(videoId)).attr('src', canvas.toDataURL());
+        }
+
         // 建立相簿
         function OpenAlbum() {
             SaveScrollTop();
@@ -138,7 +406,7 @@
             } else {
                 $.wait();
                 Sys.AjaxExec("/Album/Save", tags, function (data) {
-                    layer.alert(data[1], { icon: 1 }, function (index) {
+                    layer.alert("新增相簿成功 !", { icon: 1 }, function (index) {
                         layer.close(index);
                         $('#album-modal').hide();
                         GetSum();

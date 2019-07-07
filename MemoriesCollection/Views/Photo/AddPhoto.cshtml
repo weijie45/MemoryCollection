@@ -4,7 +4,7 @@
 
 @if (ViewBag.AlbumNo != "") {
     <div class="wj-block-c">
-        <a href="@Url.Action("Detail","Album",new { k=Key.Encrypt(ViewBag.AlbumNo)})" class="button btn-black"><i class="fa fa-arrow-left"></i>回@(ViewBag.AlbumName)相簿</a>
+        <a href="@Url.Action("Detail","Album",new { k=Key.Encrypt(ViewBag.AlbumNo)})" class="button btn-outline-black"><i class="fa fa-arrow-left"></i>回@(ViewBag.AlbumName)相簿</a>
     </div>
 }
 

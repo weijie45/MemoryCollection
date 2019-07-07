@@ -9,30 +9,44 @@
 }
 <div id="main-div-data" class="album">
     <div id="ListPanel-1">
-        <div class="wj-c">
-            <a href="@Url.Action("Index","Album")" class="button btn-black"><i class="fa fa-arrow-left"></i>回相簿</a>
-            <a href="@Url.Action("AddPhoto", "Photo", new { k = Key.Encrypt(new { AlbumNo = albumNo, album.AlbumName}) })" class="button btn-confirm"><i class="fa fa-upload">上傳</i></a>
-            <a href="#" class="button btn-red" id="addImg">儲存</a>
+        <div class="wj-block-c">
+            <a href="@Url.Action("Index","Album")" class="button btn-outline-black"><i class="fa fa-arrow-left"></i>回相簿</a>
+            <a href="@Url.Action("AddPhoto", "Photo", new { k = Key.Encrypt(new { AlbumNo = albumNo, album.AlbumName}) })" class="button btn-outline-confirm"><i class="fa fa-upload">上傳</i></a>
+            <a href="#" class="button btn-outline-red" id="addImg">儲存</a>
         </div>
-        <div class="imgHead mb-4">
+        <div class="imgHead">
             <div id="albumTitle" class="albumTitle" style="@(bgImg)">
                 <div>
                     <input type="text" class="albumTxt" id="editAlbumName" name="albumName" value="@album.AlbumName" />
                 </div>
-                <div class="mt-3">
+                <div>
                     <textarea class="albumTxt" id="editAlbumDesc" name="albumDesc" maxlength="50" rows="10">@album.AlbumDesc</textarea>
                 </div>
             </div>
         </div>
-        <div class="wj-r" id="albumTab" style="display:none;">
-            <span id="tab_2">相簿照片<span class="wj-badge"></span></span>
-            <span id="tab_3">非相簿照片<span class="wj-badge"></span></span>
-            <span id="tab_4">未分類照片<span class="wj-badge"></span></span>
-        </div>
+        @*<div class="wj-block-r" id="albumTab" style="display:none;">
+                <span id="tab_2">相簿照片<span class="wj-badge"></span></span>
+                <span id="tab_3">非相簿照片<span class="wj-badge"></span></span>
+                <span id="tab_4">未分類照片<span class="wj-badge"></span></span>
+            </div>*@
         <div class="wj-c" id="W1" style="display:none;">
             <a href="@Url.Action("AddPhoto","Photo", new { k = Key.Encrypt(new { AlbumNo = albumNo, album.AlbumName}) })" class="txt-deepPink">
                 <i class="fa fa-upload">上傳相片</i>
             </a>
+        </div>
+        <div id="qry-block" class="wj-block-l">
+            <label for="">關鍵字</label>
+            <input type="search" name="KeyWord" value="" />
+            <label for="">拍攝日期</label>
+            <input type="search" id="fmDate" name="FmDate" onclick="WdatePicker({ maxDate: '#F{$dp.$D(\'toDate\');}' })" />
+            <input type="search" id="toDate" name="ToDate" onclick="WdatePicker({ minDate: '#F{$dp.$D(\'fmDate\');}' })" />
+            <input type="button" class="button btn-c1" func="Query" value="查詢" />
+            <select name="Type">
+                <option value="tab_2">相簿照片</option>
+                <option value="tab_3">非相簿照片</option>
+                <option value="tab_4">未分類照片</option>
+            </select>
+            結果:<span id="TotalCnt" class="txt-red">0</span>張
         </div>
         <section id="blockSection"></section>
     </div>
@@ -44,19 +58,21 @@
 @section Scripts{
     <script>
         var imgCnt = "@imgCnt";
-        var _IsLoading = (parseInt(imgCnt)==0)?true:false;
+        var _IsEnd = (parseInt(imgCnt)==0)?true:false;
         var _Num = 0;
         var _AlbumKey = '@albumNo';
         var _PhotoKey = -1;
         var gallery;
+        var _Params = ""; // 查詢參數
 
         $(window).scroll(function () {
             //最後一頁scrollTop=body-window，50是預留空間
-            var last = $("body").height() - $(window).height() - $('#footer').height();
-            if (last>0 &&$(window).scrollTop() >= last && _IsLoading == false && $('#blockSection').is(':visible')) {
-                _IsLoading = true;
+            var last = $("body").height() - $(window).height() - $('#footer').height()- $('#photo-action').height();
+            if (last>0 &&$(window).scrollTop() >= last && _IsEnd == false && $('#blockSection').is(':visible')) {
+                _IsEnd = true;
+                _Params.Append = true;
                 _Num += @(AppConfig.PhotoLimit);
-                MorePhoto($('#albumTab span.active').attr('id'));
+                MorePhoto();
             }
         });
 
@@ -74,9 +90,13 @@
                     var $chk = $('[type=checkbox]', $this).prop('checked');
                     $('[type=checkbox]', $this).prop('checked', !$chk);
                     break;
-
-                default:
-                    CommonFunc(func,$this);
+                case "Query":
+                    var tags = $('#qry-block').tags();
+                    tags.Append = false;
+                    tags.AlbumNo = _AlbumKey;
+                    _Params = tags;
+                    _Num = 0; //重置
+                    MorePhoto();
                     break;
             }
         });
@@ -110,6 +130,36 @@
             });
         });
 
+        function SetAlbumBg($this) {
+            var url = '@Url.Action("SetBg", "Album")';
+            var tags = {};
+            tags.AlbumNo = $this.attr('data-album');
+            tags.ImgNo = $this.attr('data-params');
+            tags.ImgExt = $this.attr('data-imgExt');
+            tags.FileName = tags.ImgNo + tags.ImgExt;
+            Sys.AjaxExec(url, tags, function (data) {
+                layer.alert("相簿背景圖設定成功 !", { icon: 1 });
+                $('#albumTitle').css('background-image', 'url(../..{0}{1})'.format('@AppConfig.ImgPath', tags.FileName));
+            });
+        }
+
+        function RmImg($this){
+            var url = '@Url.Action("RmImg", "Album")';
+            var tags = {};
+            tags.AlbumNo = $this.attr('data-album');
+            tags.ImgNo = $this.attr('data-params');
+            Sys.AjaxExec(url, tags, function (data) {
+                _PhotoKey = -1;
+                $this.parents('.gallery').remove();
+
+                var bg = $('#albumTitle').css("background-image")
+                bg = bg.replace(/.*\s?url\([\'\"]?/, '').replace(/[\'\"]?\).*/, '');
+                if (bg.substring(bg.lastIndexOf('/') + 1, bg.lastIndexOf('.')) == tags.ImgNo) {
+                    $('#albumTitle').css('background-image', '');
+                }
+            });
+        }
+
         function InitPhoto(){
             $('#blockSection').empty();
             _Num = 0;
@@ -122,20 +172,23 @@
             _Gallery = $("#blockSection").lightGallery({ selector: '.item', pause: 2000, share: false,setBg: true, actualSize:false });
         }
 
-        function MorePhoto(type) {
+        function MorePhoto() {
             var tags = {
                 TargetID: "blockSection",
                 SPic: _Num,
                 Append: true,
-                Type: type,
+                Type: $('#albumTab span.active').parent('span').attr('id'),
                 AlbumNo: _AlbumKey
             }
-
+            $.extend(tags, _Params);
             $.wait();
             Sys.AjaxExec("Photo", tags, function (data) {
                 var json = JSON.parse(data[2]);
-                _Cond = json.Cond;
-                _IsLoading = json.End=="Y"?true:false;
+                //_Cond = json.Cond;
+                _IsEnd = json.End=="Y"?true:false;
+                if(tags.SPic==0){
+                    $('#TotalCnt').text(json.Cnt);
+                }
                 $('.spanBlock').show();
                 $('.lazy').Lazy();
                 InitGallery();
@@ -143,31 +196,7 @@
             });
         }
 
-        function Init(){
-            var tags = {
-                AlbumNo : _AlbumKey
-            }
-
-            $.wait();
-            Sys.AjaxExec("InitDetail", tags, function (data) {
-                var json = JSON.parse(data[1]);
-                $('#tab_2 span').text(json.AlbumImgCnt);
-                $('#tab_3 span').text(json.ImgAmout);
-                $('#tab_4 span').text(json.Diff);
-
-                if(parseInt(json.ImgAmout)==0){
-                    $('#W1').show();
-                }
-                $('#albumTab').show();
-
-                var type = parseInt(json.AlbumImgCnt)==0?"tab_4":"tab_2";
-                $('#{0} .wj-badge'.format(type)).addClass('active').addClass('bg-deepPink');
-                MorePhoto(type);
-                $.close();
-            });
-        }
-
-        Init();
+        $('[func=Query]').trigger('click');
 
     </script>
 }
