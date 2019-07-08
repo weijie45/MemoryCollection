@@ -21,6 +21,67 @@ namespace MemoriesCollection.Controllers
             return View();
         }
 
+        /// <summary>
+        /// 時間軸
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult TimeLine()
+        {
+            Sql = " SELECT ";
+            Sql += "   p.ImgNo, ";
+            Sql += "   p.FileExt, ";
+            Sql += "   p.Location, ";
+            Sql += "   p.Person, ";
+            Sql += "   CONVERT( VARCHAR(7), ";
+            Sql += "            CASE p.OrgCreateDateTime ";
+            Sql += "            WHEN '9999-12-31 00:00:00.000' ";
+            Sql += "            THEN p.CreateDateTime ";
+            Sql += "            ELSE p.OrgCreateDateTime END, 126 ) YearMon,";
+            Sql += "   p.FileDesc, ";
+            Sql += "   a.CNT ";
+            Sql += " FROM ";
+            Sql += "   Photo p , ";
+            Sql += "   ( ";
+            Sql += "   SELECT ";
+            Sql += "   CONVERT( VARCHAR(7), ";
+            Sql += "            CASE OrgCreateDateTime ";
+            Sql += "            WHEN '9999-12-31 00:00:00.000' ";
+            Sql += "            THEN CreateDateTime ";
+            Sql += "            ELSE OrgCreateDateTime END, 126 ) YearMon,";
+            Sql += "       COUNT(1) CNT ";
+            Sql += "     FROM ";
+            Sql += "       Photo ";
+            Sql += "     GROUP BY ";
+            Sql += "       CONVERT( VARCHAR(7), ";
+            Sql += "                CASE OrgCreateDateTime ";
+            Sql += "                WHEN '9999-12-31 00:00:00.000' ";
+            Sql += "                THEN CreateDateTime ";
+            Sql += "                ELSE OrgCreateDateTime END, 126 ) ";
+            Sql += "   ) AS a ";
+            Sql += " WHERE ";
+            Sql += "   p.CreateDateTime IN( ";
+            Sql += "     SELECT ";
+            Sql += "       MAx(CreateDateTime) CrtTime ";
+            Sql += "     FROM ";
+            Sql += "       Photo ";
+            Sql += "     GROUP BY ";
+            Sql += "       CONVERT( VARCHAR(7), ";
+            Sql += "                CASE OrgCreateDateTime ";
+            Sql += "                WHEN '9999-12-31 00:00:00.000' ";
+            Sql += "                THEN CreateDateTime ";
+            Sql += "                ELSE OrgCreateDateTime END, 126 ) ";
+            Sql += "   ) ";
+            Sql += "  AND a.YearMon = ";
+            Sql += "       CONVERT( VARCHAR(7), ";
+            Sql += "                CASE OrgCreateDateTime ";
+            Sql += "                WHEN '9999-12-31 00:00:00.000' ";
+            Sql += "                THEN CreateDateTime ";
+            Sql += "                ELSE OrgCreateDateTime END, 126 ) ";
+            Sql += " ORDER BY YearMon DESC ";
+            ViewBag.Data = db.Query(Sql).ToList();
+            return View("TimeLine");
+        }
+
 
         [HttpPost]
         /// <summary>
@@ -40,7 +101,9 @@ namespace MemoriesCollection.Controllers
             var fmDate = Key.Dict(ref tags, "FmDate");
             var toDate = Key.Dict(ref tags, "ToDate");
             var keyWord = Key.Dict(ref tags, "KeyWord");
+            var timeLineDate = Key.Dict(ref tags, "Date");
             string cond = "";
+
             cond += fmDate == "" ? "" : $"AND OrgCreateDateTime >= '{fmDate.Replace("-", "")}' ";
             cond += toDate == "" ? "" : $"AND OrgCreateDateTime <= '{toDate.Replace("-", "")}' ";
             cond += keyWord == "" ? "" : $"AND FileName like'%{keyWord}%'  ";
@@ -52,6 +115,16 @@ namespace MemoriesCollection.Controllers
             Sql += "     SELECT *, ROW_NUMBER() OVER(ORDER BY ModifyDateTime Desc) as row  FROM Photo ";
             Sql += "        WHERE 1= 1 ";
             Sql += cond == "" ? "" : cond;
+
+            if (timeLineDate != "") {
+                Sql += " AND CONVERT( VARCHAR(7), ";
+                Sql += " CASE OrgCreateDateTime ";
+                Sql += " WHEN '9999-12-31 00:00:00.000' ";
+                Sql += " THEN CreateDateTime ";
+                Sql += " ELSE OrgCreateDateTime END, 126 ) ";
+                Sql += $" = '{timeLineDate}' ";
+            }
+
             Sql += "   ) a ";
             Sql += " WHERE ";
             Sql += $"    a.row > {sPic} ";

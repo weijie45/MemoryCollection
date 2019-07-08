@@ -53,15 +53,11 @@
             e.preventDefault();
             e.stopPropagation();
             var $this = $(this);
-            var func = $this.attr('func');
             var tags = {
-                "Func": func
+                "Func": $this.attr('func')
             };
-            var isValid = true;
-            var errMsg = "";
             var url = '';
-
-            switch (func) {
+            switch (tags.Func) {
                 case "Query":
                     var tags = $('#qry-block').tags();
                     tags.Append = false;

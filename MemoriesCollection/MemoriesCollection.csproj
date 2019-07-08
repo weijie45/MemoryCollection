@@ -277,6 +277,9 @@
     <Content Include="Images\add_photo.png" />
     <Content Include="Images\loading.gif" />
     <Content Include="Images\ProgressLoading.gif" />
+    <Content Include="Images\video-play.png" />
+    <Content Include="Images\vimeo-play.png" />
+    <Content Include="Images\youtube-play.png" />
     <Content Include="Scripts\i18n\af.js" />
     <Content Include="Scripts\i18n\ar.js" />
     <Content Include="Scripts\i18n\az.js" />
@@ -424,6 +427,7 @@
     <Content Include="Views\Video\Video.cshtml" />
     <Content Include="Views\LogInfo\Index.cshtml" />
     <Content Include="Views\LogInfo\Query.cshtml" />
+    <Content Include="Views\Home\TimeLine.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

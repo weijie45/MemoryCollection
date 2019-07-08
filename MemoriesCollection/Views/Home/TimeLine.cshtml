@@ -1,0 +1,140 @@
+﻿
+@{
+    ViewBag.Title = "TimeLine";
+    int cnt = 1;
+}
+<div id="timeLineBlock">
+    <div class="timeline">
+        @foreach (var dr in ViewBag.Data) {
+            string imgNo = dr.ImgNo.ToString();
+            string ext = dr.FileExt;
+            var imgUrl = Url.Action("GetLocal", "Files", new { k = Key.Encrypt(imgNo), t = Key.Encrypt(new { Root = AppConfig.ImgThbPath, Folder = "", FileName = imgNo + ext }) });
+            if (cnt % 2 == 1) {
+                <div class="container left">
+                    <div class="content">
+                        <div class="img-text">
+                            <div class="imgBlock" data-params="@dr.YearMon">
+                                <img src="@imgUrl" />
+                            </div>
+                            <div class="detailBlock">
+                                <span style="display: inline-block;margin-right:3px">@dr.YearMon</span>
+                                <span class="wj-badge">@dr.CNT</span><br />
+                                @if (!string.IsNullOrEmpty(dr.Location)) {
+                                    <span><a href="#">#@dr.Location</a></span><br />
+                                }
+                                @if (!string.IsNullOrEmpty(dr.Person)) {
+                                    var personList = dr.Person.FixNull().Split(",");
+                                    var txt = "";
+                                    foreach (var p in personList) {
+                                        txt += $"<a href='#'>#{p}</a>,";
+                                    }
+                                    <span>@txt.TrimEnd(',')</span><br />
+                                }
+                                @*<span>
+                                        @Html.Raw(Html.Encode(dr.FileDesc).Replace("\n", "<br />"))
+                                    </span>*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            } else {
+                <div class="container right">
+                    <div class="content">
+                        <div class="img-text">
+                            <div class="imgBlock" data-params="@dr.YearMon">
+                                <img src="@imgUrl" />
+                            </div>
+                            <div class="detailBlock">
+                                <span>
+                                    <span style="display: inline-block;margin-right:3px">@dr.YearMon</span>
+                                    <span class="wj-badge">@dr.CNT</span><br />
+                                    @if (!string.IsNullOrEmpty(dr.Location)) {
+                                        <span><a href="#">#@dr.Location</a></span><br />
+                                    }
+                                    @if (!string.IsNullOrEmpty(dr.Person)) {
+                                        <span><a href="#">#@dr.Person</a></span><br />
+                                    }
+                                    @*<span>
+                                            @Html.Raw(Html.Encode(dr.FileDesc).Replace("\n", "<br />"))
+                                        </span>*@
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            cnt++;
+        }
+    </div>
+</div>
+<div id="ListPanel-1" style="display:none;">
+    <div class="wj-block-c">
+        <button class="button btn-outline-black" onclick="Return()">
+            <i class="fa fa-arrow-left"></i>回時間軸
+        </button>
+    </div>
+    <section id="blockSection"></section>
+</div>
+<div id="ListPanel-2"></div>
+@section Scripts{
+    <script>
+        var _IsLoading = false;
+        var _Gallery;
+        var _Num = 0; // 張數
+        var _PhotoKey = -1; // 照片編號
+
+        $('.imgBlock').on('click', function () {
+
+            SaveScrollTop();
+            $('#blockSection').empty();
+            _Num = 0;
+            $('#ListPanel-1').show();
+            $('#timeLineBlock').hide();
+            MorePhoto($(this).attr('data-params'));
+
+        });
+
+
+        $(window).scroll(function () {
+            //最後一頁scrollTop=body-window，50是預留空間
+            var last = $("body").height() - $(window).height() - $('#footer').height()- $('#photo-action').height();
+            if ($(window).scrollTop() >= last && _IsLoading == false && $('#ListPanel-1').is(':visible')) {
+                _IsLoading = true;
+                _Num += @(AppConfig.PhotoLimit);
+                MorePhoto();
+            }
+        });
+
+        function Return(){
+            $('#timeLineBlock').show();
+            $('#ListPanel-1,#ListPanel-2').hide();
+            RestoreScrollTop();
+        };
+
+        function MorePhoto(date) {
+            var tags = {
+                TargetID: "blockSection",
+                SPic: _Num,
+                Append: true,
+                Date: date
+            }
+            $.wait();
+            Sys.AjaxExec("/Home/Photo", tags, function (data) {
+                $('.lazy').Lazy();
+                _IsLoading = data[2]=="Y"?true:false;
+                InitGallery();
+                $.close();
+            });
+        }
+
+        function InitGallery() {
+            if (typeof _Gallery != "undefined") {
+                $("#blockSection").data('lightGallery').destroy(true);
+            }
+            _Gallery = $("#blockSection").lightGallery( {
+                selector: '.item', pause: 2000, share: false, setBg: false, actualSize: false });
+        }
+
+    </script>
+}
+
