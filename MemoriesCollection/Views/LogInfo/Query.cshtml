@@ -1,0 +1,41 @@
+﻿@model MemoriesCollection.ViewModels.PageTableViewModel
+@{
+    var target = Model.ViewBag.TargetID;
+    int cnt = 0;
+}
+<div class="table-responsive">
+    <table class="table data-table table-center" id="@(target)-table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>程式名稱</th>
+                <th>錯誤訊息</th>
+                <th>StackTrace</th>
+                <th>發生時間</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var w in Model.ErrLogList) {
+                cnt++;
+                <tr>
+                    <td>@(cnt)</td>
+                    <td>@($"/{w.Controller}/{w.Action}")</td>
+                    <td style="max-width:120px">
+                        <p class="txt-overFlow">@w.Message</p>
+                        <a href="javascript:void(0);" class="txt-more">more</a>
+                    </td>
+                    <td style="max-width:300px">
+                        <p class="txt-overFlow">@w.StackTrace</p>
+                        <a href="javascript:void(0);" class="txt-more">more</a>
+                    </td>
+                    <td>@w.LogDate</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@if (!Model.ViewBag.IsData) {
+    <div class="txt-c txt-red">
+        <span>@AppConfig.NoData</span>
+    </div>
+} 

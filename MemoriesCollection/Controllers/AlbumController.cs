@@ -142,7 +142,7 @@ namespace MemoriesCollection.Controllers
                         cond = "";
                         break;
                     case "tab_2": // 相簿照片
-                        cond = albumInfo.ImgNo == "" ? "" : $" And imgNo IN ({albumInfo.ImgNo}) ";
+                        cond = albumInfo.ImgNo == "" ? " AND 1=2" : $" And imgNo IN ({albumInfo.ImgNo}) ";
                         break;
                     case "tab_3": // 非相簿照片
                         cond = albumInfo.ImgNo == "" ? "" : $" And imgNo NOT IN ({albumInfo.ImgNo}) ";
@@ -269,7 +269,7 @@ namespace MemoriesCollection.Controllers
 
                 if (bgImg != "" && (imgNo == bgImg.Substring(0, bgImg.IndexOf('.')))) {
                     album.BgImg = "";
-                }              
+                }
             } else {
                 rtn[0] = AppConfig.NoData;
             }

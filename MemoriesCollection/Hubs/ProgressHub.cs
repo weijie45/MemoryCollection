@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.AspNet.SignalR;
+using MemoriesCollection.Function.Common;
 
 namespace MemoriesCollection.Hubs
 {

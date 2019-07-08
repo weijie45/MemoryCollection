@@ -24,15 +24,11 @@
                 </div>
             </div>
         </div>
-        @*<div class="wj-block-r" id="albumTab" style="display:none;">
-                <span id="tab_2">相簿照片<span class="wj-badge"></span></span>
-                <span id="tab_3">非相簿照片<span class="wj-badge"></span></span>
-                <span id="tab_4">未分類照片<span class="wj-badge"></span></span>
-            </div>*@
         <div class="wj-c" id="W1" style="display:none;">
             <a href="@Url.Action("AddPhoto","Photo", new { k = Key.Encrypt(new { AlbumNo = albumNo, album.AlbumName}) })" class="txt-deepPink">
                 <i class="fa fa-upload">上傳相片</i>
             </a>
+            <a href="#" id="more-cond" class="hidden">進階查詢</a>
         </div>
         <div id="qry-block" class="wj-block-l">
             <label for="">關鍵字</label>
@@ -74,6 +70,11 @@
                 _Num += @(AppConfig.PhotoLimit);
                 MorePhoto();
             }
+        });
+
+        // 進階查詢
+        $('#more-cond').on('click', function () {
+            $('#qry-block').toggle();
         });
 
         $(document).on('click', '[func]', function (e) {

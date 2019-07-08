@@ -8,7 +8,6 @@
     @Styles.Render("~/Content/ThirdPartyCss")
     @Styles.Render("~/Content/WjCss")
     @Scripts.Render("~/bundles/modernizr")
-    <script language="javascript" type="text/javascript" src="~/Scripts/My97DatePicker/WdatePicker.js"></script>
 </head>
 <body>
     <div id="navBar">
@@ -26,7 +25,7 @@
             <li><a href="@Url.Action("Index","Photo")" menu> <i class="fa fa-camera-retro"></i>相片 </a></li>
             <li><a href="@Url.Action("Index","Album")" menu><i class="fa fa-picture-o"></i>相簿</a></li>
             <li><a href="@Url.Action("Index","Video")" menu><i class="fa fa-video-camera"></i>影片</a></li>
-            <li><a href="@Url.Action("Index","LogInfo")" menu><i class="fa fa-video-camera"></i>錯誤記錄</a></li>
+            <li><a href="@Url.Action("Index","LogInfo")" menu><i class="fa fa-file-text"></i>錯誤記錄</a></li>
         </ul> <!-- cd-accordion-menu -->
     </div>
 
@@ -142,6 +141,8 @@
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/WjJs")
     @Scripts.Render("~/bundles/ThirdPartyJs")
+    <script language="javascript" type="text/javascript" src="~/Scripts/My97DatePicker/WdatePicker.js"></script>
+    <script language="javascript" type="text/javascript" src="~/Scripts/layer/layer.js"></script>
     <script src="~/Scripts/jquery.signalR-2.4.1.min.js"></script>
     <script src="~/signalr/hubs"></script>
     @RenderSection("scripts", required: false)
@@ -215,7 +216,7 @@
 
                 video.addEventListener('loadedmetadata', function () {
                     $('#saveVideo').prop('disabled', true);
-                    videoThumbnail($("#fileUplaod").get(0).files);
+                    //videoThumbnail($("#fileUplaod").get(0).files);
                 });
                 var snapImage = function () { };
 
@@ -223,8 +224,21 @@
                 video.src = url;
                 video.muted = true;
                 video.playsInline = true;
-                video.play();
-                video.pause();
+                //video.play();
+                //video.pause();
+                // Show loading animation.
+                var playPromise = video.play();
+
+                if (playPromise !== undefined) {
+                    playPromise.then(_ => {
+                        // 这个时候可以安全的暂停
+                        video.pause();
+                        videoThumbnail($("#fileUplaod").get(0).files);
+                    })
+                    .catch(error => {
+
+                    });
+                }
             };
             fileReader.readAsArrayBuffer(file);
 
@@ -266,7 +280,7 @@
                 fd.append('w', video.videoWidth);
                 fd.append('h', video.videoHeight);
 
-                Sys.AjaxUpload("/Video/ChkSize", fd, function (data) {
+                Sys.AjaxExec("/Video/ChkSize", fd, function (data) {
                     var j = JSON.parse(data[1]);
                     $('#video-waiting').text('縮圖前置完成......');
                     shoot('main-video', j.w, j.h);
@@ -312,7 +326,6 @@
                 fd.append('videoDesc', $('#videoDesc').val());
                 fd.append('fileTsize', size);
                 fd.append('img', dataURLtoFile($('#main-video-Tb').attr('src'), 'filename.png'));
-                $('#ProgressBarBlock #bar').html('0%');
 
                 var progressNotifier = $.connection.progressHub;
                 progressNotifier.client.sendMessage = function (message) {
@@ -325,6 +338,7 @@
                     Sys.AjaxUpload("/Video/ConfirmUpload", fd, function (data) {
                         GetSum();
                         CloseVideo();
+                        $.closeProgress();
                         layer.alert("上傳成功 !", { icon: 1 }, function (index) {
                             layer.close(index);
                             $('#Video-modal').hide();
@@ -355,8 +369,6 @@
             canvas.width = w;
             canvas.height = h;
             var ctx = canvas.getContext('2d');
-
-            $("#info").text("縮小率:{4} ; 實際寬高:{0}*{1} / 寬高:{2}*{3}".format(aW, aH, video.videoWidth, video.videoHeight, _ScaleFactor));
 
             var os = _UaSpec.os.name;
             var browser = _UaSpec.browser.name;
@@ -406,15 +418,15 @@
             } else {
                 $.wait();
                 Sys.AjaxExec("/Album/Save", tags, function (data) {
+                    GetSum();
+                    $.close();
                     layer.alert("新增相簿成功 !", { icon: 1 }, function (index) {
                         layer.close(index);
                         $('#album-modal').hide();
-                        GetSum();
                         if (Controller() == "album") {
                             location.reload();
                         }
                     });
-                    $.close();
                 });
             }
         });
