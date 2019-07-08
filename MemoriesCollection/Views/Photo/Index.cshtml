@@ -3,6 +3,7 @@
 }
 <p class="wj-block-l">
     <a href="@Url.Action("AddPhoto","Photo")" class="txt-deepPink"><i class="fa fa-upload"> 上傳相片</i></a>
+    <a href="#" id="more-cond" class="hidden">進階查詢</a>
 </p>
 
 <div id="qry-block" class="wj-block-l">
@@ -33,6 +34,10 @@
             }
         });
 
+        // 進階查詢
+        $('#more-cond').on('click', function () {
+            $('#qry-block').toggle();
+        });
 
         $(document).on('click', '[func]', function (e) {
             var $this = $(this);

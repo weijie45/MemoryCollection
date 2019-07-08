@@ -19,7 +19,6 @@ namespace MemoriesCollection.Controllers
 {
     public class VideoController : BaseController
     {
-        double _Count = 0.00;
         public int VideoLimit = AppConfig.VideoLimit.FixInt();
 
         // GET: Video
@@ -145,7 +144,6 @@ namespace MemoriesCollection.Controllers
                 for (var i = 0; i < files.AllKeys.Count(); i++) {
                     var file = files[i];
                     var size = file.ContentLength;
-                    doneSize += size;
                     string fileName = Request["videoName"].FixReq() == "" ? file.FileName : Request["videoName"].FixReq();
                     var fileExt = Path.GetExtension(file.FileName);
 
@@ -186,8 +184,8 @@ namespace MemoriesCollection.Controllers
                                     int read;
                                     while ((read = fileStream.Read(buffer, 0, buffer.Length)) > 0) {
                                         doneSize += 1024000;
-                                        _Count += ((double)doneSize / (double)totalSize * 100 / 2 + 50);
-                                        ProgressHub.SendMessage(_Count);
+                                        var percent = ((double)doneSize / (double)totalSize * 100 / 2) + 50;
+                                        ProgressHub.SendMessage(percent > 100 ? 100 : percent);
                                         ftpStream.Write(buffer, 0, read);
                                     }
                                 }
@@ -248,14 +246,12 @@ namespace MemoriesCollection.Controllers
                         Files.DelFile(VideoThbPath, fileName, ".jpg");
                         Log.ErrLog(e);
                     }
-                    var percent = (((double)doneSize / (double)totalSize) * 100) / 2;
-                    ProgressHub.SendMessage(percent + 10);
+
                 }
             } else {
                 rtn[0] = AppConfig.ParamError;
             }
-            //_Count = 99;
-            //ProgressHub.SendMessage(_Count);
+
             return new JsonNetResult(rtn);
         }
 

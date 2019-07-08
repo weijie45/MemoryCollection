@@ -8,7 +8,7 @@
     </div>
 }
 
-<div class="wj-dropBlock">Drag & Drop Photos Here</div>
+<div class="wj-dropBlock hidden">Drag & Drop Photos Here</div>
 <div class="wj-block-c">
     <input type="file" name="file-1[]" id="imgUpload" class="inputfile inputfile-1" data-multiple-caption="{count} files selected" multiple />
     <label for="imgUpload"><span>請選擇圖片&hellip;</span></label>
@@ -105,7 +105,6 @@
 
                 layer.confirm(msg, { icon: 3 }, function (index) {
                     layer.close(index);
-                    $('#ProgressBarBlock #bar').html('0%');
 
                     var progressNotifier = $.connection.progressHub;
                     progressNotifier.client.sendMessage = function (message) {
@@ -120,6 +119,7 @@
                             var json = JSON.parse(data[1]);
                             layer.alert("共上傳{0}筆資料 !<br>成功{1}筆 !<br>失敗<span style='color:red'>{2}</span>筆".format(json.Files, json.Success, json.Failed), { icon: 1 }, function (index) {
                                 layer.close(index);
+                                $.closeProgress();
                                 location.reload();
                             });
                         });

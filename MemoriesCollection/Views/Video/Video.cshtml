@@ -27,7 +27,6 @@
 
             <p class="videoInfo txt-white hidden">@($"長:{dr.Height} / 寬:{dr.Width} / 長度:{Key.FormatNumber(dr.Size / 1000000)}Mb")</p>
 
-            @*<p>@Html.Raw(Html.Encode(desc).Replace("\n", "<br />"))</p>*@
             @if (location != "" || person != "") {
                 <p>
                     @if (location != "") {
@@ -38,7 +37,6 @@
                     }
                 </p>
             }
-            @*<a href="@Url.Action("Edit", "Video", new { k = Key.Encrypt(new { VideoNo = videoNo, BackUrl = Url.Action("Index", "Video") }) })" class="button btn-confirm">編輯</a>*@
             <a href="#" func="Edit" data-param="@videoNo" class="button btn-c1">編輯</a>
             <a href="@dwUrl" class="button btn-c2">下載</a>
 

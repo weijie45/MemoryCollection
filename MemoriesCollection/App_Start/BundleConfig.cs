@@ -32,7 +32,6 @@ namespace MemoriesCollection
                         "~/Scripts/exif.js",// 相片Exif
                         "~/Scripts/ua-parser.js",// User-Agent 
                         "~/Scripts/input-upload.js",// 上傳按鈕
-                        "~/Scripts/layer/layer.js",
                         "~/Scripts/menu.js"
                        ));
 
@@ -45,7 +44,7 @@ namespace MemoriesCollection
             //          "~/Scripts/bootstrap.js",
             //          "~/Scripts/respond.js"));
 
-            bundles.Add(new ScriptBundle("~/Content/WjCss").Include(
+            bundles.Add(new StyleBundle("~/Content/WjCss").Include(
                        "~/Content/reset.css",
                        "~/Content/site.css",
                        "~/Content/button.css",
@@ -56,7 +55,7 @@ namespace MemoriesCollection
                        "~/Content/block.css",
                        "~/Content/responsive.css"));
 
-            bundles.Add(new ScriptBundle("~/Content/ThirdPartyCss").Include(
+            bundles.Add(new StyleBundle("~/Content/ThirdPartyCss").Include(
                         "~/Content/font-awesome.min.css",
                         "~/Content/css/select2.min.css",
                         "~/Content/lightgallery.min.css",

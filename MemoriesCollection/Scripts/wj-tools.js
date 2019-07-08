@@ -207,7 +207,7 @@ var Sys = (function (Sys) {
             processData: false,
             contentType: false,
             beforeSend: function () {
-                _Percent = 0;
+                _Percent = 0.00;
             },
             success: function (data) {
                 if (typeof data.Errors != "undefined") {
@@ -238,13 +238,22 @@ var Sys = (function (Sys) {
             xhr: function () {
                 var xhr = $.ajaxSettings.xhr();
                 xhr.upload.onprogress = function (e) {
-                    var pourc = (e.loaded / e.total * 100) / 2 - (Math.floor(Math.random() * (9 - 1 + 0.62)) + 1);
-                    if (_Percent < pourc) {
-                        _Percent = pourc;
-                    }
-                    if (pourc < 50) {
+                    if (url == "/Video/ConfirmUpload") {
+                        var pourc = (e.loaded / e.total * 100) - (Math.floor(Math.random() * (9 - 1 + 0.62)) + 1);
+                        if (_Percent < pourc) {
+                            _Percent = pourc;
+                        }
                         UpdateProgress();
+                    } else {
+                        var pourc = (e.loaded / e.total * 100) / 2 - (Math.floor(Math.random() * (9 - 1 + 0.62)) + 1);
+                        if (_Percent < pourc) {
+                            _Percent = pourc;
+                        }
+                        if (pourc < 50) {
+                            UpdateProgress();
+                        }
                     }
+
                 };
                 return xhr;
             },
@@ -260,12 +269,8 @@ var Sys = (function (Sys) {
 
 
 function UpdateProgress() {
-
     $('#ProgressBarBlock #bar').html("{0}{1}".format($.number(_Percent, 2), "%"));
-
 }
-
-
 
 function NameVals(sSelector) {
     var info = {};
@@ -421,6 +426,7 @@ $.close = function () {
 
 // 進度條屏蔽
 $.waitProgress = function () {
+    $('#ProgressBarBlock #bar').html("0.00%");
     $("body").addClass("progressing");
 };
 

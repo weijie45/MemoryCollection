@@ -176,8 +176,10 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AlbumController.cs" />
+    <Compile Include="Controllers\ErrorHandleController.cs" />
     <Compile Include="Controllers\FilesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\LogInfoController.cs" />
     <Compile Include="Controllers\PhotoController.cs" />
     <Compile Include="Controllers\VideoController.cs" />
     <Compile Include="DAL\DbHelper.cs" />
@@ -274,6 +276,10 @@
     <Content Include="fonts\fontawesome-webfont.woff" />
     <Content Include="Images\add_photo.png" />
     <Content Include="Images\loading.gif" />
+    <Content Include="Images\ProgressLoading.gif" />
+    <Content Include="Images\video-play.png" />
+    <Content Include="Images\vimeo-play.png" />
+    <Content Include="Images\youtube-play.png" />
     <Content Include="Scripts\i18n\af.js" />
     <Content Include="Scripts\i18n\ar.js" />
     <Content Include="Scripts\i18n\az.js" />
@@ -336,6 +342,7 @@
     <Content Include="fonts\lg.eot" />
     <Content Include="fonts\lg.ttf" />
     <Content Include="fonts\lg.woff" />
+    <None Include="Properties\PublishProfiles\mem.pubxml" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\input-upload.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
@@ -418,6 +425,9 @@
     <Content Include="Views\Video\Edit.cshtml" />
     <Content Include="Views\Video\Index.cshtml" />
     <Content Include="Views\Video\Video.cshtml" />
+    <Content Include="Views\LogInfo\Index.cshtml" />
+    <Content Include="Views\LogInfo\Query.cshtml" />
+    <Content Include="Views\Home\TimeLine.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

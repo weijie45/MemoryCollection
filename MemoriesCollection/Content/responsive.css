@@ -48,11 +48,6 @@
     .card {
         width: 100%;
     }
-
-    .albumBlock {
-        width: calc( 50% - 16px);
-        height: 330px;
-    }
 }
 
 @media (max-width: 768px) {
@@ -63,6 +58,18 @@
     .wj-modal-content {
         width: 500px;
     }
+
+    #more-cond {
+        display: inline;
+    }
+
+    /*#qry-block {
+        display: none;
+    }
+
+        #qry-block input, #qry-block select, #qry-block textarea {
+            width: 100%;
+        }*/
 }
 
 @media (max-width: 600px) {
@@ -140,6 +147,11 @@
 
 @media screen and (max-width: 736px) {
 
+    .albumBlock {
+        width: 100%;
+        height: 330px;
+    }
+
     #vedioBlock .thumbnails .box {
         width: 100%;
     }
@@ -164,10 +176,6 @@
         width: 100%;
     }
 
-    .albumBlock {
-        width: calc( 100% - 0px );
-        height: 330px;
-    }
     /* Place the timelime to the left */
     #timeLineBlock .timeline::after {
         left: 31px;

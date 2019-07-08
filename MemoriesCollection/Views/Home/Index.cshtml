@@ -5,7 +5,9 @@
 <div id="main-div-data">
     <p class="wj-block-l">
         <a href="@Url.Action("AddPhoto","Photo")" class="txt-deepPink"><i class="fa fa-upload"> 上傳相片</i></a>
+        <a href="#" id="more-cond" class="hidden">進階查詢</a>
     </p>
+
     <div id="qry-block" class="wj-block-l">
         <label for="">關鍵字</label>
         <input type="search" name="KeyWord" value="" />
@@ -42,19 +44,20 @@
             }
         });
 
+        // 進階查詢
+        $('#more-cond').on('click', function () {
+            $('#qry-block').toggle();
+        });
+
         $(document).on('click', '#main-div-data [func]', function (e) {
             e.preventDefault();
             e.stopPropagation();
             var $this = $(this);
-            var func = $this.attr('func');
             var tags = {
-                "Func": func
+                "Func": $this.attr('func')
             };
-            var isValid = true;
-            var errMsg = "";
             var url = '';
-
-            switch (func) {
+            switch (tags.Func) {
                 case "Query":
                     var tags = $('#qry-block').tags();
                     tags.Append = false;

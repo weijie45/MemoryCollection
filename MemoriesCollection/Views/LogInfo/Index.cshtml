@@ -1,0 +1,69 @@
+﻿@{
+    ViewBag.Title = "錯誤紀錄";
+}
+
+<div id="qry-block" class="wj-block-l">
+    <label for="Date">起始日</label>
+    <input type="text" id="SearchFmDate" name="SearchFmDate" value="@Key.EnglishDate(Key.Now.AddDays(-2))">
+
+    <label for="Date">截止日</label>
+    <input type="text" id="SearchToDate" name="SearchToDate" value="@Key.EnglishDate(Key.Today)">
+
+    <label for="ErrMsg">錯誤訊息</label>
+    <input type="search" id="ErrMsg" name="ErrMsg">
+
+    <label for="Controller">Controller</label>
+    <input type="search" id="Controller" name="Controller">
+
+    <label for="Action">Action</label>
+    <input type="search" id="Action" name="Action">
+
+    <button class="button btn-c1" func="Query" type="button">查詢</button>
+</div>
+<div id="ListPanel-1"></div>
+<!-- Detail -->
+<div id="ListPanel-2"></div>
+
+@section Scripts {
+    <script>
+
+        $(document).on('click', '.txt-more', function () {
+            $(this).siblings('p').toggleClass('txt-more');
+        });
+
+        $(document).on('click', '.txt-overFlow', function () {
+            $(this).removeClass('txt-more');
+        });
+
+        $(document).on('click', '[func]', function () {
+            var $this = $(this);
+            var func = $this.attr('func');
+            var tags = {
+                "Func": func
+            };
+            var isValid = true;
+            var errMsg = "";
+            var url = '@Url.Action("FuncInfo", "LogInfo")';
+            switch (func) {
+                case "Query":
+                    tags.TargetID = "ListPanel-1";
+                    tags.TbID = "{0}-table".format(tags.TargetID);
+                    $.extend(tags, $('#qry-block').tags());
+                    $.wait();
+                    Sys.AjaxExec(url, tags, function () {
+                        $('#ListPanel-2').hide();
+                        //InitTableSorter(tags.TbID, 20);
+                        $.close();
+                    });
+                    break;
+            }
+        });
+
+        function Query() {
+            $("[func=Query]").trigger("click");
+        };
+
+    </script>
+}
+
+
