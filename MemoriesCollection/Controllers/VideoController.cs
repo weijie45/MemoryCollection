@@ -251,8 +251,7 @@ namespace MemoriesCollection.Controllers
             } else {
                 rtn[0] = AppConfig.ParamError;
             }
-            //_Count = 99;
-            //ProgressHub.SendMessage(_Count);
+
             return new JsonNetResult(rtn);
         }
 
