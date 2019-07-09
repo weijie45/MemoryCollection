@@ -96,7 +96,7 @@ namespace MemoriesCollection.Controllers
         {
             PageTableViewModel pv = new PageTableViewModel();
             var albumNo = Key.Decrypt(Request.QueryString["k"].FixReq());
-            Sql = $" SELECT * FROM Album WHERE AlbumNo = {albumNo}  ";
+            Sql = $" SELECT * FROM Album WHERE AlbumNo = '{albumNo}'  ";
             var albumInfo = db.Query<Album>(Sql).FirstOrDefault();
             pv.Album = albumInfo;
 

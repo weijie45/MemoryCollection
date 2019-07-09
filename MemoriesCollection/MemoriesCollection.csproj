@@ -428,6 +428,7 @@
     <Content Include="Views\LogInfo\Index.cshtml" />
     <Content Include="Views\LogInfo\Query.cshtml" />
     <Content Include="Views\Home\TimeLine.cshtml" />
+    <Content Include="Views\Home\Details.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

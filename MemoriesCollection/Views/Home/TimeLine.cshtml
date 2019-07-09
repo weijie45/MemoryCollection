@@ -82,10 +82,12 @@
         var _Gallery;
         var _Num = 0; // 張數
         var _PhotoKey = -1; // 照片編號
+        var _TopOffset = 0;// 時間軸的高度(避免各相片的明細衝突)
 
         $('.imgBlock').on('click', function () {
 
             SaveScrollTop();
+            _TopOffset = g_iTopScrollTop ;
             $('#blockSection').empty();
             _Num = 0;
             $('#ListPanel-1').show();
@@ -108,7 +110,7 @@
         function Return(){
             $('#timeLineBlock').show();
             $('#ListPanel-1,#ListPanel-2').hide();
-            RestoreScrollTop();
+            RestoreScrollTop(_TopOffset);
         };
 
         function MorePhoto(date) {

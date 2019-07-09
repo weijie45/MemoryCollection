@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Transactions;
+using Dapper.Contrib.Extensions;
 
 namespace MemoriesCollection.Controllers
 {
@@ -20,6 +22,171 @@ namespace MemoriesCollection.Controllers
         {
             return View();
         }
+
+        /// <summary>
+        /// 相片詳細資訊
+        /// </summary>
+        /// <param name="vt"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult Detail(VtTags vt)
+        {
+            string[] rtn = new string[] { "", "" };
+            if (vt.Error) {
+                return PageSettion.VarTagsError(vt.ErrorMsg);
+            }
+            var tags = vt.Tags;
+            var imgNo = Key.Dict(ref tags, "ImgNo");
+            var prog = Key.Dict(ref tags, "Prog");// 從別頁面過來的
+            string personList = "";
+
+            Sql = " Select ";
+            Sql += "   Top 1 * ";
+            Sql += " from ";
+            Sql += "   Photo ";
+            Sql += " WHERE ";
+            Sql += "    1=1 ";
+            Sql += $" and ImgNo = '{imgNo}' ";
+            Sql += " Order by ModifyDateTime Desc";
+            var data = db.Query(Sql).FirstOrDefault();
+
+            string orientation = "";
+            if (data != null) {
+                orientation = (data.Width > data.Height) ? "" : "vertical";
+
+                Sql = " SELECT Distinct Person FROM Video WHERE Person != '' ";
+                Sql += " UNION ";
+                Sql += " SELECT Distinct Person FROM Photo WHERE Person != '' ";
+                personList = db.Query<string>(Sql).ToArray().Join(",");
+            }
+            rtn[1] = page.View("Details",
+                new
+                {
+                    SqlData = data,
+                    Orientation = orientation,
+                    IsData = (data != null),
+                    EditStatus = Key.Dict(ref tags, "EditStatus"),
+                    PersonList = personList
+                });
+
+            return this.ToJsonNet(rtn);
+        }
+
+
+        /// <summary>
+        /// 刪除相片, 連同相簿也要更新
+        /// </summary>
+        /// <param name="vt"></param>
+        /// <returns></returns>
+        public ActionResult DelImg(VtTags vt)
+        {
+            string[] rtn = new string[] { "", "" };
+            if (vt.Error) {
+                return PageSettion.VarTagsError(vt.ErrorMsg);
+            }
+            var tags = vt.Tags;
+            var imgNo = Key.Dict(ref tags, "ImgNo");
+
+            if (imgNo != "") {
+                Sql = $" SELECT * FROM Photo WHERE imgNo = '{imgNo}' ";
+                var photo = db.Query<Photo>(Sql).FirstOrDefault();
+                if (photo == null) {
+                    rtn[0] = AppConfig.NoData;
+                    return this.ToJsonNet(rtn);
+                }
+
+                string ext = photo.FileExt;
+
+                Sql = $"SELECT * FROM Album WHERE ImgNo like '%{imgNo}%' ";
+                var album = db.Query<Album>(Sql).ToList();
+
+                using (var scope = new TransactionScope()) {
+                    try {
+                        db.Delete(photo);
+                        foreach (var a in album) {
+                            var bgImg = a.BgImg;
+                            var imgList = a.ImgNo.Split(',').ToList();
+
+                            if (imgList.Contains(imgNo.ToString())) {
+                                imgList.Remove(imgNo.ToString());
+                                a.ImgNo = imgList.ToArray().Join(",");
+                            }
+
+                            if (imgNo == bgImg.Substring(0, bgImg.IndexOf('.'))) {
+                                a.BgImg = "";
+                            }
+
+                            a.ModifyDateTime = DateTime.Now;
+                            db.Update(a);
+                        }
+
+                        if (Files.DelFile(ImgPath, imgNo, ext)) {
+                            scope.Complete();
+                        } else {
+                            rtn[0] = "刪除照片失敗 !";
+                        }
+
+                    } catch (Exception e) {
+                        //rtn[0] = $"相片刪除失敗 !";
+                        Log.ErrLog(e);
+                    }
+                }
+
+
+            } else {
+                rtn[0] = AppConfig.NoData;
+            }
+
+            return this.ToJsonNet(rtn);
+        }
+
+        /// <summary>
+        /// 儲存編輯相片
+        /// </summary>
+        /// <param name="vt"></param>
+        /// <returns></returns>
+        public ActionResult Save(VtTags vt)
+        {
+            string[] rtn = new string[] { "", "" };
+            if (vt.Error) {
+                return PageSettion.VarTagsError(vt.ErrorMsg);
+            }
+            var tags = vt.Tags;
+            PageTableViewModel pv = new PageTableViewModel();
+            var name = Key.Dict(ref tags, "Name");
+            var desc = Key.Dict(ref tags, "Desc");
+            var location = Key.Dict(ref tags, "Location");
+            var person = Key.Dict(ref tags, "Person");
+            var imgNo = Key.Dict(ref tags, "ImgNo").ToInt();
+            var albumNo = Key.Dict(ref tags, "AlbumNo").ToInt();
+            Sql = $"SELECT * FROM Photo WHERE ImgNo = '{imgNo}' ";
+            var imgInfo = db.Query<Photo>(Sql).FirstOrDefault();
+
+            if (imgInfo != null) {
+                imgInfo.FileName = name;
+                imgInfo.FileDesc = desc;
+                imgInfo.Location = location;
+                imgInfo.Person = person;
+                imgInfo.ModifyDateTime = now;
+                db.Update(imgInfo);
+
+                if (albumNo != 0) {
+                    // 變更相片底圖
+                    Sql = $"SELECT * FROM Album WHERE AlbumNo = '{albumNo}' ";
+                    var albumInfo = db.Query<Album>(Sql).FirstOrDefault();
+                    if (albumInfo != null) {
+                        albumInfo.BgImg = $"{imgNo}{imgInfo.FileExt}";
+                        albumInfo.ModifyDateTime = now;
+                        db.Update(albumInfo);
+                    }
+                }
+            } else {
+                rtn[0] = AppConfig.NoData;
+            }
+
+            return this.ToJsonNet(rtn);
+        }
+
 
         /// <summary>
         /// 時間軸
@@ -81,7 +248,6 @@ namespace MemoriesCollection.Controllers
             ViewBag.Data = db.Query(Sql).ToList();
             return View("TimeLine");
         }
-
 
         [HttpPost]
         /// <summary>

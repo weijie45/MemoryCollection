@@ -151,13 +151,13 @@
 
 
 @media screen and (max-width: 736px) {
-    #qry-block {
+    .more-cond {
         display: none;
     }
 
-        #qry-block input, #qry-blocks select, #qry-block textarea {
-            width: 100%;
-        }
+    input.more-cond, select.more-cond, textarea.more-cond {
+        width: 100%;
+    }
 
     /* Place the timelime to the left */
     #timeLineBlock .timeline::after {

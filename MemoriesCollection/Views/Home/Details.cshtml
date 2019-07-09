@@ -1,0 +1,122 @@
+﻿@{
+    var personList = new string[] { };
+    var Allperson = new string[] { };
+    string name = "", ext = "", desc = "", imgUrl = "", date = "", loaction = "", size = "", uploadDate = "";
+    var dr = Model.SqlData;
+    var imgNo = (Model.IsData) ? dr.ImgNo : "0";
+    var editStatus = Model.EditStatus == "Y";
+}
+<div class="wj-block-c">
+    @if (editStatus) {
+        <button class="button btn-red" onclick="SavePhoto()">儲存</button>
+        <button class="button btn-secondary" onclick="EditPhoto('Cancel')">取消</button>
+    } else {
+        <button class="button btn-outline-black " onclick="Back()"><i class="fa fa-arrow-left"></i>上一頁</button>
+        <button class="button btn-secondary" onclick="EditPhoto('Edit')">編輯</button>
+        <button class="button btn-red" onclick="DelImg(this)">刪除</button>
+    }
+</div>
+@if (Model.IsData) {
+    dr = Model.SqlData;
+    imgNo = dr.ImgNo.ToString();
+    name = dr.FileName;
+    ext = dr.FileExt;
+    desc = dr.FileDesc;
+    date = Key.EnglishDate(dr.OrgCreateDateTime);
+    loaction = dr.Location;
+    size = $"{dr.Width} * {dr.Height}";
+    uploadDate = Key.EnglishDate(dr.CreateDateTime);
+    var fileName = $"{imgNo}{ext}";
+
+    imgUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.ImgPath, Folder = "", FileName = fileName }) });
+    personList = string.IsNullOrEmpty(dr.Person) ? new string[] { } : dr.Person.Split(',');
+    Allperson = Model.PersonList.Split(',');
+}
+<div id="preview" class="@Model.Orientation">
+    <div class="inner gallery">
+        <div class="image fit">
+            <img class="lazy" src="" alt="" data-src="@imgUrl" />
+        </div>
+        @if (editStatus) {
+
+            <div class="content">
+                <header>
+                    <h2>標題</h2>
+                    <div class="wj-block-l">
+                        <input type="search" id="Name" name="Name" value="@name" placeholder="請輸入標題" />
+                        <button class="button btn-secondary clearText" clearText="Name">清除</button>
+                    </div>
+                </header>
+                <p>
+                    <label for="location">描述</label>
+                    <textarea name="Desc" rows="5" class="lg" placeholder="照片描述">@Html.Raw(desc)</textarea>
+                </p>
+                <p>
+                    <label for="location">地點</label>
+                    <input type="text" id="Location" class="lg" name="Location" value="@dr.Location" />
+                </p>
+                <p>
+                    <label for="">人物</label>
+                    <a href="#" func="AddPerson"><i class="fa fa-plus text-primary"></i></a>
+                    <select id="person" class="lg">
+                        @foreach (var p in Allperson) {
+                            <option value="@p">@p</option>
+                        }
+                    </select>
+                </p>
+                <div id="personResult">
+                    @foreach (var p in personList) {
+                        <span>
+                            @p <input type='hidden' class="lg" name='Person' value='@p'>
+                            <i class="fa fa-times text-danger" func='DelPerson'></i><br />
+                        </span>
+                    }
+                </div>
+            </div>
+
+        } else {
+
+            <div class="content">
+                <header>
+                    <h2>@name</h2>
+                </header>
+                <div class="item">
+                    <h4>描述</h4>
+                    <p>@Html.Raw(Html.Encode(desc).Replace("\n", "<br />"))</p>
+                </div>
+                <div class="item">
+                    <h4>拍攝日期</h4>
+                    <p>@date</p>
+                </div>
+                <div class="item">
+                    <h4>地點</h4>
+                    <p>@loaction</p>
+                </div>
+                <div class="item">
+                    <h4>人物</h4>
+                    <p>
+                        @foreach (var p in personList) {
+                            <span>@p </span><br />
+                        }
+                    </p>
+                </div>
+                <div class="item more-info">
+                    <h4>尺寸</h4>
+                    <p>@size</p>
+                </div>
+                <div class="item more-info">
+                    <h4>副檔名</h4>
+                    <p>@ext</p>
+                </div>
+                <div class="item more-info">
+                    <h4>上傳日期</h4>
+                    <p>@uploadDate</p>
+                </div>
+                <div class="text-center">
+                    <button class="button btn-dark" func="More">More</button>
+                </div>
+            </div>
+
+        }
+    </div>
+</div>

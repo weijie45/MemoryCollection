@@ -5,16 +5,16 @@
 <div id="main-div-data">
     <p class="wj-block-l">
         <a href="@Url.Action("AddPhoto","Photo")" class="txt-deepPink"><i class="fa fa-upload"> 上傳相片</i></a>
-        <a href="#" id="more-cond" class="hidden">進階查詢</a>
+        <a href="#" id="more-cond" class="hidden" onclick="$('.more-cond').toggle();">進階查詢</a>
     </p>
 
     <div id="qry-block" class="wj-block-l">
-        <label for="">關鍵字</label>
-        <input type="search" name="KeyWord" value="" />
-        <label for="">拍攝日期</label>
-        <input type="search" id="fmDate" name="FmDate" onclick="WdatePicker({ maxDate: '#F{$dp.$D(\'toDate\');}' })" />
-        <input type="search" id="toDate" name="ToDate" onclick="WdatePicker({ minDate: '#F{$dp.$D(\'fmDate\');}' })" />
-        <input type="button" class="button btn-c1" func="Query" value="查詢" />
+        <label class="more-cond" for="">關鍵字</label>
+        <input class="more-cond" type="search" name="KeyWord" value="" />
+        <label class="more-cond" for="">拍攝日期</label>
+        <input class="more-cond" type="search" id="fmDate" name="FmDate" onclick="WdatePicker({ maxDate: '#F{$dp.$D(\'toDate\');}' })" />
+        <input class="more-cond" type="search" id="toDate" name="ToDate" onclick="WdatePicker({ minDate: '#F{$dp.$D(\'fmDate\');}' })" />
+        <input type="button" class="button btn-c1 more-cond" func="Query" value="查詢" />
     </div>
     <div id="ListPanel-1">
         <section id="blockSection"></section>
@@ -36,17 +36,12 @@
         $(window).scroll(function () {
             //最後一頁scrollTop=body-window，50是預留空間
             var last = $("body").height() - $(window).height() - $('#footer').height() - $('#photo-action').height();
-            if ($(window).scrollTop() >= last && !_IsEnd) {
+            if ($(window).scrollTop() >= last && !_IsEnd && !$('#ListPanel-2').is(':visible')) {
                 _IsEnd = true;
                 _Num += parseInt(@(AppConfig.PhotoLimit));
                 _Params.Append = true;
                 MorePhoto();
             }
-        });
-
-        // 進階查詢
-        $('#more-cond').on('click', function () {
-            $('#qry-block').toggle();
         });
 
         $(document).on('click', '#main-div-data [func]', function (e) {
@@ -65,6 +60,7 @@
                     _Num = 0; //重置
                     MorePhoto();
                     break;
+
             }
 
         });

@@ -25,7 +25,7 @@
             <i style="padding-bottom:@(padding)%"></i>
             @if (type == "tab_2") {
                 <a href="@imgUrl" class="item" data-sub-html="@name" onclick="return false;">
-                    <img class="lazy" src="" data-src="@imgTbUrl" func="RmImg" data-params="@(imgNo)" data-album="@(albumNo)" data-imgExt="@dr.FileExt" />
+                    <img class="lazy" src="" data-src="@imgTbUrl" action="RmImg" data-params="@(imgNo)" data-album="@(albumNo)" data-imgExt="@dr.FileExt" />
                     <div class="info">
                         <p>@name</p>
                     </div>

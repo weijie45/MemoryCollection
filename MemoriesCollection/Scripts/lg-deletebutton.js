@@ -37,10 +37,11 @@
             var index = that.core.index;
             var $sel = $('#' + that.core.$el.children()[index].getAttribute('id')).find('img');
             var title = "刪除照片 ? ";
-            if ($sel.attr('func') == "RmImg") {
+            var action = $sel.attr('action');
+            if (action == "RmImg") {
                 title = "移除照片 ? ";
             }
-            layer.confirm(title, { title: 'Delete', icon: 3 }, function (index) {
+            layer.confirm(title, { icon: 3 }, function (index) {
                 layer.close(index);
                 if (that.core.s.dynamic) {
                     elements = that.core.s.dynamicEl;
@@ -59,8 +60,11 @@
                 }
                 that.core.modules.Thumbnail.destroy();
 
-
-                RmImg($sel);
+                if (action == "RmImg") {
+                    RmImg($sel);
+                } else {
+                    DelImg($sel);
+                }
 
                 elements.splice(that.core.index, 1);
 

@@ -31,6 +31,16 @@
         var _IsLoading = false;
         var _Num = 0;
 
+        $(window).scroll(function () {
+            //最後一頁scrollTop=body-window，50是預留空間
+            var last = $("body").height() - $(window).height() - $('#footer').height() - $('#photo-action').height();
+            if ($(window).scrollTop() >= last && _IsLoading == false && $('#vedioBlock .items').is(':visible')) {
+                _IsLoading = true;
+                _Num += @(AppConfig.VideoLimit);
+                MoreVideo();
+            }
+        });
+
         // 影片lightbox
         $(document).on('click','.showVideo', function () {
             SaveScrollTop();
@@ -122,16 +132,6 @@
                 case "DelPerson":
                     $this.parents('span').first().remove();
                     break;
-            }
-        });
-
-        $(window).scroll(function () {
-            //最後一頁scrollTop=body-window，50是預留空間
-            var last = $("body").height() - $(window).height() - $('#footer').height() - $('#photo-action').height();
-            if ($(window).scrollTop() >= last && _IsLoading == false && $('#vedioBlock .items').is(':visible')) {
-                _IsLoading = true;
-                _Num += @(AppConfig.VideoLimit);
-                MoreVideo();
             }
         });
 

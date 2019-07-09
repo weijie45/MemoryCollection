@@ -11,8 +11,8 @@
     <div id="ListPanel-1">
         <div class="wj-block-c">
             <a href="@Url.Action("Index","Album")" class="button btn-outline-black"><i class="fa fa-arrow-left"></i>回相簿</a>
-            <a href="@Url.Action("AddPhoto", "Photo", new { k = Key.Encrypt(new { AlbumNo = albumNo, album.AlbumName}) })" class="button btn-outline-confirm"><i class="fa fa-upload">上傳</i></a>
             <a href="#" class="button btn-outline-red" id="addImg">儲存</a>
+            <a href="@Url.Action("AddPhoto", "Photo", new { k = Key.Encrypt(new { AlbumNo = albumNo, album.AlbumName}) })" class="button btn-outline-confirm"><i class="fa fa-upload">上傳</i></a>
         </div>
         <div class="imgHead">
             <div id="albumTitle" class="albumTitle" style="@(bgImg)">
@@ -24,25 +24,21 @@
                 </div>
             </div>
         </div>
-        <div class="wj-c" id="W1" style="display:none;">
-            <a href="@Url.Action("AddPhoto","Photo", new { k = Key.Encrypt(new { AlbumNo = albumNo, album.AlbumName}) })" class="txt-deepPink">
-                <i class="fa fa-upload">上傳相片</i>
-            </a>
-            <a href="#" id="more-cond" class="hidden">進階查詢</a>
-        </div>
+
         <div id="qry-block" class="wj-block-l">
-            <label for="">關鍵字</label>
-            <input type="search" name="KeyWord" value="" />
-            <label for="">拍攝日期</label>
-            <input type="search" id="fmDate" name="FmDate" onclick="WdatePicker({ maxDate: '#F{$dp.$D(\'toDate\');}' })" />
-            <input type="search" id="toDate" name="ToDate" onclick="WdatePicker({ minDate: '#F{$dp.$D(\'fmDate\');}' })" />
-            <input type="button" class="button btn-c1" func="Query" value="查詢" />
+            <label for="" class="more-cond">關鍵字</label>
+            <input type="search" name="KeyWord" value="" class="more-cond" />
+            <label for="" class="more-cond">拍攝日期</label>
+            <input type="search" class="more-cond" id="fmDate" name="FmDate" onclick="WdatePicker({ maxDate: '#F{$dp.$D(\'toDate\');}' })" />
+            <input type="search" class="more-cond" id="toDate" name="ToDate" onclick="WdatePicker({ minDate: '#F{$dp.$D(\'fmDate\');}' })" />
             <select name="Type">
-                <option value="tab_2">相簿照片</option>
-                <option value="tab_3">非相簿照片</option>
+                <option value="tab_2" @(imgCnt == 0 ? "" : "selected")>相簿照片</option>
+                <option value="tab_3" @(imgCnt != 0 ? "" : "selected")>非相簿照片</option>
                 <option value="tab_4">未分類照片</option>
             </select>
+            <input type="button" class="button btn-c1" func="Query" value="查詢" />
             結果:<span id="TotalCnt" class="txt-red">0</span>張
+            <a href="#" id="more-cond" class="hidden" onclick="$('.more-cond').toggle();">進階查詢</a>
         </div>
         <section id="blockSection"></section>
     </div>
@@ -70,11 +66,6 @@
                 _Num += @(AppConfig.PhotoLimit);
                 MorePhoto();
             }
-        });
-
-        // 進階查詢
-        $('#more-cond').on('click', function () {
-            $('#qry-block').toggle();
         });
 
         $(document).on('click', '[func]', function (e) {
@@ -131,36 +122,6 @@
             });
         });
 
-        function SetAlbumBg($this) {
-            var url = '@Url.Action("SetBg", "Album")';
-            var tags = {};
-            tags.AlbumNo = $this.attr('data-album');
-            tags.ImgNo = $this.attr('data-params');
-            tags.ImgExt = $this.attr('data-imgExt');
-            tags.FileName = tags.ImgNo + tags.ImgExt;
-            Sys.AjaxExec(url, tags, function (data) {
-                layer.alert("相簿背景圖設定成功 !", { icon: 1 });
-                $('#albumTitle').css('background-image', 'url(../..{0}{1})'.format('@AppConfig.ImgPath', tags.FileName));
-            });
-        }
-
-        function RmImg($this){
-            var url = '@Url.Action("RmImg", "Album")';
-            var tags = {};
-            tags.AlbumNo = $this.attr('data-album');
-            tags.ImgNo = $this.attr('data-params');
-            Sys.AjaxExec(url, tags, function (data) {
-                _PhotoKey = -1;
-                $this.parents('.gallery').remove();
-
-                var bg = $('#albumTitle').css("background-image")
-                bg = bg.replace(/.*\s?url\([\'\"]?/, '').replace(/[\'\"]?\).*/, '');
-                if (bg.substring(bg.lastIndexOf('/') + 1, bg.lastIndexOf('.')) == tags.ImgNo) {
-                    $('#albumTitle').css('background-image', '');
-                }
-            });
-        }
-
         function InitPhoto(){
             $('#blockSection').empty();
             _Num = 0;
@@ -170,7 +131,13 @@
             if (typeof _Gallery != "undefined") {
                 $("#blockSection").data('lightGallery').destroy(true);
             }
-            _Gallery = $("#blockSection").lightGallery({ selector: '.item', pause: 2000, share: false,setBg: true, actualSize:false });
+            _Gallery = $("#blockSection").lightGallery({
+                selector: '.item',
+                pause: 2000,
+                share: false,
+                setBg: true,
+                actualSize:false
+            });
         }
 
         function MorePhoto() {
