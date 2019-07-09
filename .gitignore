@@ -245,3 +245,4 @@ ModelManifest.xml
 Upload/Images/
 Upload
 
+*.pubxml
