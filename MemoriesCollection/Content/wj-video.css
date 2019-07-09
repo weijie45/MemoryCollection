@@ -17,7 +17,7 @@
 /*show video*/
 
 
-#vedioBlock .thumbnails {
+#vedioBlock .items {
     display: -moz-flex;
     display: -webkit-flex;
     display: -ms-flex;
@@ -33,13 +33,14 @@
     justify-content: space-around;
 }
 
-    #vedioBlock .thumbnails .box {
+    #vedioBlock .items .box {
         padding: 1em;
         margin: 1em 0;
-        width: 17%;
+        /*width: 17%;*/
+        width: 330px;
     }
 
-    #vedioBlock .thumbnails .inner h3 {
+    #vedioBlock .items .inner h3 {
         word-break: break-all;
     }
 
@@ -60,8 +61,6 @@
         width: auto;
         max-width: 100%;
         margin: 0 auto;
-        /*border-radius: 4px 4px 0 0;
-        border: 2px solid #ffffff;*/
     }
 
     #vedioBlock .box .image.fit {

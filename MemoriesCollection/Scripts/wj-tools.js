@@ -163,13 +163,11 @@ var Sys = (function (Sys) {
             success: function (data) {
                 if (typeof data.Errors != "undefined") {
                     $.close();
-                    layer.alert(data.Errors[0], {
-                        icon: 7
-                    });
+                    layer.alert(data.Errors[0], { icon: 7 });
                 } else {
                     if (Array.isArray(data)) {
                         if (data[0] != "") {
-                            layer.alert(data[0]);
+                            layer.alert(data[0], { icon: 7 });
                             $.close();
                         } else if (typeof tags.TargetID != "undefined" && data[1] != "") {
                             if (typeof (isAppend) != "undefined" && isAppend) {

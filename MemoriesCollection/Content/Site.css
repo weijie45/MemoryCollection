@@ -606,3 +606,8 @@ input[type="radio"].rad-parallel {
         background-color: #444;
         color: white;
     }
+
+#qry-multi .item {
+    display: inline-block;
+    width: 30%;
+}

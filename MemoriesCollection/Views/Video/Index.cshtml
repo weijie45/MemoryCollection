@@ -7,9 +7,8 @@
             <a href="#" onclick="UploadVideo();" class="txt-deepPink"><i class="fa fa-upload"> 新增影片</i></a>
         </div>
         <div id="vedioBlock">
-            <div class="inner">
-                <div class="thumbnails">
-                </div>
+            <div class="info">
+                <div class="items"></div>
             </div>
         </div>
     </div><!-- Query -->
@@ -69,7 +68,7 @@
                     $.wait();
                     Sys.AjaxExec(url, tags, function (data) {
                         $('#ListPanel-1').hide();
-                        $('#person').select2({ tags: true });
+                        $('#person').select2({ tags: true , placeholder: "人名"});
                         $(window).scrollTop(0);
                         $.close();
                     });
@@ -129,7 +128,7 @@
         $(window).scroll(function () {
             //最後一頁scrollTop=body-window，50是預留空間
             var last = $("body").height() - $(window).height() - $('#footer').height() - $('#photo-action').height();
-            if ($(window).scrollTop() >= last && _IsLoading == false && $('#vedioBlock .thumbnails').is(':visible')) {
+            if ($(window).scrollTop() >= last && _IsLoading == false && $('#vedioBlock .items').is(':visible')) {
                 _IsLoading = true;
                 _Num += @(AppConfig.VideoLimit);
                 MoreVideo();
@@ -143,13 +142,12 @@
         function MoreVideo() {
             $.wait();
             var tags = {
-                TargetID: "vedioBlock .inner .thumbnails",
+                TargetID: "vedioBlock .items ",
                 SPic: _Num,
                 Append: true,
             }
 
             Sys.AjaxExec("/Video/VideoList", tags, function (data) {
-                _Cond = $('#Cond').val();
                 _IsLoading = data[2]=="Y"?true:false;
                 $.close();
             });

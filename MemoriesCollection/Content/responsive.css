@@ -62,14 +62,6 @@
     #more-cond {
         display: inline;
     }
-
-    /*#qry-block {
-        display: none;
-    }
-
-        #qry-block input, #qry-block select, #qry-block textarea {
-            width: 100%;
-        }*/
 }
 
 @media (max-width: 600px) {
@@ -95,7 +87,7 @@
 }
 
 @media screen and (max-width: 1090px) {
-    #vedioBlock .thumbnails .box {
+    #vedioBlock .items .box {
         width: 30%;
     }
 
@@ -106,6 +98,19 @@
 }
 
 @media screen and (max-width: 980px) {
+
+    #qry-multi .item {
+        width: 50%;
+    }
+
+        #qry-multi .item input {
+            width: 100%;
+        }
+
+    #vedioBlock .items .box {
+        width: calc( 50% - 16px);
+        margin: 5px;
+    }
 
     .albumBlock {
         width: calc( 50% - 16px);
@@ -146,35 +151,13 @@
 
 
 @media screen and (max-width: 736px) {
-
-    .albumBlock {
-        width: 100%;
-        height: 330px;
+    #qry-block {
+        display: none;
     }
 
-    #vedioBlock .thumbnails .box {
-        width: 100%;
-    }
-
-    #menu {
-        width: 100%;
-    }
-
-    #preview .content {
-        /*padding: 2em;*/
-    }
-
-        #preview .content header h2 {
-            font-size: 2em;
+        #qry-block input, #qry-blocks select, #qry-block textarea {
+            width: 100%;
         }
-}
-
-
-/* Media queries - Responsive timeline on screens less than 600px wide */
-@media screen and (max-width: 600px) {
-    #video-container, #main-video, .wj-dropBlock {
-        width: 100%;
-    }
 
     /* Place the timelime to the left */
     #timeLineBlock .timeline::after {
@@ -210,10 +193,44 @@
         #timeLineBlock .right::after {
             left: 16px;
         }
+
+    .albumBlock {
+        width: 100%;
+        height: 330px;
+    }
+
+    #vedioBlock .items .box {
+        width: 100%;
+    }
+
+    #menu {
+        width: 100%;
+    }
+
+    #preview .content {
+        /*padding: 2em;*/
+    }
+
+        #preview .content header h2 {
+            font-size: 2em;
+        }
+}
+
+
+/* Media queries - Responsive timeline on screens less than 600px wide */
+@media screen and (max-width: 600px) {
+
+    #video-container, #main-video, .wj-dropBlock {
+        width: 100%;
+    }
 }
 
 
 @media screen and (max-width: 480px) {
+    #qry-multi .item {
+        width: 100%;
+    }
+
     #vedioBlock .box .inner {
         padding: 1em;
     }
@@ -227,14 +244,6 @@
         background-color: rgba(0, 0, 0, 0.00) !important;
     }
 
-    .wj-gallery .wj-photo {
-        width: 47%;
-    }
-
-        .wj-gallery .wj-photo img {
-            max-width: 100%;
-            max-height: 200px;
-        }
 
     #footer .inner {
         padding: 2em;

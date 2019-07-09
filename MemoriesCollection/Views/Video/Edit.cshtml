@@ -45,10 +45,10 @@
                 </p>
                 <p>
                     <label for="location">地點</label>
-                    <input type="text" class="lg" id="location" name="location" maxlength="50" value="@dr.Location" />
+                    <input type="text" class="lg" id="location" name="location" maxlength="50" value="@dr.Location" placeholder="地點" />
                 </p>
                 <p>
-                    <label for="">人物</label>
+                    <label for="person">人物</label>
                     <a href="#" func="AddPerson"><i class="fa fa-plus text-primary"></i></a>
                     <select id="person" class="lg">
                         @foreach (var p in Allperson) {

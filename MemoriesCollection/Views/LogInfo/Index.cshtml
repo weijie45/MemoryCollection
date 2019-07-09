@@ -2,23 +2,31 @@
     ViewBag.Title = "錯誤紀錄";
 }
 
-<div id="qry-block" class="wj-block-l">
-    <label for="Date">起始日</label>
-    <input type="text" id="SearchFmDate" name="SearchFmDate" value="@Key.EnglishDate(Key.Now.AddDays(-2))">
+<div id="qry-multi" class="wj-block-l">
+    <div class="item">
+        <label for="Date">起始日</label>
+        <input type="text" id="SearchFmDate" name="SearchFmDate" value="@Key.EnglishDate(Key.Now.AddDays(-2))">
+    </div>
+    <div class="item">
+        <label for="Date">截止日</label>
+        <input type="text" id="SearchToDate" name="SearchToDate" value="@Key.EnglishDate(Key.Today)">
+    </div>
+    <div class="item">
+        <label for="ErrMsg">錯誤訊息</label>
+        <input type="search" id="ErrMsg" name="ErrMsg">
+    </div>
+    <div class="item">
+        <label for="Controller">Controller</label>
+        <input type="search" id="Controller" name="Controller">
+    </div>
+    <div class="item">
+        <label for="Action">Action</label>
+        <input type="search" id="Action" name="Action">
+    </div>
+    <div class="item">
+        <button class="button btn-c1" func="Query" type="button">查詢</button>
+    </div>
 
-    <label for="Date">截止日</label>
-    <input type="text" id="SearchToDate" name="SearchToDate" value="@Key.EnglishDate(Key.Today)">
-
-    <label for="ErrMsg">錯誤訊息</label>
-    <input type="search" id="ErrMsg" name="ErrMsg">
-
-    <label for="Controller">Controller</label>
-    <input type="search" id="Controller" name="Controller">
-
-    <label for="Action">Action</label>
-    <input type="search" id="Action" name="Action">
-
-    <button class="button btn-c1" func="Query" type="button">查詢</button>
 </div>
 <div id="ListPanel-1"></div>
 <!-- Detail -->
