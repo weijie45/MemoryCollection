@@ -22,7 +22,7 @@
             <li><a href="@Url.Action("AddPhoto","Photo")" menu><i class="fa fa-plus"></i>新增相片</a></li>
             <li><a href="#" onclick="OpenAlbum();" class="crtAlbum" menu><i class="fa fa-plus"></i>新增相簿</a></li>
             <li><a href="#" onclick="UploadVideo();" class="crtVideo" menu><i class="fa fa-plus"></i>新增影片</a></li>
-            <li><a href="@Url.Action("Index","Photo")" menu> <i class="fa fa-camera-retro"></i>相片 </a></li>
+            <li><a href="@Url.Action("Index","Photo")" menu> <i class="fa fa-camera-retro"></i>批次刪除相片 </a></li>
             <li><a href="@Url.Action("Index","Album")" menu><i class="fa fa-picture-o"></i>相簿</a></li>
             <li><a href="@Url.Action("Index","Video")" menu><i class="fa fa-video-camera"></i>影片</a></li>
             <li><a href="@Url.Action("Index","LogInfo")" menu><i class="fa fa-file-text"></i>錯誤記錄</a></li>
@@ -31,7 +31,7 @@
 
     <div class="container">
         <div class="" id="navbar-sum">
-            <a href="@Url.Action("Index","Photo")">相片</a><span class='wj-badge' id="sum-photos">0</span>
+            <a href="@Url.Action("Index","Home")">相片</a><span class='wj-badge' id="sum-photos">0</span>
             <a href="@Url.Action("Index","Album")">相簿</a><span class='wj-badge' id="sum-albums">0</span>
             <a href="@Url.Action("Index","Video")">影片</a><span class='wj-badge' id="sum-videos">0</span>
         </div>

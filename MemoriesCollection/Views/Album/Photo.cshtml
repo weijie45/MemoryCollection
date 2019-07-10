@@ -24,7 +24,10 @@
         <div id="p_@imgNo" style="width:@(styleWidth)px;flex-grow:@(styleWidth)">
             <i style="padding-bottom:@(padding)%"></i>
             @if (type == "tab_2") {
-                <a href="@imgUrl" class="item" data-sub-html="@name" onclick="return false;">
+                <div id="caption_@imgNo" style="display:none">
+                    <h4>@name</h4><p>@Key.FullDateTime(dr.OrgCreateDateTime)</p>
+                </div>
+                <a href="@imgUrl" class="item" data-sub-html="#caption_@imgNo" onclick="return false;">
                     <img class="lazy" src="" data-src="@imgTbUrl" action="RmImg" data-params="@(imgNo)" data-album="@(albumNo)" data-imgExt="@dr.FileExt" />
                     <div class="info">
                         <p>@name</p>
