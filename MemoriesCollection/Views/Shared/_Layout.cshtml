@@ -449,7 +449,7 @@
                 fd.append('videoName', $('#videoName').val());
                 fd.append('videoDesc', $('#videoDesc').val());
                 fd.append('fileTsize', size);
-                fd.append('img', dataURLtoFile($('#main-video-Tb').attr('src'), 'filename.png'));
+                fd.append('img', dataURLtoFile($('#main-video-Tb').attr('src'), 'filename.jpg'));
 
                 var progressNotifier = $.connection.progressHub;
                 progressNotifier.client.sendMessage = function (message) {
