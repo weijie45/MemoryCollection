@@ -17,7 +17,7 @@
     string desc = dr.FileDesc;
     string videoNo = dr.VideoNo.ToString();
     int size = Convert.ToInt32(dr.Size);
-    var imgUrl = Url.Action("GetLocal", "Files", new { k = Key.Encrypt(name), t = Key.Encrypt(new { Root = AppConfig.VideoThbPath, Folder = "", FileName = videoNo + ".png" }) });
+    var imgUrl = Url.Action("GetLocal", "Files", new { k = Key.Encrypt(name), t = Key.Encrypt(new { Root = AppConfig.VideoThbPath, Folder = "", FileName = videoNo + ".jpg" }) });
     var personList = string.IsNullOrEmpty(dr.Person) ? new string[] { } : dr.Person.Split(',');
     var Allperson = Model.ViewBag.PersonList.Split(',');
     string video = $"{videoNo}{ext}";

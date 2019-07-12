@@ -13,7 +13,7 @@
     int height = dr.Height;
     int size = dr.Size;
     string video = $"{videoNo}{ext}";
-    var imgUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.VideoThbPath, Folder = "", FileName = videoNo + ".png" }) });
+    var imgUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.VideoThbPath, Folder = "", FileName = videoNo + ".jpg" }) });
     var dwUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.VideoPath, Folder = "", FileName = fileName, DwName = dwName }) });
 
     <div class="box">

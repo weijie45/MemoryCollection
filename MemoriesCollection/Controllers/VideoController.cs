@@ -143,7 +143,7 @@ namespace MemoriesCollection.Controllers
                     var fileExt = Path.GetExtension(file.FileName);
 
                     try {
-                        if (fileExt == ".png") {
+                        if (fileExt == ".jpg") {
                             // 上傳影片縮圖
                             Stream fs = file.InputStream;
                             using (Stream ftpStream = System.IO.File.Create($"{VideoThbPath}{videoNo}{fileExt}")) {

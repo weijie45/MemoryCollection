@@ -327,7 +327,10 @@
             var file = $("#fileUplaod").get(0).files[0];
             var type = file.type;
 
-
+            if (['video/mp4', 'video/quicktime'].indexOf(type) == -1) {
+                layer.alert('Error : Only MP4 format allowed', { icon: 7 });
+                return;
+            }
             var name = file.name;
             $('#videoName').val(name.substr(0, name.lastIndexOf('.')));
 
@@ -338,7 +341,7 @@
                 var video = document.getElementById('main-video');
 
                 video.addEventListener('loadedmetadata', function () {
-
+                    $('#saveVideo').prop('disabled', true);
                     //videoThumbnail($("#fileUplaod").get(0).files);
                 });
                 var snapImage = function () { };
@@ -356,7 +359,7 @@
                     playPromise.then(_ => {
                         // 这个时候可以安全的暂停
                         video.pause();
-
+                        videoThumbnail($("#fileUplaod").get(0).files);
                     })
                     .catch(error => {
 
@@ -448,6 +451,8 @@
                 fd.append('videoName', $('#videoName').val());
                 fd.append('videoDesc', $('#videoDesc').val());
                 fd.append('fileTsize', size);
+                fd.append('img', dataURLtoFile($('#main-video-Tb').attr('src'), 'filename.jpg'));
+
                 var progressNotifier = $.connection.progressHub;
                 progressNotifier.client.sendMessage = function (message) {
                     _Percent = message;
