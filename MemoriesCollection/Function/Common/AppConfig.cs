@@ -18,6 +18,7 @@ namespace MemoriesCollection.Function.Common
         public static string ImgPath;
         public static string VideoPath;
         public static string VideoThbPath;
+        public static string AudioPath;
         public static string ImgThbPath;
         public static string ParamError;
         public static string NoData;
@@ -25,6 +26,7 @@ namespace MemoriesCollection.Function.Common
         public static string NoFolder;
         public static string PhotoLimit;
         public static string VideoLimit;
+        public static string AudioLimit;
         public static string MaxPixel;
         public static string ZipPath;
 
@@ -39,6 +41,7 @@ namespace MemoriesCollection.Function.Common
             //FtpPass = Ftp.PutFile("", "", "", "ftp.check", new byte[] { 0x20 });
             ImgPath = urls["ImagePath"];
             VideoPath = urls["VideoPath"];
+            AudioPath = urls["AudioPath"];
             VideoThbPath = urls["VideoThumbnailPath"];
             ImgThbPath = urls["ImageThumbnailPath"];
             ParamError = urls["ParamError"];
@@ -47,6 +50,7 @@ namespace MemoriesCollection.Function.Common
             NoFolder = urls["NoFolder"];
             PhotoLimit = urls["PhotoLimit"];
             VideoLimit = urls["VideoLimit"];
+            AudioLimit = urls["AudioLimit"];
             MaxPixel = urls["MaxPixel"];
             ZipPath = urls["ZipPath"];
             if (!Directory.Exists(HostingEnvironment.MapPath(VideoThbPath))) {
@@ -63,6 +67,9 @@ namespace MemoriesCollection.Function.Common
             }
             if (!Directory.Exists(HostingEnvironment.MapPath(ZipPath))) {
                 Directory.CreateDirectory(HostingEnvironment.MapPath(ZipPath));
+            }
+            if (!Directory.Exists(HostingEnvironment.MapPath(AudioPath))) {
+                Directory.CreateDirectory(HostingEnvironment.MapPath(AudioPath));
             }
         }
 

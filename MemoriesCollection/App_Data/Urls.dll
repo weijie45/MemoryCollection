@@ -10,11 +10,14 @@
   "FtpIp": "127.0.0.1",
   "FtpUser": "W",
   "FtpPassword": "1234",
+
+  "AudioPath": "/Upload/Audio/",
   "VideoPath": "/Upload/Videos/",
   "VideoThumbnailPath": "/Upload/Videos/Thumbnail/",
   "ImagePath": "/Upload/Images/",
   "ImageThumbnailPath": "/Upload/Images/Thumbnail/",
   "VideoLimit": 20,
+  "AudioLimit": 50,
   "PhotoLimit": 50,
   "MaxPixel": 300,
   "ZipPath": "/ZipFile/"

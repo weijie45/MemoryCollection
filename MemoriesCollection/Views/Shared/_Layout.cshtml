@@ -22,6 +22,7 @@
             <li><a href="@Url.Action("AddPhoto","Photo")" menu><i class="fa fa-plus"></i>新增相片</a></li>
             <li><a href="#" onclick="OpenAlbum();" class="crtAlbum" menu><i class="fa fa-plus"></i>新增相簿</a></li>
             <li><a href="#" onclick="UploadVideo();" class="crtVideo" menu><i class="fa fa-plus"></i>新增影片</a></li>
+            <li><a href="@Url.Action("AddAudio","Audio")" menu><i class="fa fa-plus"></i>新增音訊</a></li>
             <li><a href="@Url.Action("Index","Photo")" menu> <i class="fa fa-camera-retro"></i>批次刪除相片 </a></li>
             <li><a href="@Url.Action("Index","Album")" menu><i class="fa fa-picture-o"></i>相簿</a></li>
             <li><a href="@Url.Action("Index","Video")" menu><i class="fa fa-video-camera"></i>影片</a></li>
@@ -34,6 +35,7 @@
             <a href="@Url.Action("Index","Home")">相片</a><span class='wj-badge' id="sum-photos">0</span>
             <a href="@Url.Action("Index","Album")">相簿</a><span class='wj-badge' id="sum-albums">0</span>
             <a href="@Url.Action("Index","Video")">影片</a><span class='wj-badge' id="sum-videos">0</span>
+            <a href="@Url.Action("Index","Audio")">音訊</a><span class='wj-badge' id="sum-audio">0</span>
         </div>
 
         @RenderBody()
@@ -325,10 +327,7 @@
             var file = $("#fileUplaod").get(0).files[0];
             var type = file.type;
 
-            if (['video/mp4', 'video/quicktime'].indexOf(type) == -1) {
-                layer.alert('Error : Only MP4 format allowed', { icon: 7 });
-                return;
-            }
+
             var name = file.name;
             $('#videoName').val(name.substr(0, name.lastIndexOf('.')));
 
@@ -339,7 +338,7 @@
                 var video = document.getElementById('main-video');
 
                 video.addEventListener('loadedmetadata', function () {
-                    $('#saveVideo').prop('disabled', true);
+
                     //videoThumbnail($("#fileUplaod").get(0).files);
                 });
                 var snapImage = function () { };
@@ -357,7 +356,7 @@
                     playPromise.then(_ => {
                         // 这个时候可以安全的暂停
                         video.pause();
-                        videoThumbnail($("#fileUplaod").get(0).files);
+
                     })
                     .catch(error => {
 
@@ -449,8 +448,6 @@
                 fd.append('videoName', $('#videoName').val());
                 fd.append('videoDesc', $('#videoDesc').val());
                 fd.append('fileTsize', size);
-                fd.append('img', dataURLtoFile($('#main-video-Tb').attr('src'), 'filename.png'));
-
                 var progressNotifier = $.connection.progressHub;
                 progressNotifier.client.sendMessage = function (message) {
                     _Percent = message;
@@ -576,6 +573,7 @@
                 $('#sum-photos').text(json.Photos);
                 $('#sum-videos').text(json.Videos);
                 $('#sum-albums').text(json.Albums);
+                $('#sum-audio').text(json.Audio);
             });
         }
 

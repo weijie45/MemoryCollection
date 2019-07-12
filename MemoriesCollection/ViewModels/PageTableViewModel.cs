@@ -13,6 +13,7 @@ namespace MemoriesCollection.ViewModels
         public List<Photo> PhotoList { get; set; }
         public List<Album> AlbumList { get; set; }
         public List<VideoInfo> VideoList { get; set; }
+        public List<Audio> AudioList { get; set; }
         public Album Album { get; set; }
         public List<ErrorLog> ErrLogList { get; set; }
 

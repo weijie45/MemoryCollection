@@ -325,10 +325,15 @@ namespace MemoriesCollection.Controllers
             var tags = vt.Tags;
             var date = Key.Dict(ref tags, "Date"); // 時間軸的時間
 
-            Sql = " SELECT  COUNT(ImgNo) photos, (SELECT COUNT(VideoNo) FROM VIDEO ) videos, (SELECT COUNT(AlbumNo) FROM Album) albums FROM PHOTO ";
+            Sql = " SELECT  COUNT(ImgNo) photos,  ";
+            Sql += "   (SELECT COUNT(VideoNo) FROM VIDEO ) videos,  ";
+            Sql += "   (SELECT COUNT(AlbumNo) FROM Album) albums, ";
+            Sql += "   (SELECT COUNT(1) FROM Audio) audio  ";
+            Sql += " FROM PHOTO ";
+
             var data = db.Query(Sql).FirstOrDefault();
 
-            var obj = new { Photos = data.photos, Videos = data.videos, Albums = data.albums };
+            var obj = new { Photos = data.photos, Videos = data.videos, Albums = data.albums, Audio = data.audio };
 
             rtn[1] = obj.ToJson();
 

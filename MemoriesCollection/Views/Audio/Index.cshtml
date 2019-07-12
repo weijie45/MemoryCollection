@@ -1,0 +1,54 @@
+﻿
+@{
+    ViewBag.Title = "錄音檔";
+}
+<div id="main-div-data">
+    <div id="ListPanel-1">
+        <div class="wj-l">
+            <a href="@Url.Action("AddAudio","Audio")" class="txt-deepPink"><i class="fa fa-upload">新增音訊</i></a>
+        </div>
+        <div id="vedioBlock">
+            <div class="info">
+                <div class="items"></div>
+            </div>
+        </div>
+    </div><!-- Query -->
+    <div id="ListPanel-2"></div><!-- Detail -->
+</div>
+
+@section Scripts {
+    <script>
+        var _IsLoading = false;
+        var _Num = 0;
+
+        $(window).scroll(function () {
+            //最後一頁scrollTop=body-window，50是預留空間
+            var last = $("body").height() - $(window).height() - $('#footer').height() - $('#photo-action').height();
+            if ($(window).scrollTop() >= last && _IsLoading == false && $('#vedioBlock .items').is(':visible')) {
+                _IsLoading = true;
+                _Num += @(AppConfig.VideoLimit);
+                MoreAudio();
+            }
+        });
+
+        function MoreAudio() {
+            $.wait();
+            var tags = {
+                TargetID: "vedioBlock .items ",
+                SPic: _Num,
+                Append: true,
+            }
+
+            Sys.AjaxExec("/Audio/AudioList", tags, function (data) {
+                _IsLoading = data[2]=="Y"?true:false;
+                $.close();
+            });
+        }
+
+        MoreAudio();
+    </script>
+}
+
+
+
+

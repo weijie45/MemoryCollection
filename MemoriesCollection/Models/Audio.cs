@@ -6,20 +6,15 @@ using System.Web;
 
 namespace MemoriesCollection.Models
 {
-    [Table("Video")]
-    public class VideoInfo
+    [Table("Audio")]
+    public class Audio
     {
         [Key]
-        public int VideoNo { get; set; }
+        public int AudioNo { get; set; }
 
         public string FileName { get; set; }
         public string FileExt { get; set; }
-        public string FileDesc { get; set; }
         public int Size { get; set; }
-        public int Width { get; set; }
-        public int Height { get; set; }
-        public string Location { get; set; }
-        public string Person { get; set; }
         public DateTime OrgCreateDateTime { get; set; }
         public DateTime OrgModifyDateTime { get; set; }
 

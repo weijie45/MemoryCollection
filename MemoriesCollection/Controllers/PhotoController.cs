@@ -24,7 +24,7 @@ namespace MemoriesCollection.Controllers
 {
     public class PhotoController : BaseController
     {
-
+        public string[] AllowExt = new string[] { "jpg", "jpeg", "png", "bmp", "gif", "tiff" };
         [OutputCache(NoStore = true, Duration = 0)]
         public ActionResult Index()
         {

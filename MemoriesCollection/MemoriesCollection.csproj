@@ -176,6 +176,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AlbumController.cs" />
+    <Compile Include="Controllers\AudioController.cs" />
     <Compile Include="Controllers\ErrorHandleController.cs" />
     <Compile Include="Controllers\FilesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -202,6 +203,7 @@
     <Compile Include="Hubs\Startup.cs" />
     <Compile Include="Infrastructure\BaseController.cs" />
     <Compile Include="Models\Album.cs" />
+    <Compile Include="Models\Audio.cs" />
     <Compile Include="Models\ErrorLog.cs" />
     <Compile Include="Models\Photo.cs" />
     <Compile Include="Models\VideoInfo.cs" />
@@ -429,6 +431,9 @@
     <Content Include="Views\LogInfo\Query.cshtml" />
     <Content Include="Views\Home\TimeLine.cshtml" />
     <Content Include="Views\Home\Details.cshtml" />
+    <Content Include="Views\Audio\Index.cshtml" />
+    <Content Include="Views\Audio\AddAudio.cshtml" />
+    <Content Include="Views\Audio\Audio.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

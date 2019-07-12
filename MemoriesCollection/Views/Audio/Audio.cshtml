@@ -1,0 +1,29 @@
+﻿@model MemoriesCollection.ViewModels.PageTableViewModel
+<!-- Boxes -->
+@foreach (var dr in Model.AudioList) {
+    string audioNo = dr.AudioNo.ToString();
+    string ext = dr.FileExt;
+    string name = dr.FileName;
+    string dwName = $"{name}{ext}";
+    string fileName = $"{audioNo}{ext}";
+    int size = dr.Size;
+    string audio = $"{audioNo}{ext}";
+    var audioUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.AudioPath, Folder = "", FileName = audioNo + ".png" }) });
+    var dwUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.AudioPath, Folder = "", FileName = fileName, DwName = dwName }) });
+
+    <div class="box">
+        <audio controls>
+            <source src="@audioUrl" type="audio/mp4">
+            Your browser does not support the audio element.
+        </audio>
+        <div class="inner">
+            <h3 class="txt-black">
+                @name <i class="fa fa-info-circle v-title" aria-hidden="true"></i>
+            </h3>
+
+            <a href="#" func="Edit" data-param="@audioNo" class="button btn-c1">編輯</a>
+            <a href="@dwUrl" class="button btn-c2">下載</a>
+
+        </div>
+    </div>
+}

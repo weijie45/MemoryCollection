@@ -43,7 +43,6 @@ namespace MemoriesCollection.Controllers
             var tags = vt.Tags;
             var pv = new PageTableViewModel();
             var sPic = Key.Dict(ref tags, "SPic").FixInt();
-            var cond = Key.Dict(ref tags, "Cond"); // 時間軸的時間
 
             Sql = " SELECT ";
             Sql += "  *  ";
@@ -51,10 +50,6 @@ namespace MemoriesCollection.Controllers
             Sql += "   ( ";
             Sql += "     SELECT *, ROW_NUMBER() OVER(ORDER BY ModifyDateTime Desc) as row  FROM Video ";
             Sql += "        WHERE 1= 1 ";
-            if (cond != "") {
-                Sql += Key.Decrypt(cond);
-            }
-
             Sql += "   ) a ";
             Sql += " WHERE ";
             Sql += $"    a.row > {sPic} ";
@@ -171,7 +166,6 @@ namespace MemoriesCollection.Controllers
                                 vd.OrgModifyDateTime = now;
                                 vd.CreateDateTime = now;
                                 vd.ModifyDateTime = now;
-                                vd.LocalFilePath = "";
                                 db.Insert(vd);
 
                                 videoNo = vd.VideoNo.ToString();
@@ -193,15 +187,18 @@ namespace MemoriesCollection.Controllers
                                 fileStream.Seek(0, SeekOrigin.Begin);
 
                                 ////取得 Metadata , 影片解析                               
-                                string dateTime = "", videoW = "", videoH = "";
+                                string crtDateTime = "", modDateTime = "", videoW = "", videoH = "";
                                 var directories = ImageMetadataReader.ReadMetadata(fileStream);
                                 foreach (var directory in directories) {
                                     foreach (var tag in directory.Tags) {
                                         var name = tag.Name.ToLower();
                                         var val = tag.Description.Trim();
                                         switch (name) {
+                                            case "modified":
+                                                modDateTime = (modDateTime != "") ? modDateTime : val;
+                                                break;
                                             case "created":
-                                                dateTime = (dateTime != "") ? dateTime : val;
+                                                crtDateTime = (crtDateTime != "") ? crtDateTime : val;
                                                 break;
                                             case "width":
                                                 videoW = val == "0" ? videoW : tag.Description.Trim();
@@ -212,24 +209,14 @@ namespace MemoriesCollection.Controllers
                                         }
                                     }
                                 }
-
                                 CultureInfo culture = CultureInfo.CreateSpecificCulture("en-US");
-                                if (dateTime.Length == 22) {
-                                    culture = CultureInfo.CreateSpecificCulture("zh-TW");
-                                    dateTime = dateTime == "" ? "" : dateTime.Substring(0, 9) + "," + dateTime.Substring(17) + dateTime.Substring(8, 9);
-                                } else if (dateTime.Length == 24) {
-                                    dateTime = dateTime == "" ? "" : dateTime.Substring(0, 10) + "," + dateTime.Substring(19) + dateTime.Substring(10, 9);
-                                } else {
-                                    dateTime = now.ToString("yyyy/MM/dd");
-                                }
 
                                 Sql = $"SELECT * FROM Video WHERE VideoNo = '{vd.VideoNo}' ";
                                 var res = db.Query<VideoInfo>(Sql).FirstOrDefault();
                                 res.Width = videoW.FixInt();
                                 res.Height = videoH.FixInt();
-                                res.LocalFilePath = Key.LocFilePath("video", fileName, fileExt); ;
-                                res.OrgCreateDateTime = DateTime.Parse(dateTime, culture, DateTimeStyles.None);
-                                res.OrgModifyDateTime = DateTime.Parse(dateTime, culture, DateTimeStyles.None);
+                                res.OrgCreateDateTime = DateTime.Parse(DateTimeFormat(crtDateTime), culture, DateTimeStyles.None);
+                                res.OrgModifyDateTime = DateTime.Parse(DateTimeFormat(modDateTime), culture, DateTimeStyles.None);
 
                                 if (db.Update(res)) {
                                     scope.Complete();
@@ -253,6 +240,20 @@ namespace MemoriesCollection.Controllers
             }
 
             return new JsonNetResult(rtn);
+        }
+
+        public string DateTimeFormat(string dateTime)
+        {
+            CultureInfo culture = CultureInfo.CreateSpecificCulture("en-US");
+            if (dateTime.Length == 22) {
+                culture = CultureInfo.CreateSpecificCulture("zh-TW");
+                dateTime = dateTime == "" ? "" : dateTime.Substring(0, 9) + "," + dateTime.Substring(17) + dateTime.Substring(8, 9);
+            } else if (dateTime.Length == 24) {
+                dateTime = dateTime == "" ? "" : dateTime.Substring(0, 10) + "," + dateTime.Substring(19) + dateTime.Substring(10, 9);
+            } else {
+                dateTime = now.ToString("yyyy/MM/dd");
+            }
+            return dateTime;
         }
 
         public ActionResult ChkSize()

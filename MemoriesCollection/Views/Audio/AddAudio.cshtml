@@ -1,0 +1,125 @@
+﻿
+@{
+    ViewBag.Title = "AddFile";
+}
+
+
+<div class="wj-dropBlock hidden">Drag & Drop Audio Here</div>
+<div class="wj-block-c">
+    <input type="file" name="file-1[]" id="imgUpload" class="inputfile inputfile-1" data-multiple-caption="{count} files selected" multiple />
+    <label for="imgUpload"><span>請選擇檔案&hellip;</span></label>
+</div>
+
+
+@section Scripts {
+    <script>
+
+
+        // 圖片上傳
+        $('#imgUpload').on('change', function (e) {
+            upload(e.target.files);
+        });
+
+        $(function () {
+            // 拖拉區塊
+            //http://www.tipocode.com/html/drag-and-drop-multiple-files-upload-with-html5-jquery-formdata/#
+            $('.wj-dropBlock').on('dragover', function (e) {
+                $(this).attr('class', 'drop_hover');
+                e.preventDefault();
+                e.stopPropagation();
+            });
+
+            // Add eventhandlers for dragenter and prevent the default actions for this event
+            $('.wj-dropBlock').on('dragenter', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+
+            $('.wj-dropBlock').on('dragleave', function (e) {
+                $(this).attr('class', 'wj-dropBlock');
+            });
+
+            $('.wj-dropBlock').on('drop', function (e) {
+                if (e.originalEvent.dataTransfer) {
+                    if (e.originalEvent.dataTransfer.files.length) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        upload(e.originalEvent.dataTransfer.files);
+                    }
+                }
+            });
+
+        });
+
+        // 上傳
+        function upload(files) { // upload function
+            var fd = new FormData(); // Create a FormData object
+            var html = "";
+            var totalSize = 1048000000; // 1g
+            var size = 0;
+            var pass = true;
+            var fileLen = files.length;
+            var msg = "確認上傳 <span class='red'>{0}</span>個音訊檔 ?".format(fileLen);
+            var wrongExt = 0;
+            for (var i = 0; i < fileLen; i++) {
+                if (files[i].type.indexOf('audio') == -1) {
+                    wrongExt++;
+                    msg = "上傳檔案共<span class='red'>{0}</span>筆<br>".format(fileLen);
+                    msg += "其中<span class='red'>{0}</span>筆<span class='red'>不符合檔案格式</span><br>".format(wrongExt);
+                    msg += "是否略過並上傳 ?";
+                }
+                size += files[i].size;
+            }
+            if (wrongExt == files.length) {
+                layer.alert("僅提供音訊檔上傳 !", { icon: 7 });
+                return false;
+            }
+            if (size > totalSize) {
+                layer.alert("總檔案不可大於1GB !", { icon: 7 });
+                return false;
+            }
+            if (files.length > 10) {
+                layer.alert("不可超過10個檔案 !", { icon: 7 });
+            } else {
+
+                for (var i = 0; i < files.length; i++) { // Loop all files
+                    var file = files[i];
+                    var fileName = file.name;
+                    var modifyDate = new Date(typeof (file.lastModified) == 'undefined' ? new Date() : file.lastModified);
+
+                    fd.append('file_{0}'.format(i), file);
+                    fd.append('fileModDate_{0}'.format(i), modifyDate.toISOString().substring(0, 10) + " " + modifyDate.toTimeString().substring(0, 8));
+                }
+                fd.append('fileTsize', size);
+
+                layer.confirm(msg, { icon: 3 }, function (index) {
+                    layer.close(index);
+
+                    var progressNotifier = $.connection.progressHub;
+                    progressNotifier.client.sendMessage = function (message) {
+                        _Percent = message;
+                        UpdateProgress();
+                    };
+
+                    $.waitProgress();
+                    $.connection.hub.start().done(function () {
+                        Sys.AjaxUpload("/Audio/Upload", fd, function (data) {
+                            GetSum();
+                            var json = JSON.parse(data[1]);
+                            layer.alert("上傳成功 !", { icon: 1 }, function (index) {
+                                layer.close(index);
+                                $.closeProgress();
+                                location.reload();
+                            });
+                        });
+                    });
+
+                });
+            }
+
+        }
+
+    </script>
+}
+
+

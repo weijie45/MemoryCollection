@@ -19,8 +19,8 @@ namespace MemoriesCollection
         public string ZipPath = AppConfig.ZipPath;
         public string VideoPath = AppConfig.VideoPath;
         public string VideoThbPath = AppConfig.VideoThbPath;
+        public string AudioPath = AppConfig.AudioPath;
         public string Sql = "";
-        public string[] AllowExt = new string[] { "jpg", "jpeg", "png", "bmp", "gif", "tiff" };
         public int PhotoLimit = AppConfig.PhotoLimit.FixInt();
 
         public BaseController()
@@ -31,6 +31,7 @@ namespace MemoriesCollection
             ImgPath = System.Web.HttpContext.Current.Server.MapPath(ImgPath);
             ImgThbPath = System.Web.HttpContext.Current.Server.MapPath(ImgThbPath);
             ZipPath = System.Web.HttpContext.Current.Server.MapPath(ZipPath);
+            AudioPath = System.Web.HttpContext.Current.Server.MapPath(AudioPath);
             VideoPath = System.Web.HttpContext.Current.Server.MapPath(VideoPath);
             VideoThbPath = System.Web.HttpContext.Current.Server.MapPath(VideoThbPath);
         }
