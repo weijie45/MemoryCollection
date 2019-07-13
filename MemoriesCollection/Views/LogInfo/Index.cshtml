@@ -2,7 +2,7 @@
     ViewBag.Title = "錯誤紀錄";
 }
 
-<div id="qry-multi" class="wj-block-l">
+<div id="qry-multi" class="wj-block-l qry-area">
     <div class="item">
         <label for="Date">起始日</label>
         <input type="text" id="SearchFmDate" name="SearchFmDate" value="@Key.EnglishDate(Key.Now.AddDays(-2))">
@@ -67,9 +67,9 @@
             }
         });
 
-        function Query() {
-            $("[func=Query]").trigger("click");
-        };
+
+        $("[func=Query]").trigger("click");
+
 
     </script>
 }

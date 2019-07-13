@@ -8,21 +8,20 @@
     string fileName = $"{audioNo}{ext}";
     int size = dr.Size;
     string audio = $"{audioNo}{ext}";
-    var audioUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.AudioPath, Folder = "", FileName = audioNo + ".png" }) });
+    var audioUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.AudioPath, Folder = "", FileName = fileName }) });
     var dwUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.AudioPath, Folder = "", FileName = fileName, DwName = dwName }) });
 
     <div class="box">
         <audio controls>
-            <source src="@audioUrl" type="audio/mp4">
-            Your browser does not support the audio element.
+            <source src="@audioUrl">
         </audio>
         <div class="inner">
             <h3 class="txt-black">
-                @name <i class="fa fa-info-circle v-title" aria-hidden="true"></i>
+                <input type="text" name="FileName" value="@name" />
             </h3>
 
-            <a href="#" func="Edit" data-param="@audioNo" class="button btn-c1">編輯</a>
-            <a href="@dwUrl" class="button btn-c2">下載</a>
+            <button type="button" class="button btn-red" data-param="@audioNo" onclick="SaveAudio(this)">儲存</button>
+            <button type="button" href="@dwUrl" class="button btn-c2" data-param="@audioNo" onclick="SaveAudio(this)">下載</button>
 
         </div>
     </div>

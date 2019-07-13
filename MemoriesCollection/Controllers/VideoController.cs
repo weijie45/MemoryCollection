@@ -298,7 +298,6 @@ namespace MemoriesCollection.Controllers
                 return PageSettion.VarTagsError(vt.ErrorMsg);
             }
             var tags = vt.Tags;
-            PageTableViewModel pv = new PageTableViewModel();
             var name = Key.Dict(ref tags, "name");
             var desc = Key.Dict(ref tags, "desc");
             var location = Key.Dict(ref tags, "location");

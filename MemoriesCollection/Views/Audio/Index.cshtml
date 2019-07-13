@@ -31,6 +31,31 @@
             }
         });
 
+        function SaveAudio(sel){
+            var msg = [];
+            var $this = $(sel);
+            var tags = $this.parents('.box:first').tags();
+            tags.AudioNo =$this.attr('data-param');
+
+            msg.push(IsEmpty(tags.AudioNo) ? "@AppConfig.NoData !" : "");
+            msg = msg.filter(Boolean);
+
+            if (msg.length > 0) {
+                layer.alert(msg.join("<br>"), { title: '請輸入正確資料', icon: 0 });
+            } else {
+                layer.confirm('確認儲存 ?', { title: '儲存', icon: 3 }, function (index) {
+                    layer.close(index);
+                    $.wait('資料儲存中...');
+                    Sys.AjaxExec('@Url.Action("Save","Audio")', tags, function (data) {
+                        $.close();
+                        layer.alert('儲存成功 !', { title: '儲存', icon: 3 }, function (index) {
+                            layer.close(index);
+                        });
+                    });
+                });
+            }
+        }
+
         function MoreAudio() {
             $.wait();
             var tags = {

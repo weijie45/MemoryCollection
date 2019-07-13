@@ -3,6 +3,7 @@ using MemoriesCollection.Function.Extensions;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -48,8 +49,24 @@ namespace MemoriesCollection.Controllers
                 return new EmptyResult();
             } else {
                 return File(Files.GetFile(root, folder, fileName, ""), System.Net.Mime.MediaTypeNames.Application.Octet, dwName);
+                //return File(Files.GetFile(root, folder, fileName, ""), GetMimeTypeByWindowsRegistry(Path.GetExtension(fileName)), dwName);
             }
         }
 
+
+        /// <summary>
+        /// Retrieves the MimeType bound to the given filename or extension by looking into the Windows Registry entries.
+        /// NOTE: This method supports only the MimeTypes registered in the server OS / Windows installation.
+        /// </summary>
+        /// <param name="fileNameOrExtension">a valid filename (file.txt) or extension (.txt or txt)</param>
+        /// <returns>A valid Mime Type (es. text/plain)</returns>
+        public string GetMimeTypeByWindowsRegistry(string fileNameOrExtension)
+        {
+            string mimeType = "application/unknown";
+            string ext = (fileNameOrExtension.Contains(".")) ? System.IO.Path.GetExtension(fileNameOrExtension).ToLower() : "." + fileNameOrExtension;
+            Microsoft.Win32.RegistryKey regKey = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(ext);
+            if (regKey != null && regKey.GetValue("Content Type") != null) mimeType = regKey.GetValue("Content Type").ToString();
+            return mimeType;
+        }
     }
 }

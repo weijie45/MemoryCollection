@@ -46,7 +46,8 @@ namespace MemoriesCollection.Controllers
                     Sql += " FROM ";
                     Sql += "   ErrorLog  ";
                     Sql += " WHERE 1=1";
-                    Sql += $" AND   convert(char, LogDate, 112)  BETWEEN '{fmDate}' AND '{toDate}' ";
+                    Sql += fmDate == "" ? "" : $" LogDate >= '{fmDate}' ";
+                    Sql += toDate == "" ? "" : $" AND LogDate <= '{toDate}' ";
                     Sql += errMsg == "" ? "" : $" AND  Msg Liek '%{errMsg}%' ";
                     Sql += action == "" ? "" : $" AND  Action = '{action}' ";
                     Sql += controller == "" ? "" : $"   AND Controller like '%{controller}%' ";

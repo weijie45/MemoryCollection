@@ -120,6 +120,11 @@ a {
     display: none;
 }
 
+.qry-area {
+    background-color: #ddd;
+    border-radius: 5px;
+    padding: 10px;
+}
 
 /*信用卡付款才顯示銀行等欄位*/
 .creditPanel {
