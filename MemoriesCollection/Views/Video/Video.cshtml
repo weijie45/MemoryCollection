@@ -24,8 +24,8 @@
             <h3 class="txt-black">
                 @name <i class="fa fa-info-circle v-title" aria-hidden="true"></i>
             </h3>
-
-            <p class="videoInfo txt-white hidden">@($"長:{dr.Height} / 寬:{dr.Width} / 長度:{Key.FormatNumber(dr.Size / 1000000)}Mb")</p>
+            <p class="txt-white">@dr.OrgCreateDateTime</p>
+            <p class="videoInfo txt-deepPink hidden">@($"長:{dr.Height} / 寬:{dr.Width} / 長度:{Key.FormatNumber(dr.Size / 1000000)}Mb")</p>
 
             @if (location != "" || person != "") {
                 <p>

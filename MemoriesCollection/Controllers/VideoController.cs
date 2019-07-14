@@ -178,8 +178,6 @@ namespace MemoriesCollection.Controllers
                                     int read;
                                     while ((read = fileStream.Read(buffer, 0, buffer.Length)) > 0) {
                                         doneSize += 1024000;
-                                        var percent = ((double)doneSize / (double)totalSize * 100 / 2) + 50;
-                                        ProgressHub.SendMessage(percent > 100 ? 100 : percent);
                                         ftpStream.Write(buffer, 0, read);
                                     }
                                 }
@@ -209,14 +207,13 @@ namespace MemoriesCollection.Controllers
                                         }
                                     }
                                 }
-                                CultureInfo culture = CultureInfo.CreateSpecificCulture("en-US");
 
                                 Sql = $"SELECT * FROM Video WHERE VideoNo = '{vd.VideoNo}' ";
                                 var res = db.Query<VideoInfo>(Sql).FirstOrDefault();
                                 res.Width = videoW.FixInt();
                                 res.Height = videoH.FixInt();
-                                res.OrgCreateDateTime = DateTime.Parse(DateTimeFormat(crtDateTime), culture, DateTimeStyles.None);
-                                res.OrgModifyDateTime = DateTime.Parse(DateTimeFormat(modDateTime), culture, DateTimeStyles.None);
+                                res.OrgCreateDateTime = DateTimeFormat(crtDateTime);
+                                res.OrgModifyDateTime = DateTimeFormat(modDateTime);
 
                                 if (db.Update(res)) {
                                     scope.Complete();
@@ -228,10 +225,13 @@ namespace MemoriesCollection.Controllers
 
                             } // transaction       
                         }
+
+                        ProgressHub.SendMessage(100);
                     } catch (Exception e) {
                         Files.DelFile(VideoPath, fileName, fileExt);
                         Files.DelFile(VideoThbPath, fileName, ".jpg");
                         Log.ErrLog(e);
+                        rtn[0] = e.Message;
                     }
 
                 }
@@ -242,7 +242,7 @@ namespace MemoriesCollection.Controllers
             return new JsonNetResult(rtn);
         }
 
-        public string DateTimeFormat(string dateTime)
+        public DateTime DateTimeFormat(string dateTime)
         {
             CultureInfo culture = CultureInfo.CreateSpecificCulture("en-US");
             if (dateTime.Length == 22) {
@@ -253,7 +253,7 @@ namespace MemoriesCollection.Controllers
             } else {
                 dateTime = now.ToString("yyyy/MM/dd");
             }
-            return dateTime;
+            return DateTime.Parse(dateTime, culture, DateTimeStyles.None);
         }
 
         public ActionResult ChkSize()

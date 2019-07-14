@@ -380,7 +380,7 @@
 
         function videoThumbnail(files) {
             var fd = new FormData(); // Create a FormData object
-            var maxFileSize = 524000000; // 500M
+            var maxFileSize = 1024000000; // 500M
             var size = 0;
             var msg = [];
             msg.push(IsEmpty($('#videoName').val()) ? "檔名不可為空 !" : "");
@@ -425,7 +425,6 @@
 
         function uploadVideo(files) { // upload function
             var fd = new FormData(); // Create a FormData object
-            var maxFileSize = 524000000; // 500M
             var size = 0;
             var msg = [];
             msg.push($("#fileUplaod").get(0).files.length == 0 ? "請上傳檔案 !" : "");
@@ -438,10 +437,6 @@
 
                 for (var i = 0; i < files.length; i++) {
                     size += files[i].size;
-                }
-                if (size > maxFileSize) {
-                    layer.alert("檔案不可大於500M !", { icon: 7 });
-                    return false;
                 }
 
                 for (var i = 0; i < files.length; i++) {

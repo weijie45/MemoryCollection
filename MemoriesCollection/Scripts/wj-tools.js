@@ -256,7 +256,8 @@ var Sys = (function (Sys) {
                 return xhr;
             },
             complete: function (e) {
-                UpdateProgress(100);
+                _Percent = 100;
+                UpdateProgress();
                 $('#navbar').removeClass('in');
             }
         });

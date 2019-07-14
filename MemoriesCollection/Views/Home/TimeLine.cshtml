@@ -83,6 +83,7 @@
         var _Num = 0; // 張數
         var _PhotoKey = -1; // 照片編號
         var _TopOffset = 0;// 時間軸的高度(避免各相片的明細衝突)
+        var _Date = '';
 
         $('.imgBlock').on('click', function () {
 
@@ -92,6 +93,7 @@
             _Num = 0;
             $('#ListPanel-1').show();
             $('#timeLineBlock').hide();
+            _Date = $(this).attr('data-params');
             MorePhoto($(this).attr('data-params'));
 
         });
@@ -103,7 +105,7 @@
             if ($(window).scrollTop() >= last && _IsLoading == false && $('#ListPanel-1').is(':visible')) {
                 _IsLoading = true;
                 _Num += @(AppConfig.PhotoLimit);
-                MorePhoto();
+                MorePhoto(_Date);
             }
         });
 
