@@ -434,6 +434,7 @@
     <Content Include="Views\Audio\Index.cshtml" />
     <Content Include="Views\Audio\AddAudio.cshtml" />
     <Content Include="Views\Audio\Audio.cshtml" />
+    <Content Include="Views\Video\AddVideo.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

@@ -59,7 +59,7 @@
         function upload(files) { // upload function
             var fd = new FormData(); // Create a FormData object
             var html = "";
-            var totalSize = 1048000000; // 1g
+            var totalSize = parseInt('@AppConfig.FileTotalSize');
             var size = 0;
             var pass = true;
             var fileLen = files.length;
@@ -80,7 +80,7 @@
                 return false;
             }
             if (size > totalSize) {
-                layer.alert("總檔案不可大於1GB !", { icon: 7 });
+                layer.alert("總檔案不可大於6GB !", { icon: 7 });
                 return false;
             }
             if (files.length > 500) {

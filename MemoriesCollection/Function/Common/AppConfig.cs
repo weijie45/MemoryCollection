@@ -29,6 +29,8 @@ namespace MemoriesCollection.Function.Common
         public static string AudioLimit;
         public static string MaxPixel;
         public static string ZipPath;
+        public static string FileTotalSize;
+        public static string SingleFileSize;
 
 
         public static void Init()
@@ -53,6 +55,9 @@ namespace MemoriesCollection.Function.Common
             AudioLimit = urls["AudioLimit"];
             MaxPixel = urls["MaxPixel"];
             ZipPath = urls["ZipPath"];
+            FileTotalSize = urls["FileTotalSize"];
+            SingleFileSize = urls["SingleFileSize"];
+
             if (!Directory.Exists(HostingEnvironment.MapPath(VideoThbPath))) {
                 Directory.CreateDirectory(HostingEnvironment.MapPath(VideoThbPath));
             }

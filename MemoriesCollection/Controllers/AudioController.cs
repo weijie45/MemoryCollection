@@ -88,7 +88,6 @@ namespace MemoriesCollection.Controllers
                 for (var i = 0; i < uploadCnt; i++) {
                     var file = files[i];
                     var fileExt = Path.GetExtension(file.FileName);
-                    var isPass = true;
                     //https://www.aspsnippets.com/Articles/Convert-HttpPostedFile-to-Byte-Array-in-ASPNet-using-C-and-VBNet.aspx
 
                     if (AllowExt.Contains(fileExt.Replace(".", "").ToLower())) {

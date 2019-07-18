@@ -14,6 +14,7 @@ using MemoriesCollection.ViewModels;
 using Westwind.Web.Mvc;
 using MemoriesCollection.Hubs;
 using System.Transactions;
+using Newtonsoft.Json;
 
 namespace MemoriesCollection.Controllers
 {
@@ -27,6 +28,16 @@ namespace MemoriesCollection.Controllers
         {
             return View();
         }
+
+        /// <summary>
+        /// 新增相片
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult AddVideo()
+        {
+            return View();
+        }
+
 
         [HttpPost]
         /// <summary>
