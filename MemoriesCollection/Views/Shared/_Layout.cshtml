@@ -12,7 +12,7 @@
 <body>
     <div id="navBar">
         <ul>
-            <li><a href="javascript:void();" id="menu-trigger"><i class="fa fa-bars"></i></a></li>
+            <li><a href="javascript:void(0);" id="menu-trigger"><i class="fa fa-bars"></i></a></li>
             <li><a class="active" href="@Url.Action("Index", "Home")">Home</a></li>
             <li><a href="@Url.Action("TimeLine", "Home")">時間軸</a></li>
         </ul>
@@ -124,6 +124,7 @@
                     </div>
                 </div>
                 <footer class="wj-container wj-teal">
+                    <button type="button" class="button btn-c1" id="video-thb" onclick='videoThumbnail($("#fileUplaod").get(0).files);' style="display:none;">影片縮圖</button>
                     <button type="button" class="button btn-red" id="saveVideo" disabled>上傳</button>
                     <button type="button" class="button btn-secondary" dissmiss-modal>關閉</button>
                 </footer>
@@ -317,6 +318,7 @@
             $('label[for=fileUplaod] span').html('請選擇影片&hellip;');
             $('#saveVideo').prop('disabled', false);
             $('#video-waiting').text('');
+            $('#video-thb').hide();
         }
 
         $(document).on('click', '#Video-modal [dissmiss-modal]', function () {
@@ -350,8 +352,6 @@
                 video.src = url;
                 video.muted = true;
                 video.playsInline = true;
-                //video.play();
-                //video.pause();
                 // Show loading animation.
                 var playPromise = video.play();
 
@@ -383,8 +383,10 @@
             var maxFileSize = 1024000000; // 500M
             var size = 0;
             var msg = [];
+            msg.push(files.length == 0 ? "請先上傳影片 !" : "");
             msg.push(IsEmpty($('#videoName').val()) ? "檔名不可為空 !" : "");
             msg = msg.filter(Boolean);
+            $('#saveVideo').prop('disabled', true);
 
             if (msg.length > 0) {
                 layer.alert(msg.join("<br>"), { title: '請輸入正確資料', icon: 7 });
@@ -511,6 +513,7 @@
             }
             $('#video-waiting').text('縮圖完成......');
             $('#saveVideo').prop('disabled', false);
+            $('#video-thb').show();
             return canvas;
         }
 
