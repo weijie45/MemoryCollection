@@ -20,7 +20,7 @@
   "AudioLimit": 50,
   "PhotoLimit": 50,
   "MaxPixel": 300,
-  "FileTotalSize": "6442450944",
+  "FileTotalSize": "2147483648",
   "SingleFileSize": "1073741824",
   "ZipPath": "/ZipFile/"
 }

@@ -1,7 +1,236 @@
-﻿
-@{
-    ViewBag.Title = "AddVideo";
+﻿@{
+    ViewBag.Title = "上傳影片";
 }
 
-<h2>AddVideo</h2>
+<div class="wj-dropBlock hidden">Drag & Drop Video Here</div>
+<div class="wj-block-c">
+    <input type="file" name="file-1[]" id="imgUpload" class="inputfile inputfile-1" data-multiple-caption="{count} files selected" multiple />
+    <label for="imgUpload"><span>請選擇影片&hellip;</span></label>
+</div>
+<div class="wj-block-c">
+    <button id="Save" class="button btn-c1" onclick="UploadVideo($('#imgUpload').get(0).files)" disabled>確認上傳</button>
+</div>
 
+@*<div id="result" class="gallery"></div>*@
+
+@section Scripts {
+    <script>
+
+
+        // 圖片上傳
+        $('#imgUpload').on('change', function (e) {
+            InitVideo(e.target.files);
+        });
+
+        $(function () {
+            // 拖拉區塊
+            //http://www.tipocode.com/html/drag-and-drop-multiple-files-upload-with-html5-jquery-formdata/#
+            $('.wj-dropBlock').on('dragover', function (e) {
+                $(this).attr('class', 'drop_hover');
+                e.preventDefault();
+                e.stopPropagation();
+            });
+
+            // Add eventhandlers for dragenter and prevent the default actions for this event
+            $('.wj-dropBlock').on('dragenter', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+
+            $('.wj-dropBlock').on('dragleave', function (e) {
+                $(this).attr('class', 'wj-dropBlock');
+            });
+
+            $('.wj-dropBlock').on('drop', function (e) {
+                if (e.originalEvent.dataTransfer) {
+                    if (e.originalEvent.dataTransfer.files.length) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        $('#imgUpload').get(0).files = e.originalEvent.dataTransfer.files;
+                        InitVideo(e.originalEvent.dataTransfer.files);
+                    }
+                }
+            });
+
+        });
+
+        function UploadVideo(files) { // upload function
+            var fd = new FormData(); // Create a FormData object
+            var size = 0;
+            var msg = [];
+            msg.push(files.length == 0 ? "請上傳檔案 !" : "");
+
+            for (var i = 0; i < files.length; i++) {
+                var imgSrc = $('#img_' + i).attr('src');
+                if (typeof imgSrc == "undefined") {
+                    msg.push("縮圖尚未完成...請稍後");
+                    var videoId = "video_{0}".format(i);
+                    VideoThumbnail(document.getElementById(videoId), $('#imgUpload').get(0).files[i]);
+                    break;
+                }
+
+                fd.append('file_' + i, files[i]);
+                fd.append('img_' + i, dataURLtoFile(imgSrc, 'filename.jpg'));
+                size += files[i].size;
+            }
+            fd.append('fileTsize', size);
+
+            msg = msg.filter(Boolean);
+
+            if (msg.length > 0) {
+                layer.alert(msg.join("<br>"), { title: '請輸入正確資料', icon: 7 });
+            } else {
+
+                var progressNotifier = $.connection.progressHub;
+                progressNotifier.client.sendMessage = function (message) {
+                    _Percent = message;
+                    UpdateProgress();
+                };
+
+                $.waitProgress();
+                $.connection.hub.start().done(function () {
+                    Sys.AjaxUpload("/Video/ConfirmUpload", fd, function (data) {
+                        GetSum();
+                        $.closeProgress();
+                        layer.alert("上傳成功 !", { icon: 1 }, function (index) {
+                            layer.close(index);
+                            location.reload();
+                        });
+                    });
+                });
+
+            }
+        }
+
+
+        function InitVideo(files) {
+            var size = 0;
+            var len = files.length;
+            if (len > 10) {
+                layer.alert('最多上傳10部影片 !', { icon: 7 });
+                return false;
+            }
+            for (var i = 0; i < files.length; i++) {
+                if (files[i].size > '@AppConfig.SingleFileSize') {
+                    layer.alert("檔案不可大於1G !", { icon: 7 });
+                    return false;
+                }
+                size += files[i].size;
+            }
+            if (size > '@AppConfig.FileTotalSize') {
+                layer.alert("總檔案不可大於2G !", { icon: 7 });
+                return false;
+            }
+
+            for (var i = 0; i < files.length; i++) { // Loop all files
+                var file = files[i];
+                var type = file.type;
+                var videoId = "video_{0}".format(i);
+                if (['video/mp4', 'video/quicktime'].indexOf(type) == -1) {
+                    layer.alert('Error : Only MP4 format allowed', { icon: 7 });
+                    return;
+                }
+                var name = file.name;
+                var blob = new Blob([file], { type: type });
+                var url = URL.createObjectURL(blob);
+                var video = document.createElement('video');
+                video.setAttribute("id", videoId);
+                video.setAttribute("controls", '');
+                video.setAttribute("width", '320');
+                video.setAttribute("height", '240');
+                //video.setAttribute('style', 'display:none');
+                video.setAttribute("type", type);
+                //video.preload = 'metadata';
+                video.src = url;
+                video.muted = true;
+                video.playsInline = true;
+                video.addEventListener('canplay', function (e) {
+                    var id = e.target.getAttribute('id');
+                    var num = id.substr(id.lastIndexOf('o') + 1);
+                    VideoThumbnail(e.target, $('#imgUpload').get(0).files[num]);
+                });
+                //document.getElementById('result').appendChild(video);
+            }
+        }
+
+        function VideoThumbnail(video, file) {
+            var fd = new FormData(); // Create a FormData object
+            var msg = [];
+            //msg.push(file.length == 0 ? "請先上傳影片 !" : "");
+            msg = msg.filter(Boolean);
+
+            if (msg.length > 0) {
+                layer.alert(msg.join("<br>"), { title: '請輸入正確資料', icon: 7 });
+            } else {
+                $('#Save').prop('disabled', true).text('縮圖製作中...');
+                fd.append('file', file);
+                fd.append('w', video.videoWidth);
+                fd.append('h', video.videoHeight);
+                $('#Save').prop('disabled', true);
+                Sys.AjaxExec("/Video/ChkSize", fd, function (data) {
+                    var j = JSON.parse(data[1]);
+                    shoot(video, j.w, j.h);
+                });
+            }
+        }
+
+
+        var _ScaleFactor = 0.5;
+
+        function capture(video, aW, aH) {
+            var w = video.videoWidth;
+            var h = video.videoHeight;
+            w *= _ScaleFactor;
+            h *= _ScaleFactor;
+            var canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            var ctx = canvas.getContext('2d');
+
+            var os = _UaSpec.os.name;
+            var browser = _UaSpec.browser.name;
+
+            if ((os == "iOS" || browser == "Firefox") &&
+                ((aW == video.videoHeight && aH == video.videoWidth) || aW == "0")) {
+                // translate and rotate
+                ctx.translate(w, h / w);
+                ctx.rotate(Math.PI / 2);
+                // draw the previows image, now rotated
+                if (browser == "Firefox") {
+                    ctx.drawImage(video, 0, 0, w * 2, w);
+                } else {
+                    ctx.drawImage(video, 0, 0, w * 2, w * 2);
+                }
+
+            } else {
+                ctx.drawImage(video, 0, 0, w, h);
+            }
+            return canvas;
+        }
+
+        function shoot(video, w, h) {
+            var canvas = capture(video, w, h);
+            var id = video.id;
+            var num = parseInt(id.substr(id.lastIndexOf('o') + 2));
+            var img = document.createElement('img');
+            img.setAttribute('src', canvas.toDataURL());
+            img.setAttribute('id', 'img_' + num);
+            img.setAttribute('style', 'display:none');
+            //img.setAttribute('style', 'border:1px solid red');
+            document.getElementById('result').appendChild(img);
+
+            if ($('#imgUpload').get(0).files.length == $('[id^=img_]').length) {
+                $('#Save').prop('disabled', false).text('確認上傳');
+            }
+        }
+
+        function dataURLtoFile(dataurl, filename) {
+            var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new File([u8arr], filename, { type: mime });
+        }
+    </script>
+}
