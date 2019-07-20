@@ -159,7 +159,7 @@ namespace MemoriesCollection.Controllers
                 for (var i = 0; i < files.AllKeys.Count(); i++) {
                     var file = files[i];
                     var size = file.ContentLength;
-                    string fileName = Request["videoName"].FixReq() == "" ? file.FileName : Request["videoName"].FixReq();
+                    string fileName = Path.GetFileNameWithoutExtension(file.FileName);
                     var fileExt = Path.GetExtension(file.FileName);
 
                     try {
@@ -204,7 +204,8 @@ namespace MemoriesCollection.Controllers
 
                                 fileStream.Seek(0, SeekOrigin.Begin);
 
-                                ////取得 Metadata , 影片解析                               
+                                ////取得 Metadata , 影片解析         
+
                                 string crtDateTime = "", modDateTime = "", videoW = "", videoH = "";
                                 var directories = ImageMetadataReader.ReadMetadata(fileStream);
                                 foreach (var directory in directories) {
@@ -227,13 +228,18 @@ namespace MemoriesCollection.Controllers
                                         }
                                     }
                                 }
+                                var keyName = files.AllKeys[i];
+                                var fileModDate = Request[$"fileModDate_{keyName.Substring(keyName.LastIndexOf('_') + 1)}"].FixNull();
+                                var modDate = fileModDate == "" ? Key.Now : DateTime.Parse(Key.FullDateTime(fileModDate));
+                                var orgCrt = DateTimeFormat(crtDateTime);
+                                var orgMod = DateTimeFormat(modDateTime);
 
                                 Sql = $"SELECT * FROM Video WHERE VideoNo = '{vd.VideoNo}' ";
                                 var res = db.Query<VideoInfo>(Sql).FirstOrDefault();
                                 res.Width = videoW.FixInt();
                                 res.Height = videoH.FixInt();
-                                res.OrgCreateDateTime = DateTimeFormat(crtDateTime);
-                                res.OrgModifyDateTime = DateTimeFormat(modDateTime);
+                                res.OrgCreateDateTime = DateTime.Compare(modDate, orgCrt) == -1 ? modDate : orgCrt; // 選日期小的
+                                res.OrgModifyDateTime = DateTime.Compare(modDate, orgMod) == -1 ? modDate : orgCrt;
 
                                 if (db.Update(res)) {
                                     scope.Complete();

@@ -2,10 +2,15 @@
 var g_useParentScrollTop = false;
 var _Percent = 0;
 
-
+// modal 關閉
 $(document).on('click', '[dissmiss-modal]', function () {
     $(this).parents('.wj-modal:first').hide();
     RestoreScrollTop();
+});
+
+// 影片 
+$(document).on('click', '.VideoModal', function () {
+    $('.video-close').trigger('click');
 });
 
 
@@ -162,13 +167,11 @@ var Sys = (function (Sys) {
             },
             success: function (data) {
                 if (typeof data.Errors != "undefined") {
-                    $.close();
                     layer.alert(data.Errors[0], { icon: 7 });
                 } else {
                     if (Array.isArray(data)) {
                         if (data[0] != "") {
                             layer.alert(data[0], { icon: 7 });
-                            $.close();
                         } else if (typeof tags.TargetID != "undefined" && data[1] != "") {
                             if (typeof (isAppend) != "undefined" && isAppend) {
                                 $("#{0}".format(tags.TargetID)).append(data[1]).show();
@@ -188,7 +191,6 @@ var Sys = (function (Sys) {
                 layer.alert(url + ' ajax Error !', {
                     icon: 7
                 });
-                $.close();
             },
             complete: function (e) {
                 $('#navbar').removeClass('in');
@@ -209,7 +211,6 @@ var Sys = (function (Sys) {
             },
             success: function (data) {
                 if (typeof data.Errors != "undefined") {
-                    $.close();
                     layer.alert(data.Errors[0], { icon: 7 });
                 } else {
                     if (Array.isArray(data)) {
@@ -231,7 +232,6 @@ var Sys = (function (Sys) {
                         location.reload();
                     });
                 }
-                $.close();
             },
             xhr: function () {
                 var xhr = $.ajaxSettings.xhr();

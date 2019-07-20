@@ -7,11 +7,11 @@
     <input type="file" name="file-1[]" id="imgUpload" class="inputfile inputfile-1" data-multiple-caption="{count} files selected" multiple />
     <label for="imgUpload"><span>請選擇影片&hellip;</span></label>
 </div>
-<div class="wj-block-c">
-    <button id="Save" class="button btn-c1" onclick="UploadVideo($('#imgUpload').get(0).files)" disabled>確認上傳</button>
-</div>
+@*<div class="wj-block-c">
+        <button id="Save" class="button btn-c1" onclick="UploadVideo($('#imgUpload').get(0).files)" disabled>確認上傳</button>
+    </div>*@
 
-@*<div id="result" class="gallery"></div>*@
+<div id="result" class="gallery"></div>
 
 @section Scripts {
     <script>
@@ -61,6 +61,7 @@
             msg.push(files.length == 0 ? "請上傳檔案 !" : "");
 
             for (var i = 0; i < files.length; i++) {
+                var file = files[i];
                 var imgSrc = $('#img_' + i).attr('src');
                 if (typeof imgSrc == "undefined") {
                     msg.push("縮圖尚未完成...請稍後");
@@ -69,7 +70,10 @@
                     break;
                 }
 
-                fd.append('file_' + i, files[i]);
+                var modifyDate = new Date(typeof (file.lastModified) == 'undefined' ? new Date() : file.lastModified);
+
+                fd.append('fileModDate_' + i, modifyDate.toISOString().substring(0, 10) + " " + modifyDate.toTimeString().substring(0, 8));
+                fd.append('file_' + i, file);
                 fd.append('img_' + i, dataURLtoFile(imgSrc, 'filename.jpg'));
                 size += files[i].size;
             }
@@ -80,7 +84,7 @@
             if (msg.length > 0) {
                 layer.alert(msg.join("<br>"), { title: '請輸入正確資料', icon: 7 });
             } else {
-
+                $.close();
                 var progressNotifier = $.connection.progressHub;
                 progressNotifier.client.sendMessage = function (message) {
                     _Percent = message;
@@ -121,36 +125,39 @@
                 layer.alert("總檔案不可大於2G !", { icon: 7 });
                 return false;
             }
-
-            for (var i = 0; i < files.length; i++) { // Loop all files
-                var file = files[i];
-                var type = file.type;
-                var videoId = "video_{0}".format(i);
-                if (['video/mp4', 'video/quicktime'].indexOf(type) == -1) {
-                    layer.alert('Error : Only MP4 format allowed', { icon: 7 });
-                    return;
+            layer.confirm("確認上傳 ?", { icon: 3 }, function (index) {
+                layer.close(index);
+                $.wait("縮圖製作中");
+                for (var i = 0; i < files.length; i++) { // Loop all files
+                    var file = files[i];
+                    var type = file.type;
+                    var videoId = "video_{0}".format(i);
+                    if (['video/mp4', 'video/quicktime'].indexOf(type) == -1) {
+                        layer.alert('Error : Only MP4 format allowed', { icon: 7 });
+                        return;
+                    }
+                    var name = file.name;
+                    var blob = new Blob([file], { type: type });
+                    var url = URL.createObjectURL(blob);
+                    var video = document.createElement('video');
+                    video.setAttribute("id", videoId);
+                    video.setAttribute("controls", '');
+                    video.setAttribute("width", '320');
+                    video.setAttribute("height", '240');
+                    //video.setAttribute('style', 'display:none');
+                    video.setAttribute("type", type);
+                    //video.preload = 'metadata';
+                    video.src = url;
+                    video.muted = true;
+                    video.playsInline = true;
+                    video.addEventListener('canplay', function (e) {
+                        var id = e.target.getAttribute('id');
+                        var num = id.substr(id.lastIndexOf('o') + 1);
+                        VideoThumbnail(e.target, $('#imgUpload').get(0).files[num]);
+                    });
+                    //document.getElementById('result').appendChild(video);
                 }
-                var name = file.name;
-                var blob = new Blob([file], { type: type });
-                var url = URL.createObjectURL(blob);
-                var video = document.createElement('video');
-                video.setAttribute("id", videoId);
-                video.setAttribute("controls", '');
-                video.setAttribute("width", '320');
-                video.setAttribute("height", '240');
-                //video.setAttribute('style', 'display:none');
-                video.setAttribute("type", type);
-                //video.preload = 'metadata';
-                video.src = url;
-                video.muted = true;
-                video.playsInline = true;
-                video.addEventListener('canplay', function (e) {
-                    var id = e.target.getAttribute('id');
-                    var num = id.substr(id.lastIndexOf('o') + 1);
-                    VideoThumbnail(e.target, $('#imgUpload').get(0).files[num]);
-                });
-                //document.getElementById('result').appendChild(video);
-            }
+            });
         }
 
         function VideoThumbnail(video, file) {
@@ -220,6 +227,7 @@
             document.getElementById('result').appendChild(img);
 
             if ($('#imgUpload').get(0).files.length == $('[id^=img_]').length) {
+                UploadVideo($('#imgUpload').get(0).files);
                 $('#Save').prop('disabled', false).text('確認上傳');
             }
         }

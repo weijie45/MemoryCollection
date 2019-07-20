@@ -5,6 +5,7 @@
     <div id="ListPanel-1">
         <div class="wj-l">
             <a href="@Url.Action("AddVideo", "Video")" class="txt-deepPink"><i class="fa fa-upload"> 新增影片</i></a>
+            <a href="#" id="more-cond" class="hidden" onclick="$('.more-cond').toggle();">進階查詢</a>
         </div>
         <div id="qry-block" class="wj-block-l">
             <label class="more-cond" for="">關鍵字</label>
@@ -46,6 +47,7 @@
             var last = $("body").height() - $(window).height() - $('#footer').height() - $('#photo-action').height();
             if ($(window).scrollTop() >= last && _IsLoading == false && $('#vedioBlock .items').is(':visible')) {
                 _IsLoading = true;
+                _Params.Append = true;
                 _Num += @(AppConfig.VideoLimit);
                 MoreVideo();
             }
