@@ -149,7 +149,7 @@
                 AlbumNo: _AlbumKey
             }
             $.extend(tags, _Params);
-            $.wait();
+            $.wait('相片搜尋中...');
             Sys.AjaxExec("Photo", tags, function (data) {
                 var json = JSON.parse(data[2]);
                 //_Cond = json.Cond;

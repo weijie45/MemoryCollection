@@ -188,9 +188,8 @@ var Sys = (function (Sys) {
                 }
             },
             error: function (response) {
-                layer.alert(url + ' ajax Error !', {
-                    icon: 7
-                });
+                layer.alert(url + ' ajax Error !', { icon: 7 });
+                $.closeAll
             },
             complete: function (e) {
                 $('#navbar').removeClass('in');
@@ -410,6 +409,10 @@ function Vals(sNameList, sSelector) {
     return aList;
 }
 
+$.closeAll = function () {
+    $.close();
+    $.closeProgress();
+};
 
 //  屏蔽
 $.wait = function (msg) {

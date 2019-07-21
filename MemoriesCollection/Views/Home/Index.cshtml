@@ -72,7 +72,7 @@
                 Append: true
             }
             $.extend(tags, _Params);
-            $.wait();
+            $.wait('相片搜尋中...');
             Sys.AjaxExec("/Home/Photo", tags, function (data) {
                 $('.lazy').Lazy();
                 _IsEnd = data[2] == "Y" ? true : false;

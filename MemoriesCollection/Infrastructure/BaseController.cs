@@ -12,7 +12,6 @@ namespace MemoriesCollection
     public class BaseController : Controller
     {
         public PageSettion page = new PageSettion();
-        public DateTime now = DateTime.Now;
         public string ErrMsg = "";
         public string ImgPath = AppConfig.ImgPath;
         public string ImgThbPath = AppConfig.ImgThbPath;

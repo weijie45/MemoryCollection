@@ -11,7 +11,7 @@
         <button class="button btn-red" onclick="SavePhoto()">儲存</button>
         <button class="button btn-secondary" onclick="EditPhoto('Cancel')">取消</button>
     } else {
-        <button class="button btn-outline-black " onclick="Back()"><i class="fa fa-arrow-left"></i>上一頁</button>
+        <button class="button btn-outline-black " onclick="PhotoBack()"><i class="fa fa-arrow-left"></i>上一頁</button>
         <button class="button btn-secondary" onclick="EditPhoto('Edit')">編輯</button>
         <button class="button btn-red" onclick="DelImg(this)">刪除</button>
     }
@@ -57,7 +57,7 @@
                 </p>
                 <p>
                     <label for="">人物</label>
-                    <a href="#" func="AddPerson"><i class="fa fa-plus text-primary"></i></a>
+                    <a href="#" onclick="AddPerson(this)"><i class="fa fa-plus text-primary"></i></a>
                     <select id="person" class="lg">
                         @foreach (var p in Allperson) {
                             <option value="@p">@p</option>
@@ -68,7 +68,7 @@
                     @foreach (var p in personList) {
                         <span>
                             @p <input type='hidden' class="lg" name='Person' value='@p'>
-                            <i class="fa fa-times text-danger" func='DelPerson'></i><br />
+                            <i class="fa fa-times text-danger" onclick="RmPerson(this)"></i><br />
                         </span>
                     }
                 </div>

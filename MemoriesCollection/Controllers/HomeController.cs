@@ -60,8 +60,7 @@ namespace MemoriesCollection.Controllers
                 personList = db.Query<string>(Sql).ToArray().Join(",");
             }
             rtn[1] = page.View("Details",
-                new
-                {
+                new {
                     SqlData = data,
                     Orientation = orientation,
                     IsData = (data != null),
@@ -71,7 +70,6 @@ namespace MemoriesCollection.Controllers
 
             return this.ToJsonNet(rtn);
         }
-
 
         /// <summary>
         /// 刪除相片, 連同相簿也要更新
@@ -167,7 +165,7 @@ namespace MemoriesCollection.Controllers
                 imgInfo.FileDesc = desc;
                 imgInfo.Location = location;
                 imgInfo.Person = person;
-                imgInfo.ModifyDateTime = now;
+                imgInfo.ModifyDateTime = Key.Now;
                 db.Update(imgInfo);
 
                 if (albumNo != 0) {
@@ -176,7 +174,7 @@ namespace MemoriesCollection.Controllers
                     var albumInfo = db.Query<Album>(Sql).FirstOrDefault();
                     if (albumInfo != null) {
                         albumInfo.BgImg = $"{imgNo}{imgInfo.FileExt}";
-                        albumInfo.ModifyDateTime = now;
+                        albumInfo.ModifyDateTime = Key.Now;
                         db.Update(albumInfo);
                     }
                 }
@@ -187,64 +185,182 @@ namespace MemoriesCollection.Controllers
             return this.ToJsonNet(rtn);
         }
 
-
         /// <summary>
         /// 時間軸
         /// </summary>
         /// <returns></returns>
         public ActionResult TimeLine()
         {
-            Sql = " SELECT ";
-            Sql += "   p.ImgNo, ";
-            Sql += "   p.FileExt, ";
-            Sql += "   p.Location, ";
-            Sql += "   p.Person, ";
-            Sql += "   CONVERT( VARCHAR(7), ";
-            Sql += "            CASE p.OrgCreateDateTime ";
-            Sql += "            WHEN '9999-12-31 00:00:00.000' ";
-            Sql += "            THEN p.CreateDateTime ";
-            Sql += "            ELSE p.OrgCreateDateTime END, 126 ) YearMon,";
-            Sql += "   p.FileDesc, ";
-            Sql += "   a.CNT ";
-            Sql += " FROM ";
-            Sql += "   Photo p , ";
+            //Sql = " SELECT ";
+            //Sql += "   p.ImgNo, ";
+            //Sql += "   p.FileExt, ";
+            //Sql += "   p.Location, ";
+            //Sql += "   p.Person, ";
+            //Sql += "   CONVERT( VARCHAR(7), ";
+            //Sql += "            CASE p.OrgCreateDateTime ";
+            //Sql += "            WHEN '9999-12-31 00:00:00.000' ";
+            //Sql += "            THEN p.CreateDateTime ";
+            //Sql += "            ELSE p.OrgCreateDateTime END, 126 ) YearMon,";
+            //Sql += "   p.FileDesc, ";
+            //Sql += "   a.CNT ";
+            //Sql += " FROM ";
+            //Sql += "   Photo p , ";
+            //Sql += "   ( ";
+            //Sql += "   SELECT ";
+            //Sql += "   CONVERT( VARCHAR(7), ";
+            //Sql += "            CASE OrgCreateDateTime ";
+            //Sql += "            WHEN '9999-12-31 00:00:00.000' ";
+            //Sql += "            THEN CreateDateTime ";
+            //Sql += "            ELSE OrgCreateDateTime END, 126 ) YearMon,";
+            //Sql += "       COUNT(1) CNT ";
+            //Sql += "     FROM ";
+            //Sql += "       Photo ";
+            //Sql += "     GROUP BY ";
+            //Sql += "       CONVERT( VARCHAR(7), ";
+            //Sql += "                CASE OrgCreateDateTime ";
+            //Sql += "                WHEN '9999-12-31 00:00:00.000' ";
+            //Sql += "                THEN CreateDateTime ";
+            //Sql += "                ELSE OrgCreateDateTime END, 126 ) ";
+            //Sql += "   ) AS a ";
+            //Sql += " WHERE ";
+            //Sql += "   p.CreateDateTime IN( ";
+            //Sql += "     SELECT ";
+            //Sql += "       MAx(CreateDateTime) CrtTime ";
+            //Sql += "     FROM ";
+            //Sql += "       Photo ";
+            //Sql += "     GROUP BY ";
+            //Sql += "       CONVERT( VARCHAR(7), ";
+            //Sql += "                CASE OrgCreateDateTime ";
+            //Sql += "                WHEN '9999-12-31 00:00:00.000' ";
+            //Sql += "                THEN CreateDateTime ";
+            //Sql += "                ELSE OrgCreateDateTime END, 126 ) ";
+            //Sql += "   ) ";
+            //Sql += "  AND a.YearMon = ";
+            //Sql += "       CONVERT( VARCHAR(7), ";
+            //Sql += "                CASE OrgCreateDateTime ";
+            //Sql += "                WHEN '9999-12-31 00:00:00.000' ";
+            //Sql += "                THEN CreateDateTime ";
+            //Sql += "                ELSE OrgCreateDateTime END, 126 ) ";
+            //Sql += " ORDER BY YearMon DESC ";
+
+
+            Sql += " SELECT ";
+            Sql += "   p.VideoNo No ,  ";
+            Sql += "   p.FileExt,  ";
+            Sql += "   p.Location,  ";
+            Sql += "   p.Person,  ";
+            Sql += "   CONVERT( ";
+            Sql += "     VARCHAR(7),  ";
+            Sql += "     CASE p.OrgCreateDateTime WHEN '9999-12-31 00:00:00.000' THEN p.CreateDateTime ELSE p.OrgCreateDateTime END,  ";
+            Sql += "     126 ";
+            Sql += "   ) YearMon,  ";
+            Sql += "   p.FileDesc,  ";
+            Sql += "   a.CNT , ";
+            Sql += "   'V' Type ";
+            Sql += " FROM  ";
+            Sql += "   video p,  ";
             Sql += "   ( ";
-            Sql += "   SELECT ";
-            Sql += "   CONVERT( VARCHAR(7), ";
-            Sql += "            CASE OrgCreateDateTime ";
-            Sql += "            WHEN '9999-12-31 00:00:00.000' ";
-            Sql += "            THEN CreateDateTime ";
-            Sql += "            ELSE OrgCreateDateTime END, 126 ) YearMon,";
-            Sql += "       COUNT(1) CNT ";
-            Sql += "     FROM ";
-            Sql += "       Photo ";
-            Sql += "     GROUP BY ";
-            Sql += "       CONVERT( VARCHAR(7), ";
-            Sql += "                CASE OrgCreateDateTime ";
-            Sql += "                WHEN '9999-12-31 00:00:00.000' ";
-            Sql += "                THEN CreateDateTime ";
-            Sql += "                ELSE OrgCreateDateTime END, 126 ) ";
-            Sql += "   ) AS a ";
-            Sql += " WHERE ";
-            Sql += "   p.CreateDateTime IN( ";
-            Sql += "     SELECT ";
-            Sql += "       MAx(CreateDateTime) CrtTime ";
-            Sql += "     FROM ";
-            Sql += "       Photo ";
-            Sql += "     GROUP BY ";
-            Sql += "       CONVERT( VARCHAR(7), ";
-            Sql += "                CASE OrgCreateDateTime ";
-            Sql += "                WHEN '9999-12-31 00:00:00.000' ";
-            Sql += "                THEN CreateDateTime ";
-            Sql += "                ELSE OrgCreateDateTime END, 126 ) ";
-            Sql += "   ) ";
-            Sql += "  AND a.YearMon = ";
-            Sql += "       CONVERT( VARCHAR(7), ";
-            Sql += "                CASE OrgCreateDateTime ";
-            Sql += "                WHEN '9999-12-31 00:00:00.000' ";
-            Sql += "                THEN CreateDateTime ";
-            Sql += "                ELSE OrgCreateDateTime END, 126 ) ";
-            Sql += " ORDER BY YearMon DESC ";
+            Sql += "     SELECT  ";
+            Sql += "       CONVERT( ";
+            Sql += "         VARCHAR(7),  ";
+            Sql += "         CASE OrgCreateDateTime WHEN '9999-12-31 00:00:00.000' THEN CreateDateTime ELSE OrgCreateDateTime END,  ";
+            Sql += "         126 ";
+            Sql += "       ) YearMon,  ";
+            Sql += "       COUNT(1) CNT  ";
+            Sql += "     FROM  ";
+            Sql += "       video  ";
+            Sql += "     GROUP BY  ";
+            Sql += "       CONVERT( ";
+            Sql += "         VARCHAR(7),  ";
+            Sql += "         CASE OrgCreateDateTime WHEN '9999-12-31 00:00:00.000' THEN CreateDateTime ELSE OrgCreateDateTime END,  ";
+            Sql += "         126 ";
+            Sql += "       ) ";
+            Sql += "   ) AS a  ";
+            Sql += " WHERE  ";
+            Sql += "  a.YearMon = CONVERT( ";
+            Sql += "     VARCHAR(7),                                                                                        ";
+            Sql += "     CASE OrgCreateDateTime WHEN '9999-12-31 00:00:00.000' THEN CreateDateTime ELSE OrgCreateDateTime END,          ";
+            Sql += "     126                                                                                                            ";
+            Sql += "   )                                                                                                                ";
+            Sql += "  and   p.OrgCreateDateTime IN(                                                                                     ";
+            Sql += "     SELECT                                                                                                         ";
+            Sql += "       MAx(OrgCreateDateTime) CrtTime                                                                               ";
+            Sql += "     FROM                                                                                                           ";
+            Sql += "       video                                                                                                        ";
+            Sql += "     GROUP BY                                                                                                       ";
+            Sql += "       CONVERT(                                                                                                     ";
+            Sql += "         VARCHAR(7),                                                                                                ";
+            Sql += "         CASE OrgCreateDateTime WHEN '9999-12-31 00:00:00.000' THEN CreateDateTime ELSE OrgCreateDateTime END,      ";
+            Sql += "         126                                                                                                        ";
+            Sql += "       )                                                                                                            ";
+            Sql += "   )                                                                                                                ";
+            Sql += "   and p.VideoNo IN (                                                                                               ";
+            Sql += "   SELECT                                                                                                           ";
+            Sql += "       Max(VideoNo)                                                                                                 ";
+            Sql += "     FROM                                                                                                           ";
+            Sql += "       video                                                                                                        ";
+            Sql += "     GROUP BY                                                                                                       ";
+            Sql += "       CONVERT(                                                                                                     ";
+            Sql += "         VARCHAR(7),                                                                                                ";
+            Sql += "         CASE OrgCreateDateTime WHEN '9999-12-31 00:00:00.000' THEN CreateDateTime ELSE OrgCreateDateTime END,      ";
+            Sql += "         126                                                                                                        ";
+            Sql += "       )                                                                                                            ";
+            Sql += "    )                                                                                                               ";
+            Sql += "                                                                                                                    ";
+            Sql += " UNION                                                                                                              ";
+            Sql += "                                                                                                                    ";
+            Sql += " SELECT                                                                                                             ";
+            Sql += "   p.ImgNo No,                                                                                                      ";
+            Sql += "   p.FileExt,                                                                                                       ";
+            Sql += "   p.Location,                                                                                                      ";
+            Sql += "   p.Person,                                                                                                        ";
+            Sql += "   CONVERT(                                                                                                         ";
+            Sql += "     VARCHAR(7),                                                                                                    ";
+            Sql += "     CASE p.OrgCreateDateTime WHEN '9999-12-31 00:00:00.000' THEN p.CreateDateTime ELSE p.OrgCreateDateTime END,    ";
+            Sql += "     126                                                                                                            ";
+            Sql += "   ) YearMon,                                                                                                       ";
+            Sql += "   p.FileDesc,                                                                                                      ";
+            Sql += "   a.CNT ,                                                                                                          ";
+            Sql += "   'P' Type                                                                                                         ";
+            Sql += " FROM                                                                                                               ";
+            Sql += "   Photo p,                                                                                                         ";
+            Sql += "   (                                                                                                                ";
+            Sql += "     SELECT                                                                                                         ";
+            Sql += "       CONVERT(                                                                                                     ";
+            Sql += "         VARCHAR(7),                                                                                                ";
+            Sql += "         CASE OrgCreateDateTime WHEN '9999-12-31 00:00:00.000' THEN CreateDateTime ELSE OrgCreateDateTime END,      ";
+            Sql += "         126                                                                                                        ";
+            Sql += "       ) YearMon,                                                                                                   ";
+            Sql += "       COUNT(1) CNT                                                                                                 ";
+            Sql += "     FROM                                                                                                           ";
+            Sql += "       Photo                                                                                                        ";
+            Sql += "     GROUP BY                                                                                                       ";
+            Sql += "       CONVERT(                                                                                                     ";
+            Sql += "         VARCHAR(7),                                                                                                ";
+            Sql += "         CASE OrgCreateDateTime WHEN '9999-12-31 00:00:00.000' THEN CreateDateTime ELSE OrgCreateDateTime END,      ";
+            Sql += "         126                                                                                                        ";
+            Sql += "       )                                                                                                            ";
+            Sql += "   ) AS a                                                                                                           ";
+            Sql += " WHERE                                                                                                              ";
+            Sql += "   p.CreateDateTime IN(                                                                                             ";
+            Sql += "     SELECT                                                                                                         ";
+            Sql += "       MAx(CreateDateTime) CrtTime                                                                                  ";
+            Sql += "     FROM                                                                                                           ";
+            Sql += "       Photo                                                                                                        ";
+            Sql += "     GROUP BY                                                                                                       ";
+            Sql += "       CONVERT(                                                                                                     ";
+            Sql += "         VARCHAR(7),                                                                                                ";
+            Sql += "         CASE OrgCreateDateTime WHEN '9999-12-31 00:00:00.000' THEN CreateDateTime ELSE OrgCreateDateTime END,      ";
+            Sql += "         126                                                                                                        ";
+            Sql += "       )                                                                                                            ";
+            Sql += "   )                                                                                                                ";
+            Sql += "   AND a.YearMon = CONVERT(                                                                                         ";
+            Sql += "     VARCHAR(7),                                                                                                    ";
+            Sql += "     CASE OrgCreateDateTime WHEN '9999-12-31 00:00:00.000' THEN CreateDateTime ELSE OrgCreateDateTime END,          ";
+            Sql += "     126                                                                                                            ";
+            Sql += "   )                                                                                                                ";
+            Sql += "   order by YearMon desc                                                                                            ";
+
             ViewBag.Data = db.Query(Sql).ToList();
             return View("TimeLine");
         }
@@ -308,7 +424,6 @@ namespace MemoriesCollection.Controllers
 
             return this.ToJsonNet(rtn);
         }
-
 
         /// <summary>
         /// 取得相片及影片數量

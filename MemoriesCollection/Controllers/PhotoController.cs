@@ -248,7 +248,7 @@ namespace MemoriesCollection.Controllers
                         Sql = $"SELECT CAST(ImgNo AS varchar) + FileExt FileName FROM Photo  WHERE ImgNo = '{bgImgNo}' ";
                         a.BgImg = db.Query<string>(Sql).FirstOrDefault();
                     }
-                    a.ModifyDateTime = now;
+                    a.ModifyDateTime = Key.Now;
                     db.Update(a);
                 }
             }

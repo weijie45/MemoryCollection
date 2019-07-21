@@ -31,3 +31,10 @@
         cnt++;
     }
 }
+
+
+@if (Model.PhotoList.Count() == 0) {
+    <div class="txt-c txt-red msg-info">
+        <span>@AppConfig.NoData</span>
+    </div>
+}

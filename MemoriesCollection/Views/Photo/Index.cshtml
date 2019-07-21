@@ -100,7 +100,7 @@
                 Append: true
             }
             $.extend(tags, _Params);
-            $.wait();
+            $.wait('相片搜尋中...');
             Sys.AjaxExec("/Photo/Photos", tags, function (data) {
                 $('.spanBlock').show();
                 $('.lazy').Lazy();

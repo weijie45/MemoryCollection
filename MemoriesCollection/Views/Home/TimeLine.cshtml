@@ -2,68 +2,75 @@
 @{
     ViewBag.Title = "TimeLine";
     int cnt = 1;
+    string tmp = "";
 }
 <div id="timeLineBlock">
     <div class="timeline">
         @foreach (var dr in ViewBag.Data) {
-            string imgNo = dr.ImgNo.ToString();
+            string no = dr.No.ToString();
             string ext = dr.FileExt;
-            var imgUrl = Url.Action("GetLocal", "Files", new { k = Key.Encrypt(imgNo), t = Key.Encrypt(new { Root = AppConfig.ImgThbPath, Folder = "", FileName = imgNo + ext }) });
-            if (cnt % 2 == 1) {
-                <div class="container left">
-                    <div class="content">
-                        <div class="img-text">
-                            <div class="imgBlock" data-params="@dr.YearMon">
-                                <img src="@imgUrl" />
-                            </div>
-                            <div class="detailBlock">
-                                <span style="display: inline-block;margin-right:3px">@dr.YearMon</span>
-                                <span class="wj-badge">@dr.CNT</span><br />
-                                @if (!string.IsNullOrEmpty(dr.Location)) {
-                                    <span><a href="#">#@dr.Location</a></span><br />
-                                }
-                                @if (!string.IsNullOrEmpty(dr.Person)) {
-                                    var personList = dr.Person.FixNull().Split(",");
-                                    var txt = "";
-                                    foreach (var p in personList) {
-                                        txt += $"<a href='#'>#{p}</a>,";
-                                    }
-                                    <span>@txt.TrimEnd(',')</span><br />
-                                }
-                                @*<span>
-                                        @Html.Raw(Html.Encode(dr.FileDesc).Replace("\n", "<br />"))
-                                    </span>*@
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            } else {
-                <div class="container right">
-                    <div class="content">
-                        <div class="img-text">
-                            <div class="imgBlock" data-params="@dr.YearMon">
-                                <img src="@imgUrl" />
-                            </div>
-                            <div class="detailBlock">
-                                <span>
-                                    <span style="display: inline-block;margin-right:3px">@dr.YearMon</span>
+            string type = dr.Type;
+            string yearMon = dr.YearMon;
+            if (yearMon != tmp) {
+                tmp = yearMon;
+                var url = Url.Action("GetLocal", "Files", new { k = Key.Encrypt(no), t = Key.Encrypt(new { Root = AppConfig.ImgThbPath, Folder = "", FileName = no + ext }) });
+                url = type.ToUpper() != "V" ? url : Url.Action("GetLocal", "Files", new { k = Key.Encrypt(no), t = Key.Encrypt(new { Root = AppConfig.VideoThbPath, Folder = "", FileName = no + ".jpg" }) });
+                if (cnt % 2 == 1) {
+                    <div class="container left">
+                        <div class="content">
+                            <div class="img-text">
+                                <div class="imgBlock" data-params="@yearMon">
+                                    <img src="@url" />
+                                </div>
+                                <div class="detailBlock">
+                                    <span style="display: inline-block;margin-right:3px">@yearMon</span>
                                     <span class="wj-badge">@dr.CNT</span><br />
                                     @if (!string.IsNullOrEmpty(dr.Location)) {
                                         <span><a href="#">#@dr.Location</a></span><br />
                                     }
                                     @if (!string.IsNullOrEmpty(dr.Person)) {
-                                        <span><a href="#">#@dr.Person</a></span><br />
+                                        var personList = dr.Person.FixNull().Split(",");
+                                        var txt = "";
+                                        foreach (var p in personList) {
+                                            txt += $"<a href='#'>#{p}</a>,";
+                                        }
+                                        <span>@txt.TrimEnd(',')</span><br />
                                     }
                                     @*<span>
                                             @Html.Raw(Html.Encode(dr.FileDesc).Replace("\n", "<br />"))
                                         </span>*@
-                                </span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                } else {
+                    <div class="container right">
+                        <div class="content">
+                            <div class="img-text">
+                                <div class="imgBlock" data-params="@yearMon">
+                                    <img src="@url" />
+                                </div>
+                                <div class="detailBlock">
+                                    <span>
+                                        <span style="display: inline-block;margin-right:3px">@yearMon</span>
+                                        <span class="wj-badge">@dr.CNT</span><br />
+                                        @if (!string.IsNullOrEmpty(dr.Location)) {
+                                            <span><a href="#">#@dr.Location</a></span><br />
+                                        }
+                                        @if (!string.IsNullOrEmpty(dr.Person)) {
+                                            <span><a href="#">#@dr.Person</a></span><br />
+                                        }
+                                        @*<span>
+                                                @Html.Raw(Html.Encode(dr.FileDesc).Replace("\n", "<br />"))
+                                            </span>*@
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                cnt++;
             }
-            cnt++;
         }
     </div>
 </div>
@@ -72,8 +79,15 @@
         <button class="button btn-outline-black" onclick="Return()">
             <i class="fa fa-arrow-left"></i>回時間軸
         </button>
+        <button class="button btn-outline-confirm active func-type" id="photo-type" onclick="Query(this,'p')">相片</button>
+        <button class="button btn-outline-confirm func-type" id="video-type" onclick="Query(this,'v')">影片</button>
     </div>
     <section id="blockSection"></section>
+    <div id="vedioBlock">
+        <div class="info">
+            <div class="items"></div>
+        </div>
+    </div>
 </div>
 <div id="ListPanel-2"></div>
 @section Scripts{
@@ -84,18 +98,19 @@
         var _PhotoKey = -1; // 照片編號
         var _TopOffset = 0;// 時間軸的高度(避免各相片的明細衝突)
         var _Date = '';
+        var _FuncType = 'p';
+        var _Params = {}; // 查詢參數
 
         $('.imgBlock').on('click', function () {
-
+            $('#blockSection,#vedioBlock .items').empty();
             SaveScrollTop();
             _TopOffset = g_iTopScrollTop ;
-            $('#blockSection').empty();
             _Num = 0;
+            _Date = $(this).attr('data-params');
+            _Params={};
             $('#ListPanel-1').show();
             $('#timeLineBlock').hide();
-            _Date = $(this).attr('data-params');
-            MorePhoto($(this).attr('data-params'));
-
+            $('#photo-type').trigger('click');
         });
 
 
@@ -104,8 +119,18 @@
             var last = $("body").height() - $(window).height() - $('#footer').height()- $('#photo-action').height();
             if ($(window).scrollTop() >= last && _IsLoading == false && $('#ListPanel-1').is(':visible')) {
                 _IsLoading = true;
-                _Num += @(AppConfig.PhotoLimit);
-                MorePhoto(_Date);
+                _Params.Append = true;
+                switch(_FuncType){
+                    case 'p':
+                        _Num += @(AppConfig.PhotoLimit);
+                        MorePhoto();
+                        break;
+                    case 'v':
+                        _Num += @(AppConfig.VideoLimit);
+                        MoreVideo();
+                        break;
+                }
+
             }
         });
 
@@ -115,14 +140,30 @@
             RestoreScrollTop(_TopOffset);
         };
 
-        function MorePhoto(date) {
+        function MoreVideo() {
+            var tags = {
+                TargetID: "vedioBlock .items",
+                SPic: _Num,
+                Append: true,
+                Date: _Date
+            }
+            $.extend(tags, _Params);
+            $.wait('影片搜尋中...');
+            Sys.AjaxExec("/Video/VideoList", tags, function (data) {
+                _IsLoading = data[2]=="Y"?true:false;
+                $.close();
+            });
+        }
+
+        function MorePhoto() {
             var tags = {
                 TargetID: "blockSection",
                 SPic: _Num,
                 Append: true,
-                Date: date
+                Date: _Date
             }
-            $.wait();
+            $.extend(tags, _Params);
+            $.wait('相片搜尋中...');
             Sys.AjaxExec("/Home/Photo", tags, function (data) {
                 $('.lazy').Lazy();
                 _IsLoading = data[2]=="Y"?true:false;
@@ -137,6 +178,24 @@
             }
             _Gallery = $("#blockSection").lightGallery( {
                 selector: '.item', pause: 2000, share: false, setBg: false, actualSize: false });
+        }
+
+        function Query($this,type){
+            _FuncType = type;
+            _Num = 0;
+            _Params.Append = true;
+            $('#blockSection,#vedioBlock .items').empty();
+            $('button.func-type').removeClass('active');
+            $this.classList.add("active");
+
+            switch(type){
+                case 'p':
+                    MorePhoto();
+                    break;
+                case 'v':
+                    MoreVideo();
+                    break;
+            }
         }
 
     </script>

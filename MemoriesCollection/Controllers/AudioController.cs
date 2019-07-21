@@ -179,7 +179,7 @@ namespace MemoriesCollection.Controllers
 
             if (audio != null) {
                 audio.FileName = Key.Dict(ref tags, "FileName");
-                audio.ModifyDateTime = now;
+                audio.ModifyDateTime = Key.Now;
                 db.Update(audio);
             } else {
                 rtn[0] = AppConfig.NoData;
@@ -197,7 +197,7 @@ namespace MemoriesCollection.Controllers
             } else if (dateTime.Length == 24) {
                 dateTime = dateTime == "" ? "" : dateTime.Substring(0, 10) + "," + dateTime.Substring(19) + dateTime.Substring(10, 9);
             } else {
-                dateTime = now.ToString("yyyy/MM/dd");
+                dateTime = Key.Now.ToString("yyyy/MM/dd");
             }
             return DateTime.Parse(dateTime, culture, DateTimeStyles.None);
         }

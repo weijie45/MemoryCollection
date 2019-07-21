@@ -20,6 +20,7 @@ namespace MemoriesCollection.Models
         public int Height { get; set; }
         public string Location { get; set; }
         public string Person { get; set; }
+        public string IsRotate { get; set; } = "N";
         public DateTime OrgCreateDateTime { get; set; }
         public DateTime OrgModifyDateTime { get; set; }
 

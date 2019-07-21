@@ -25,15 +25,7 @@
     <div id="ListPanel-2"></div><!-- Detail -->
 </div>
 
-<div class="VideoModal hidden">
-    <!-- video lightbox -->
-    <div class="video-wrap">
-        <div class="video-container">
-            <div class="video-content"></div>
-            <button class="video-close" type="button">&times;</button>
-        </div>
-    </div>
-</div>
+
 
 @section Scripts {
     <script>
@@ -53,25 +45,6 @@
             }
         });
 
-        // 影片lightbox
-        $(document).on('click','.showVideo', function () {
-            SaveScrollTop();
-            _VideoKey = $(this).attr('detail-param');
-            var currVideo = _VideoKey;
-            var style ="max-height: 500px";
-
-            $("body").addClass("loadingVideo");
-            $('.video-content').html('<video style="' + style + '" controls><source src="@($"{AppConfig.VideoPath.Replace("\\", "/")}"){0}"></video>'.format(currVideo));
-            $('.VideoModal').css('display', 'flex');
-        });
-
-        $(document).on('click', '.video-close',function () {
-            RestoreScrollTop();
-            $('.VideoModal').css('display', 'none');
-            $('.video-content').html('');
-            $("body").removeClass("loadingVideo");
-        });
-
         // 圖片編輯
         $(document).on('click', '[func]', function (e) {
             e.preventDefault();
@@ -89,83 +62,21 @@
                     _Num = 0; //重置
                     MoreVideo();
                     break;
-                case "Edit":
-                    SaveScrollTop();
-                    _VideoKey = $this.attr('data-param');
-                    tags.VideoNo = _VideoKey;
-                    tags.TargetID = "ListPanel-2";
-                    $.wait();
-                    Sys.AjaxExec(url, tags, function (data) {
-                        $('#ListPanel-1').hide();
-                        $('#person').select2({ tags: true , placeholder: "人名"});
-                        $(window).scrollTop(0);
-                        $.close();
-                    });
-
-                    break;
-                case "Save":
-                    var msg = [];
-                    $.extend(tags, $('#preview').tags());
-                    msg.push(IsEmpty(tags.name) ? "影片名稱不可為空 !" : "");
-                    msg = msg.filter(Boolean);
-
-                    if (msg.length > 0) {
-                        layer.alert(msg.join("<br>"), { title: '請輸入正確資料', icon: 0 });
-                    } else {
-                        layer.confirm('確認儲存 ?', { title: '儲存', icon: 3 }, function (index) {
-                            layer.close(index);
-                            $.wait('資料儲存中...');
-                            tags.videoNo = _VideoKey;
-                            tags.person = $('[name=person]').vals().toString();
-                            tags.Img = $('#video-Tb').attr('src');
-                            Sys.AjaxExec(url, tags, function (data) {
-                                location.reload();
-                            });
-                        });
-                    }
-                    break;
-                case "Del":
-                    tags.VideoNo = _VideoKey;
-                    layer.confirm('確認儲存 ?', { title: '儲存', icon: 3 }, function (index) {
-                        layer.close(index);
-                        $.wait('資料刪除中...');
-                        Sys.AjaxExec(url, tags, function (data) {
-                            location.reload();
-                        });
-                    });
-                    break;
                 case "Return":
                     $('#ListPanel-2').hide();
                     $('#ListPanel-1').show();
                     break;
-                case "AddPerson":
-                    var val = $('#person').val();
-                    if (val != "") {
-                        var html = "<span>{0}  <input type='hidden' name='person' value='{0}'><i class='fa fa-times text-danger' func='DelPerson' shared></i><br /></span>".format(val);
-                        $('#personResult').append(html);
-                        $('#person').val('');
-                    } else {
-                        layer.alert("人名不可為空 !", { icon: 7 });
-                    }
-                    break;
-                case "DelPerson":
-                    $this.parents('span').first().remove();
-                    break;
             }
-        });
-
-        $(document).on('click','.v-title',function(){
-            $(this).parent().siblings('p.videoInfo').toggle();
         });
 
         function MoreVideo() {
-            $.wait();
             var tags = {
                 TargetID: "vedioBlock .items ",
                 SPic: _Num,
-                Append: true,
+                Append: true
             }
             $.extend(tags, _Params);
+            $.wait('影片搜尋中...');
             Sys.AjaxExec("/Video/VideoList", tags, function (data) {
                 _IsLoading = data[2]=="Y"?true:false;
                 $.close();

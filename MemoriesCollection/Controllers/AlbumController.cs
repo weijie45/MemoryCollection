@@ -53,8 +53,8 @@ namespace MemoriesCollection.Controllers
                 a.AlbumDesc = desc;
                 a.PassWord = passwd;
                 a.ImgNo = "";
-                a.CreateDateTime = now;
-                a.ModifyDateTime = now;
+                a.CreateDateTime = Key.Now;
+                a.ModifyDateTime = Key.Now;
 
                 db.Insert(a);
             } else {
@@ -230,7 +230,7 @@ namespace MemoriesCollection.Controllers
 
                 a.AlbumDesc = albumDesc;
                 a.AlbumName = albumName;
-                a.ModifyDateTime = now;
+                a.ModifyDateTime = Key.Now;
 
                 db.Update(a);
                 rtn[1] = "新增成功 !";

@@ -1,17 +1,16 @@
 ﻿@model MemoriesCollection.ViewModels.PageTableViewModel
 @{
     ViewBag.Title = "影片編輯";
-    var isHor = Model.ViewBag.IsHor;
     int height = 500;
     int width = 500;
 }
 <div class="wj-block-c">
-    <a href="#" class="button btn-outline-black" func="Return"><i class="fa fa-arrow-left"></i>回影片</a>
-    <a href="#" class="button btn-outline-confirm" func="Save">儲存</a>
-    <a href="#" class="button btn-outline-red" func="Del">刪除</a>
+    <a href="#" class="button btn-outline-black" onclick="VideoBack()"><i class="fa fa-arrow-left"></i>回影片</a>
+    <a href="#" class="button btn-outline-confirm" onclick="SaveVideo()">儲存</a>
+    <a href="#" class="button btn-outline-red" onclick="DelVideo()">刪除</a>
 </div>
 @if (Model.ViewBag.IsData) {
-    var dr = Model.SqlData.FirstOrDefault();
+    var dr = Model.VideoList.FirstOrDefault();
     string ext = dr.FileExt;
     string name = dr.FileName;
     string desc = dr.FileDesc;
@@ -21,6 +20,7 @@
     var personList = string.IsNullOrEmpty(dr.Person) ? new string[] { } : dr.Person.Split(',');
     var Allperson = Model.ViewBag.PersonList.Split(',');
     string video = $"{videoNo}{ext}";
+    var isHor = (width > height) && dr.IsRotate == "N";
     height = dr.Height;
     width = dr.Width;
 
@@ -49,7 +49,7 @@
                 </p>
                 <p>
                     <label for="person">人物</label>
-                    <a href="#" func="AddPerson"><i class="fa fa-plus text-primary"></i></a>
+                    <a href="javascript:void(0);" onclick="AddPerson(this)"><i class="fa fa-plus text-primary"></i></a>
                     <select id="person" class="lg">
                         @foreach (var p in Allperson) {
                             <option value="@p">@p</option>
@@ -60,7 +60,7 @@
                     @foreach (var p in personList) {
                         <span>
                             @p <input type='hidden' name='Person' value='@p'>
-                            <i class="fa fa-times text-danger" func='DelPerson'></i><br />
+                            <i class="fa fa-times text-danger" onclick="RmPerson(this)"></i><br />
                         </span>
                     }
                 </div>

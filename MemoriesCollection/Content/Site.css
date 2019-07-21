@@ -126,6 +126,12 @@ a {
     padding: 10px;
 }
 
+.msg-info {
+    width: 100%;
+    margin-top: 20px;
+    font-weight: bolder;
+}
+
 /*信用卡付款才顯示銀行等欄位*/
 .creditPanel {
     display: none;
@@ -326,13 +332,14 @@ input[type="search"]::-webkit-search-cancel-button {
     border: none;
     outline: none;
     cursor: pointer;
-    padding: 15px;
+    padding: 10px;
     border-radius: 4px;
     background-color: #ffffff;
+    border: 1px solid black;
 }
 
     #backToTopBtn:hover {
-        background-color: #555;
+        background-color: #eee;
     }
 
 

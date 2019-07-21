@@ -15,6 +15,7 @@ using Westwind.Web.Mvc;
 using MemoriesCollection.Hubs;
 using System.Transactions;
 using Newtonsoft.Json;
+using System.Drawing;
 
 namespace MemoriesCollection.Controllers
 {
@@ -38,7 +39,6 @@ namespace MemoriesCollection.Controllers
             return View();
         }
 
-
         [HttpPost]
         /// <summary>
         /// 每次查詢50筆
@@ -57,6 +57,7 @@ namespace MemoriesCollection.Controllers
             var fmDate = Key.Dict(ref tags, "FmDate");
             var toDate = Key.Dict(ref tags, "ToDate");
             var keyWord = Key.Dict(ref tags, "KeyWord");
+            var timeLineDate = Key.Dict(ref tags, "Date");
             string cond = "";
 
             cond += fmDate == "" ? "" : $"AND OrgCreateDateTime >= '{fmDate.Replace("-", "")}' ";
@@ -70,6 +71,16 @@ namespace MemoriesCollection.Controllers
             Sql += "     SELECT *, ROW_NUMBER() OVER(ORDER BY ModifyDateTime Desc) as row  FROM Video ";
             Sql += "        WHERE 1= 1 ";
             Sql += cond == "" ? "" : cond;
+
+            if (timeLineDate != "") {
+                Sql += " AND CONVERT( VARCHAR(7), ";
+                Sql += " CASE OrgCreateDateTime ";
+                Sql += " WHEN '9999-12-31 00:00:00.000' ";
+                Sql += " THEN CreateDateTime ";
+                Sql += " ELSE OrgCreateDateTime END, 126 ) ";
+                Sql += $" = '{timeLineDate}' ";
+            }
+
             Sql += "   ) a ";
             Sql += " WHERE ";
             Sql += $"    a.row > {sPic} ";
@@ -107,7 +118,6 @@ namespace MemoriesCollection.Controllers
             var videoNo = Key.Dict(ref tags, "VideoNo");
             var backUrl = Key.Dict(ref tags, "BackUrl");
             ViewBag.IsData = false;
-            ViewBag.IsHor = false;
             if (videoNo != "") {
 
                 Sql = " SELECT ";
@@ -118,14 +128,11 @@ namespace MemoriesCollection.Controllers
                 Sql += $"   VideoNo = {videoNo} ";
                 Sql += " Order by i.ModifyDateTime Desc";
 
-                pv.SqlData = db.Query(Sql);
-                var data = pv.SqlData.FirstOrDefault();
+                pv.VideoList = db.Query<VideoInfo>(Sql).ToList();
 
-                ViewBag.IsData = data != null;
-                if (data != null) {
-                    if (data.Width > data.Height) {
-                        ViewBag.IsHor = true;
-                    }
+                ViewBag.IsData = pv.VideoList.Count() > 0;
+
+                if (ViewBag.IsData) {
                     Sql = " SELECT Distinct Person FROM Video WHERE Person != '' ";
                     Sql += " UNION ";
                     Sql += " SELECT Distinct Person FROM Photo WHERE Person != '' ";
@@ -133,9 +140,7 @@ namespace MemoriesCollection.Controllers
                 }
             }
 
-            //ViewBag.BackUrl = backUrl;
             pv.ViewBag = ViewBag;
-            //return View("Edit", pv);
             rtn[1] = page.View("Edit", pv);
 
             return new JsonNetResult(rtn);
@@ -173,6 +178,18 @@ namespace MemoriesCollection.Controllers
                                     ftpStream.Write(buffer, 0, read);
                                 }
                             }
+
+                            fs.Seek(0, SeekOrigin.Begin);
+                            Image image = Image.FromStream(fs, true, false);
+                            Sql = $"SELECT * FROM Video WHERE VideoNo = '{videoNo}' ";
+                            var res = db.Query<VideoInfo>(Sql).FirstOrDefault();
+                            var vdW = res.Width;
+                            var vdH = res.Height;
+
+                            if (image.Width != res.Width && image.Height != res.Height) {
+                                res.IsRotate = "Y";
+                                db.Update(res);
+                            }
                         } else {
                             using (var scope = new TransactionScope()) {
                                 VideoInfo vd = new VideoInfo();
@@ -182,10 +199,10 @@ namespace MemoriesCollection.Controllers
                                 vd.Size = file.ContentLength;
                                 vd.Width = 0;
                                 vd.Height = 0;
-                                vd.OrgCreateDateTime = now;
-                                vd.OrgModifyDateTime = now;
-                                vd.CreateDateTime = now;
-                                vd.ModifyDateTime = now;
+                                vd.OrgCreateDateTime = Key.Now;
+                                vd.OrgModifyDateTime = Key.Now;
+                                vd.CreateDateTime = Key.Now;
+                                vd.ModifyDateTime = Key.Now;
                                 db.Insert(vd);
 
                                 videoNo = vd.VideoNo.ToString();
@@ -277,7 +294,7 @@ namespace MemoriesCollection.Controllers
             } else if (dateTime.Length == 24) {
                 dateTime = dateTime == "" ? "" : dateTime.Substring(0, 10) + "," + dateTime.Substring(19) + dateTime.Substring(10, 9);
             } else {
-                dateTime = now.ToString("yyyy/MM/dd");
+                dateTime = Key.Now.ToString("yyyy/MM/dd");
             }
             return DateTime.Parse(dateTime, culture, DateTimeStyles.None);
         }
@@ -340,7 +357,7 @@ namespace MemoriesCollection.Controllers
                 videoInfo.FileDesc = desc;
                 videoInfo.Location = location;
                 videoInfo.Person = person;
-                videoInfo.ModifyDateTime = now;
+                videoInfo.ModifyDateTime = Key.Now;
                 isSuccess = db.Update(videoInfo);
             } else {
                 rtn[0] = AppConfig.NoData;
