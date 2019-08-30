@@ -21,7 +21,7 @@
             </h3>
 
             <button type="button" class="button btn-red" data-param="@audioNo" onclick="SaveAudio(this)">儲存</button>
-            <button type="button" href="@dwUrl" class="button btn-c2" data-param="@audioNo" onclick="SaveAudio(this)">下載</button>
+            <button type="submit" onclick="window.open('@(dwUrl)')" class="button btn-c2">下載</button>
 
         </div>
     </div>
