@@ -20,6 +20,11 @@
     min-width: 50px;
 }
 
+.btn-r {
+    text-align: right;
+    padding-top: 8px;
+}
+
 .sm-button {
     padding: 1px 6px;
     min-width: initial;
@@ -263,8 +268,8 @@
     }
 
     .btn-secondary.disabled, .btn-secondary:disabled {
-        color: #aaa;
-        background-color: transparent;
+        color: white;
+        background-color: #aaa;
     }
 
     .btn-secondary:not(:disabled):not(.disabled):active, .btn-secondary:not(:disabled):not(.disabled).active,

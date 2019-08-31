@@ -10,7 +10,9 @@ $(document).on('click', '[dissmiss-modal]', function () {
 
 // 影片 
 $(document).on('click', '.VideoModal', function () {
-    $('.video-close').trigger('click');
+    if ($(this).is(':visible')) {
+        $('.video-close').trigger('click');
+    }
 });
 
 

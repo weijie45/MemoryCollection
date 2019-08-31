@@ -13,9 +13,34 @@
 
 <div id="result" class="gallery"></div>
 
+<div id="vedioBlock">
+    <div class="info">
+        <div class="items"></div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
+        var $Video = "";
+        window.onbeforeunload = function () {
+            return true;
+        };
 
+        $('.inputfile').on('change', function () {
+            $('.items').empty();
+        });
+
+        function Upload(videoId, num) {
+
+            var file = $('#imgUpload').get(0).files[num];
+            $('#{0}_btn'.format(videoId)).attr('onclick', '').prop('disabled', true);
+
+            var fd = new FormData(); // Create a FormData object
+            var size = 0;
+            var msg = [];
+            VideoThumbnail(document.getElementById(videoId), num);
+
+        }
 
         // 圖片上傳
         $('#imgUpload').on('change', function (e) {
@@ -44,6 +69,7 @@
             $('.wj-dropBlock').on('drop', function (e) {
                 if (e.originalEvent.dataTransfer) {
                     if (e.originalEvent.dataTransfer.files.length) {
+                        $('.items').empty();
                         e.preventDefault();
                         e.stopPropagation();
                         $('#imgUpload').get(0).files = e.originalEvent.dataTransfer.files;
@@ -54,29 +80,22 @@
 
         });
 
-        function UploadVideo(files) { // upload function
+        function UploadVideo(videoId, num) { // upload function
+            var file = $('#imgUpload').get(0).files[num];
             var fd = new FormData(); // Create a FormData object
-            var size = 0;
+            var size = file.size;
             var msg = [];
-            msg.push(files.length == 0 ? "請上傳檔案 !" : "");
+            msg.push(file.length == 0 ? "請上傳檔案 !" : "");
 
-            for (var i = 0; i < files.length; i++) {
-                var file = files[i];
-                var imgSrc = $('#img_' + i).attr('src');
-                if (typeof imgSrc == "undefined") {
-                    msg.push("縮圖尚未完成...請稍後");
-                    var videoId = "video_{0}".format(i);
-                    VideoThumbnail(document.getElementById(videoId), $('#imgUpload').get(0).files[i]);
-                    break;
-                }
-
-                var modifyDate = new Date(typeof (file.lastModified) == 'undefined' ? new Date() : file.lastModified);
-
-                fd.append('fileModDate_' + i, modifyDate.toISOString().substring(0, 10) + " " + modifyDate.toTimeString().substring(0, 8));
-                fd.append('file_' + i, file);
-                fd.append('img_' + i, dataURLtoFile(imgSrc, 'filename.jpg'));
-                size += files[i].size;
+            var imgSrc = $('#img_' + num).attr('src');
+            if (typeof imgSrc == undefined) {
+                msg.push("縮圖尚未完成...請稍後");
             }
+
+            var modifyDate = new Date(typeof (file.lastModified) == 'undefined' ? new Date() : file.lastModified);
+            fd.append('fileModDate_' + num, modifyDate.toISOString().substring(0, 10) + " " + modifyDate.toTimeString().substring(0, 8));
+            fd.append('file_' + num, file);
+            fd.append('img_' + num, dataURLtoFile(imgSrc, 'filename.jpg'));
             fd.append('fileTsize', size);
 
             msg = msg.filter(Boolean);
@@ -84,30 +103,34 @@
             if (msg.length > 0) {
                 layer.alert(msg.join("<br>"), { title: '請輸入正確資料', icon: 7 });
             } else {
-                $.close();
+
                 var progressNotifier = $.connection.progressHub;
                 progressNotifier.client.sendMessage = function (message) {
                     _Percent = message;
                     UpdateProgress();
                 };
-
-                $.waitProgress();
+                $Video = $('#{0}_btn'.format(videoId));
                 $.connection.hub.start().done(function () {
                     Sys.AjaxUpload("/Video/ConfirmUpload", fd, function (data) {
                         GetSum();
-                        $.closeProgress();
-                        layer.alert("上傳成功 !", { icon: 1 }, function (index) {
-                            layer.close(index);
-                            location.reload();
-                        });
                     });
                 });
 
             }
         }
 
+        function UpdateProgress() {
+            if ($Video != "") {
+                if (parseInt(_Percent) >= 100) {
+                    var name = $Video.attr('data-param');
+                    $Video.html("上傳").removeClass('btn-confirm').html('<i class="fa fa-check" aria-hidden="true">{0}</i>'.format(name));
+                } else {
+                    $Video.html("上傳中...{0}%".format($.number(_Percent, 2), ""));
+                }
+            }
+        }
 
-        function InitVideo(files) {
+        function InitVideo(files, num) {
             var size = 0;
             var len = files.length;
             if (len > 10) {
@@ -125,56 +148,56 @@
                 layer.alert("總檔案不可大於2G !", { icon: 7 });
                 return false;
             }
-            layer.confirm("確認上傳 ?", { icon: 3 }, function (index) {
-                layer.close(index);
-                $.wait("縮圖製作中");
-                for (var i = 0; i < files.length; i++) { // Loop all files
-                    var file = files[i];
-                    var type = file.type;
-                    var videoId = "video_{0}".format(i);
-                    if (['video/mp4', 'video/quicktime'].indexOf(type) == -1) {
-                        layer.alert('Error : Only MP4 format allowed', { icon: 7 });
-                        return;
-                    }
-                    var name = file.name;
-                    var blob = new Blob([file], { type: type });
-                    var url = URL.createObjectURL(blob);
-                    var video = document.createElement('video');
-                    video.setAttribute("id", videoId);
-                    video.setAttribute("controls", '');
-                    video.setAttribute("width", '320');
-                    video.setAttribute("height", '240');
-                    //video.setAttribute('style', 'display:none');
-                    video.setAttribute("type", type);
-                    //video.preload = 'metadata';
-                    video.src = url;
-                    video.muted = true;
-                    video.playsInline = true;
-                    video.addEventListener('canplay', function (e) {
-                        var id = e.target.getAttribute('id');
-                        var num = id.substr(id.lastIndexOf('o') + 1);
-                        VideoThumbnail(e.target, $('#imgUpload').get(0).files[num]);
-                    });
-                    //document.getElementById('result').appendChild(video);
+
+            for (var i = 0; i < files.length; i++) { // Loop all files
+                var file = files[i];
+                var type = file.type;
+                var videoId = "video_{0}".format(i);
+                if (['video/mp4', 'video/quicktime'].indexOf(type) == -1) {
+                    layer.alert('Error : Only MP4 format allowed', { icon: 7 });
+                    return;
                 }
-            });
+                var name = file.name;
+                var blob = new Blob([file], { type: type });
+                var url = URL.createObjectURL(blob);
+                var video = document.createElement('video');
+                video.setAttribute("id", videoId);
+                video.setAttribute("controls", '');
+                video.setAttribute("autoplay", '');
+                video.setAttribute("width", '320');
+                video.setAttribute("height", '240');
+                video.setAttribute('style', 'display:none');
+                video.setAttribute("type", type);
+                //video.preload = 'metadata';
+                video.src = url;
+                video.muted = true;
+                video.playsInline = true;
+
+                var html = "<div class='box wj-block-l' id='{0}_div'><button type='button' data-param='{2}' class='button btn-confirm'style='display:none' id='{0}_btn' onclick='Upload(\"{0}\",\"{1}\")'><i class='fa fa-cloud-upload' aria-hidden='true'>{2}</i></button></div>";
+                $('.items').append(html.format(videoId, i, name.replace(/\.[^/.]+$/, "")));
+                $('#{0}_div'.format(videoId)).append(video);
+                //video.addEventListener('playing', plaaaa(video));
+                plaaaa(video);
+            }
         }
 
-        function VideoThumbnail(video, file) {
+        function plaaaa(e) {
+            e.pause();
+            $('#{0}_btn'.format(e.id)).show();
+        }
+
+        function VideoThumbnail(video, num) {
             var fd = new FormData(); // Create a FormData object
             var msg = [];
             //msg.push(file.length == 0 ? "請先上傳影片 !" : "");
             msg = msg.filter(Boolean);
-
+            $('#{0}_btn'.format(video.id)).text('製作縮圖...');
+            var file = $('#imgUpload').get(0).files[num];
             if (msg.length > 0) {
                 layer.alert(msg.join("<br>"), { title: '請輸入正確資料', icon: 7 });
             } else {
-                $('#Save').prop('disabled', true).text('縮圖製作中...');
                 fd.append('file', file);
-                fd.append('w', video.videoWidth);
-                fd.append('h', video.videoHeight);
-                $('#Save').prop('disabled', true);
-                Sys.AjaxExec("/Video/ChkSize", fd, function (data) {
+                Sys.AjaxUpload("/Video/ChkSize", fd, function (data) {
                     var j = JSON.parse(data[1]);
                     shoot(video, j.w, j.h);
                 });
@@ -217,19 +240,17 @@
 
         function shoot(video, w, h) {
             var canvas = capture(video, w, h);
-            var id = video.id;
-            var num = parseInt(id.substr(id.lastIndexOf('o') + 2));
+            var videoId = video.id;
+            var num = parseInt(videoId.substr(videoId.lastIndexOf('o') + 2));
             var img = document.createElement('img');
             img.setAttribute('src', canvas.toDataURL());
             img.setAttribute('id', 'img_' + num);
+            img.onload = function () {
+                UploadVideo(videoId, num);
+            };
             img.setAttribute('style', 'display:none');
             //img.setAttribute('style', 'border:1px solid red');
             document.getElementById('result').appendChild(img);
-
-            if ($('#imgUpload').get(0).files.length == $('[id^=img_]').length) {
-                UploadVideo($('#imgUpload').get(0).files);
-                $('#Save').prop('disabled', false).text('確認上傳');
-            }
         }
 
         function dataURLtoFile(dataurl, filename) {
