@@ -26,10 +26,15 @@ namespace BackUp
             } catch (Exception) {
 
             }
-
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             DirectoryCopy(source, destination, true);
 
-            if (Msg.Length > 0) BackUp.Components.Common.LineSend(Msg.ToString());
+            if (Msg.Length > 0) {
+                sw.Stop();
+                Msg.AppendLine($"{Emoji.shinyStar}總耗時{sw.Elapsed.Minutes}分");
+                LineSend(Msg.ToString());
+            }
         }
 
         private static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
@@ -75,11 +80,11 @@ namespace BackUp
             }
             sw.Stop();
 
-            if (files.Count() > 0) {
+            if (copyFileCnt > 0) {
                 Msg.AppendLine(Msg.Length == 0 ? "備份相片" : "");
                 Msg.AppendLine($"{Emoji.info}資料夾 /{Path.GetFullPath(sourceDirName).Replace(Path.GetPathRoot(sourceDirName), "").Replace("\\", "/")}");
                 if (sw.ElapsedMilliseconds > 60000) {
-                    Msg.AppendLine($"耗時{sw.Elapsed.Minutes}分鐘, {Emoji.star} {copyFileCnt}/{files.Count()}(複製/全部)");
+                    Msg.AppendLine($"{Emoji.star}耗時{sw.Elapsed.Minutes}分鐘, {Emoji.star} {copyFileCnt}/{files.Count()}(複製/全部)");
                 } else {
                     Msg.AppendLine($"{Emoji.star}耗時{sw.Elapsed.Seconds}秒, {copyFileCnt}/{files.Count()}(複製/全部)");
                 }

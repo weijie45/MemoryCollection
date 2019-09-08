@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MemoriesCollection", "MemoriesCollection\MemoriesCollection.csproj", "{0836E739-514B-4685-9D50-6A62DB5214E9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackUp", "BackUp\BackUp.csproj", "{FB485D83-E8B1-466B-9F4F-0FD7C00D0FD1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{0836E739-514B-4685-9D50-6A62DB5214E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0836E739-514B-4685-9D50-6A62DB5214E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0836E739-514B-4685-9D50-6A62DB5214E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB485D83-E8B1-466B-9F4F-0FD7C00D0FD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB485D83-E8B1-466B-9F4F-0FD7C00D0FD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB485D83-E8B1-466B-9F4F-0FD7C00D0FD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB485D83-E8B1-466B-9F4F-0FD7C00D0FD1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
