@@ -50,8 +50,18 @@ namespace BackUp
                 File.CreateText(Path.Combine(_Destination, "Init.txt"));
             }
 
+            Console.WriteLine("資料夾監測中...");
             WatcherStrat(_Source, "");
+
+            bool isContinue = true;
+            while (isContinue) {
+                Console.WriteLine("離開請輸入999：");
+                string input = Console.ReadLine();
+                if (input.Equals("999", StringComparison.CurrentCultureIgnoreCase))
+                    isContinue = false;
+            }
             Console.ReadKey();
+
         }
 
         private static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)

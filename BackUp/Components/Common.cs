@@ -78,7 +78,7 @@ namespace BackUp.Components
             try {
                 Console.WriteLine(msg);
 
-                using (StreamWriter sw = File.AppendText($"{Directory.GetCurrentDirectory()}Log.txt")) {
+                using (StreamWriter sw = File.AppendText($"{Directory.GetCurrentDirectory()}//Log.txt")) {
                     sw.WriteLine(msg);
                 }
             } catch (Exception e) {
