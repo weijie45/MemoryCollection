@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
@@ -17,6 +18,11 @@ namespace BackUp.Components
     {
         public static NameValueCollection ApplicationSettings;
 
+        /// <summary>
+        /// 取得AppConfig
+        /// </summary>
+        /// <param name="sKey"></param>
+        /// <returns></returns>
         public static string AppSettings(string sKey)
         {
             string sAppSettings = null;
@@ -26,12 +32,28 @@ namespace BackUp.Components
             }
             if (sAppSettings == null) {
                 sAppSettings = ConfigurationManager.AppSettings[sKey];
-
             }
+
+            //switch (sKey) {
+            //    case "Destination_Path":
+            //        sAppSettings = @"D:\Sync_Photo";
+            //        break;
+            //    case "BackUp_Path":
+            //        sAppSettings = @"D:\BackUp_Photo";
+            //        break;
+            //    case "Source_Path":
+            //        //sAppSettings = @"C:\inetpub\wwwroot\Memory\Upload\";
+            //        break;
+            //}
 
             return FixNull(sAppSettings);
         }
 
+        /// <summary>
+        /// Line Notify
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <returns></returns>
         public static string LineSend(string msg)
         {
             var rtn = "";
@@ -51,6 +73,19 @@ namespace BackUp.Components
             return rtn;
         }
 
+        public static void Log(string msg)
+        {
+            try {
+                Console.WriteLine(msg);
+
+                using (StreamWriter sw = File.AppendText($"{Directory.GetCurrentDirectory()}Log.txt")) {
+                    sw.WriteLine(msg);
+                }
+            } catch (Exception e) {
+                LineSend(e.Message);
+            }
+        }
+
         public static string FixNull(this object obj)
         {
             if (obj == null || obj == DBNull.Value) {
@@ -60,6 +95,9 @@ namespace BackUp.Components
             }
         }
 
+        /// <summary>
+        /// LINE 專屬的Emoji 
+        /// </summary>
         public static class Emoji
         {
             public static string star = char.ConvertFromUtf32(0x1000B2);
