@@ -73,13 +73,15 @@ namespace BackUp.Components
             return rtn;
         }
 
-        public static void Log(string msg)
+        public static void Log(string msg, bool whiteLine = false)
         {
             try {
                 Console.WriteLine(msg);
+                if (whiteLine) Console.WriteLine("");
 
                 using (StreamWriter sw = File.AppendText($"{Directory.GetCurrentDirectory()}//Log.txt")) {
                     sw.WriteLine(msg);
+                    if (whiteLine) sw.WriteLine("");
                 }
             } catch (Exception e) {
                 LineSend(e.Message);

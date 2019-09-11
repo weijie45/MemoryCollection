@@ -292,7 +292,7 @@ namespace BackUp
 
         private static void OnCreated(object source, FileSystemEventArgs e)
         {
-            Log($">>> 新增檔案 {DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")} ");
+            Log($">> {DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")}");
             var filePath = e.FullPath.Substring(e.FullPath.IndexOf("\\Upload")).Substring(7);
             var destPath = $"{_Destination}{filePath}";
 
@@ -304,13 +304,7 @@ namespace BackUp
             try {
                 while (!IsFileLocked(new FileInfo(e.FullPath))) {
                     File.Copy(e.FullPath, destPath);
-
-                    if (File.Exists(destPath)) {
-                        Log($"  成功 ! {destPath}");
-                    } else {
-                        Log($"  失敗 ! {e.FullPath}");
-                    }
-
+                    Log(File.Exists(destPath) ? $"\tCreate Successful  ! {destPath}" : $"\t[ERROR] tCreate Failed ! {e.FullPath}");
                 }
             } catch (Exception e1) {
                 LineSend(e1.Message);
@@ -325,6 +319,7 @@ namespace BackUp
 
         private static void OnDeleted(object source, FileSystemEventArgs e)
         {
+            Log($">> {DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")} ");
             var filePath = e.FullPath.Substring(e.FullPath.IndexOf("\\Upload")).Substring(7);
             var destPath = $"{_Destination}{filePath}";
             var backupPath = $"{_BackUp}{filePath}";
@@ -336,36 +331,30 @@ namespace BackUp
 
             }
 
-            Log($">> 刪除檔案 {DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")} ---");
-
-            Log($"  備份刪除檔案...至 {backupPath}");
             File.Copy(destPath, backupPath);
-            Log(File.Exists(destPath) ? "  備份成功 !" : "");
+            Log((File.Exists(destPath) ? $"\tBackUp Successfule !" : "\tBackUp Failed !") + backupPath);
 
             File.Delete(destPath);
-
-            Log(File.Exists(destPath) ? "" : "  刪除成功 !");
+            Log(!File.Exists(destPath) ? "\tDelete Successful  !" : "\t[ERROR] Delete Failed !" + destPath);
         }
 
         private static void OnRenamed(object source, RenamedEventArgs e)
         {
+            Log($">> {DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")} ");
             var filePath = e.FullPath.Substring(e.FullPath.IndexOf("\\Upload")).Substring(7);
             var oldFilePath = e.OldFullPath.Substring(e.OldFullPath.IndexOf("\\Upload")).Substring(7);
             var sourcePath = e.FullPath;
             var destPath = $"{_Destination}{oldFilePath}";
-            Log($">> 檔名變動 {DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")} ---");
+
 
             File.Delete(destPath);
-
-            Log(File.Exists(destPath) ? "" : "  目的檔案已刪除 !");
+            Log(File.Exists(destPath) ? "" : "\t目的檔案刪除 !");
 
             destPath = $"{_Destination}{filePath}";
 
-            Log($"  {sourcePath} 複製到 {destPath}...");
-
             File.Copy(sourcePath, destPath, true);
-
-            Log(File.Exists(destPath) ? "  改名成功  !" : "");
+            Log($"  複製檔案到 {destPath}");
+            Log(File.Exists(destPath) ? "\tReName Successful  !" : "\t[ERROR] ReName Failed !");
         }
 
 
