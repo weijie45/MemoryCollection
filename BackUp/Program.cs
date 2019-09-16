@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Web;
@@ -34,7 +35,6 @@ namespace BackUp
 
             }
 
-            //if (!File.Exists(Path.Combine(_Destination, "Init.txt"))) {
             Log($"{_Source} 同步至 {_Destination}");
             Log("檔案同步中...");
 
@@ -50,8 +50,6 @@ namespace BackUp
             Log("檔案同步完成...");
             Log($"  總耗時{string.Format("{0}:{1}", Math.Floor(ts.TotalMinutes), ts.ToString("ss\\.ff"))}");
 
-            //File.CreateText(Path.Combine(_Destination, "Init.txt"));
-            //}
 
             Console.WriteLine("資料夾監測中...");
             try {
@@ -62,10 +60,13 @@ namespace BackUp
 
             bool isContinue = true;
             while (isContinue) {
-                Console.WriteLine("離開請輸入999：");
+                Console.WriteLine("離開(999), 重新同步檔案(000)：");
                 string input = Console.ReadLine();
                 if (input.Equals("999", StringComparison.CurrentCultureIgnoreCase))
                     isContinue = false;
+                if (input.Equals("000", StringComparison.CurrentCultureIgnoreCase)) {
+                    DirectoryCopy(_Source, _Destination, true);
+                }
             }
 
             SetConsoleCtrlHandler(t =>
@@ -105,6 +106,7 @@ namespace BackUp
         private static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
         {
             try {
+                StringBuilder sb = new StringBuilder();
                 Log("同步" + sourceDirName + "中...");
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
@@ -126,32 +128,43 @@ namespace BackUp
                 // Get the files in the directory and copy them to the new location.
                 double copyFileCnt = 0;
                 FileInfo[] files = dir.GetFiles();
-                for (var i = 0; i < files.Count(); i++) {
+                double totalRec = files.Count();
+                for (int i = 0; i < files.Count(); i++) {
                     FileInfo file = files[i];
+                    string fileName = file.Name;
                     //foreach (FileInfo file in files) {
-                    string temppath = Path.Combine(destDirName, file.Name);
-                    if (File.Exists(temppath)) {
+                    string desPath = Path.Combine(destDirName, fileName);
+                    string sourcePath = Path.Combine(sourceDirName, fileName);
+
+                    if (File.Exists(desPath)) {
                         if (AllowExt.Contains(file.Extension.Replace(".", "").ToLower())) {
-                            // 圖片才需要比對, 若相同則不複製
-                            var desImg = new Bitmap(temppath);
-                            var sourceImg = new Bitmap(Path.Combine(sourceDirName, file.Name));
-                            if (!IsSameImg(sourceImg, desImg)) {
-                                sourceImg.Dispose();
-                                sourceImg = null;
-                                desImg.Dispose();
-                                desImg = null;
-                                file.CopyTo(temppath, true);
+
+                            //圖片才需要比對, 若相同則不複製
+                            if (!IsSameImg(sourcePath, desPath)) {
                                 copyFileCnt++;
+                                Copy(sourcePath, desPath, true);
+                                // 備份原始檔案
+                                var fileNameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+                                var backupPath = $"{_BackUp}{desPath.Replace(Path.GetDirectoryName(destDirName), "")}".Replace(fileNameWithoutExt, $"{fileNameWithoutExt}_{DateTime.Now.ToString("yyyyMMddHHmmssfff")}");
+                                Copy(desPath, backupPath, true);
+                                Log($"\t{fileName}與原檔案不相同, 備份原檔案,並更新檔案 ...");
                             }
+
+                            Console.SetCursorPosition(0, Console.CursorTop);   // - Move cursor
+                            Console.Write($"\t比對進度... {(((double)i / (double)totalRec) * 100).ToString("0.000")}%");
                         }
                     } else {
-                        file.CopyTo(temppath);
+                        Copy(sourcePath, desPath, true);
                         copyFileCnt++;
                     }
 
-                    if ((i > 1 && i % 50 == 0 && i != files.Count() - 1) || i == files.Count() - 1) {
-                        Log($"\t已複製{copyFileCnt}/{files.Count()}張... 耗時: {string.Format("{0}:{1}", Math.Floor(sw.Elapsed.TotalMinutes), sw.Elapsed.ToString("ss\\.ff"))}");
+                    if (i == totalRec - 1) {
+                        if (copyFileCnt > 0) {
+                            Log($"\t已複製{copyFileCnt}張...");
+                        }
+                        //Log($"共耗時: {string.Format("{0}:{1}", Math.Floor(sw.Elapsed.TotalMinutes), sw.Elapsed.ToString("ss\\.ff"))}");
                     }
+
                 }
                 sw.Stop();
                 var ts = sw.Elapsed;
@@ -159,7 +172,7 @@ namespace BackUp
                 if (copyFileCnt > 0) {
                     Msg.AppendLine(Msg.Length == 0 ? $"{DateTime.Today}備份相片" : "");
                     Msg.AppendLine($"{Emoji.info} /{sourceDirName.Substring(sourceDirName.IndexOf("\\Upload")).Replace("\\", "/")}");
-                    Msg.AppendLine($"{Emoji.star} {copyFileCnt}/{files.Count()}張, 耗時 {string.Format("{0}:{1}", Math.Floor(ts.TotalMinutes), ts.ToString("ss\\.ff"))}");
+                    Msg.AppendLine($"{Emoji.star} {copyFileCnt}/{totalRec}張, 耗時 {string.Format("{0}:{1}", Math.Floor(ts.TotalMinutes), ts.ToString("ss\\.ff"))}");
                 }
 
                 //Log($"完成... 結果: {copyFileCnt}/{files.Count()}張");
@@ -177,59 +190,57 @@ namespace BackUp
             }
         }
 
-        /// <summary> 
-        /// 判斷圖片是否一致 
-        /// </summary> 
-        /// <param name="img">圖片一</param> 
-        /// <param name="bmp">圖片二</param> 
-        /// <returns>是否一致</returns> 
-        public static bool IsSameImg(Bitmap img, Bitmap bmp)
+        public static void ReleaseMem(Bitmap bmp)
         {
-            //大小一致 
-            if (img.Width == bmp.Width && img.Height == bmp.Height) {
+            bmp.Dispose();
+            bmp = null;
+        }
 
-                //將圖片一鎖定到記憶體 
-                System.Drawing.Imaging.BitmapData imgData_i = img.LockBits(new Rectangle(0, 0, img.Width, img.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-                IntPtr ipr_i = imgData_i.Scan0;
-                int length_i = imgData_i.Width * imgData_i.Height * 3;
-                byte[] imgValue_i = new byte[length_i];
-                Marshal.Copy(ipr_i, imgValue_i, 0, length_i);
-                img.UnlockBits(imgData_i);
-
-                //將圖片二鎖定到記憶體 
-                BitmapData imgData_b = img.LockBits(new Rectangle(0, 0, img.Width, img.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-                IntPtr ipr_b = imgData_b.Scan0;
-                int length_b = imgData_b.Width * imgData_b.Height * 3;
-                byte[] imgValue_b = new byte[length_b];
-                Marshal.Copy(ipr_b, imgValue_b, 0, length_b);
-                img.UnlockBits(imgData_b);
-                //長度不相同 
-                if (length_i != length_b) {
-                    img.Dispose();
-                    img = null;
-                    bmp.Dispose();
-                    bmp = null;
-                    return false;
-                } else {
-                    //迴圈判斷值 
-                    for (int i = 0; i < length_i; i++) {
-                        //不一致 
-                        if (imgValue_i[i] != imgValue_b[i]) {
-                            img.Dispose();
-                            img = null;
-                            bmp.Dispose();
-                            bmp = null;
-                            return false;
-                        }
-                    }
-                    img.Dispose();
-                    img = null;
-                    bmp.Dispose();
-                    bmp = null;
-                    return true;
-                }
-            } else {
+        public static bool IsSameImg(string sourcePath, string destPath)
+        {
+            var bmp1 = new Bitmap(destPath);
+            var bmp2 = new Bitmap(sourcePath);
+            if (bmp1.Size != bmp2.Size) {
+                ReleaseMem(bmp1);
+                ReleaseMem(bmp2);
                 return false;
+            } else {
+                using (MD5 md5Hash = MD5.Create()) {
+
+                    //create instance or System.Drawing.ImageConverter to convert
+                    //each image to a byte array
+                    ImageConverter converter = new ImageConverter();
+                    //create 2 byte arrays, one for each image
+                    byte[] imgBytes1 = new byte[1];
+                    byte[] imgBytes2 = new byte[1];
+
+                    //convert images to byte array
+                    imgBytes1 = (byte[])converter.ConvertTo(bmp1, imgBytes2.GetType());
+                    imgBytes2 = (byte[])converter.ConvertTo(bmp2, imgBytes1.GetType());
+
+
+                    byte[] hash1 = md5Hash.ComputeHash(imgBytes1);
+                    byte[] hash2 = md5Hash.ComputeHash(imgBytes2);
+
+                    if (hash1.SequenceEqual(hash2) == false) {
+                        ReleaseMem(bmp1);
+                        ReleaseMem(bmp2);
+                        return false;
+                    } else {
+                        ReleaseMem(bmp1);
+                        ReleaseMem(bmp2);
+                        return true;
+                    }
+
+                    //Compare the hash values
+                    //for (int i = 0; i < hash1.Length && i < hash2.Length; i++) {
+                    //    if (hash1[i] != hash2[i]) {
+                    //        ReleaseMem(bmp1);
+                    //        ReleaseMem(bmp2);
+                    //        return false;
+                    //    }
+                    //}
+                }
             }
         }
 
@@ -301,7 +312,7 @@ namespace BackUp
                     Thread.Sleep(500);
                 }
 
-                File.Copy(e.FullPath, destPath);
+                Copy(e.FullPath, destPath);
                 Log(File.Exists(destPath) ? $"\tCreate Successful  ! {destPath}" : $"\t[ERROR] tCreate Failed ! {e.FullPath}");
 
             } catch (Exception e1) {
@@ -329,7 +340,7 @@ namespace BackUp
 
             }
 
-            File.Copy(destPath, backupPath);
+            Copy(destPath, backupPath);
             Log((File.Exists(destPath) ? $"\tBackUp Successfule !" : "\t[ERROR] BackUp Failed !") + backupPath);
 
             File.Delete(destPath);
@@ -350,8 +361,17 @@ namespace BackUp
 
             destPath = $"{_Destination}{filePath}";
 
-            File.Copy(sourcePath, destPath, true);
+            Copy(sourcePath, destPath, true);
             Log((File.Exists(destPath) ? "\tReName Successful  !" : "\t[ERROR] ReName Failed !") + $"{e.OldName} -> {e.Name}");
+        }
+
+        private static void Copy(string sourcePath, string destPath, bool overwrite = true)
+        {
+            var sourceDirPath = Path.GetDirectoryName(sourcePath);
+            var destDirPath = Path.GetDirectoryName(destPath);
+            if (!Directory.Exists(sourceDirPath)) Directory.CreateDirectory(sourceDirPath);
+            if (!Directory.Exists(destDirPath)) Directory.CreateDirectory(destDirPath);
+            File.Copy(sourcePath, destPath, overwrite);
         }
 
 
