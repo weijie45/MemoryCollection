@@ -88,29 +88,30 @@ namespace MemoriesCollection.Controllers
                 for (var i = 0; i < uploadCnt; i++) {
                     var file = files[i];
                     var fileExt = Path.GetExtension(file.FileName);
+                    var fileName = Path.GetFileNameWithoutExtension(file.FileName);
                     //https://www.aspsnippets.com/Articles/Convert-HttpPostedFile-to-Byte-Array-in-ASPNet-using-C-and-VBNet.aspx
+                    try {
+                        if (AllowExt.Contains(fileExt.Replace(".", "").ToLower())) {
+                            using (var scope = new TransactionScope()) {
+                                var modDate = Key.FullDateTime(Request[$"fileModDate_{i}"]);
 
-                    if (AllowExt.Contains(fileExt.Replace(".", "").ToLower())) {
-                        using (var scope = new TransactionScope()) {
-                            var modDate = Key.FullDateTime(Request[$"fileModDate_{i}"]);
-                            var fileName = Path.GetFileNameWithoutExtension(file.FileName);
-                            var size = file.ContentLength;
-                            doneSize += size;
+                                var size = file.ContentLength;
+                                doneSize += size;
 
-                            Stream fs = file.InputStream;
-                            Audio audio = new Audio();
-                            audio.FileName = fileName;
-                            audio.FileExt = fileExt;
-                            audio.Size = file.ContentLength;
-                            audio.OrgCreateDateTime = Key.Now;
-                            audio.OrgModifyDateTime = Key.Now;
-                            audio.CreateDateTime = Key.Now;
-                            audio.ModifyDateTime = Key.Now;
-                            db.Insert(audio);
+                                Stream fs = file.InputStream;
+                                Audio audio = new Audio();
+                                audio.FileName = fileName;
+                                audio.FileExt = fileExt;
+                                audio.Size = file.ContentLength;
+                                audio.OrgCreateDateTime = Key.Now;
+                                audio.OrgModifyDateTime = Key.Now;
+                                audio.CreateDateTime = Key.Now;
+                                audio.ModifyDateTime = Key.Now;
+                                db.Insert(audio);
 
-                            var fileStream = file.InputStream;
-                            // 分批寫入
-                            try {
+                                var fileStream = file.InputStream;
+                                // 分批寫入
+
                                 using (Stream ftpStream = System.IO.File.Create($"{AudioPath}{audio.AudioNo}{fileExt}")) {
                                     byte[] buffer = new byte[1024000];
 
@@ -120,39 +121,47 @@ namespace MemoriesCollection.Controllers
                                         ftpStream.Write(buffer, 0, read);
                                     }
                                 }
-                            } catch (Exception e) {
 
-                            }
-                            fileStream.Seek(0, SeekOrigin.Begin);
+                                fileStream.Seek(0, SeekOrigin.Begin);
 
-                            ////取得 Metadata , 影片解析                               
-                            string crtDateTime = "", modDateTime = "";
-                            var directories = ImageMetadataReader.ReadMetadata(fileStream);
-                            foreach (var directory in directories) {
-                                foreach (var tag in directory.Tags) {
-                                    var name = tag.Name.ToLower();
-                                    var val = tag.Description.Trim();
-                                    switch (name) {
-                                        case "created":
-                                            crtDateTime = (crtDateTime != "") ? crtDateTime : val;
-                                            break;
-                                        case "modified":
-                                            modDateTime = (modDateTime != "") ? modDateTime : val;
-                                            break;
+                                ////取得 Metadata , 影片解析                               
+                                string crtDateTime = "", modDateTime = "";
+                                try {
+                                    var directories = ImageMetadataReader.ReadMetadata(fileStream);
+                                    foreach (var directory in directories) {
+                                        foreach (var tag in directory.Tags) {
+                                            var name = tag.Name.ToLower();
+                                            var val = tag.Description.Trim();
+                                            switch (name) {
+                                                case "created":
+                                                    crtDateTime = (crtDateTime != "") ? crtDateTime : val;
+                                                    break;
+                                                case "modified":
+                                                    modDateTime = (modDateTime != "") ? modDateTime : val;
+                                                    break;
+                                            }
+                                        }
                                     }
+                                } catch {
+
                                 }
+
+
+                                Sql = $"SELECT * FROM Audio WHERE AudioNo = '{audio.AudioNo}' ";
+                                var res = db.Query<VideoInfo>(Sql).FirstOrDefault();
+                                res.OrgCreateDateTime = crtDateTime == "" ? DateTime.Parse(Key.FullDateTime(modDate)) : DateTimeFormat(crtDateTime);
+                                res.OrgModifyDateTime = modDateTime == "" ? DateTime.Parse(Key.FullDateTime(modDate)) : DateTimeFormat(modDateTime);
+
+                                var percent = ((double)doneSize / (double)totalSize * 100 / 2 + 50);
+                                ProgressHub.SendMessage(percent > 100 ? 100 : percent);
+
+                                scope.Complete();
                             }
-
-                            Sql = $"SELECT * FROM Audio WHERE AudioNo = '{audio.AudioNo}' ";
-                            var res = db.Query<VideoInfo>(Sql).FirstOrDefault();
-                            res.OrgCreateDateTime = DateTimeFormat(crtDateTime);
-                            res.OrgModifyDateTime = DateTimeFormat(modDateTime);
-
-                            var percent = ((double)doneSize / (double)totalSize * 100 / 2 + 50);
-                            ProgressHub.SendMessage(percent > 100 ? 100 : percent);
-
-                            scope.Complete();
                         }
+                    } catch (Exception e) {
+                        Files.DelFile(AudioPath, fileName, fileExt);
+                        Log.ErrLog(e);
+                        failUpload = e.Message;
                     }
                 }
 

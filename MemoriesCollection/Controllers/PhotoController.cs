@@ -6,6 +6,7 @@ using MemoriesCollection.Function.Extensions;
 using MemoriesCollection.Hubs;
 using MemoriesCollection.Models;
 using MemoriesCollection.ViewModels;
+using MetadataExtractor;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

@@ -33,30 +33,30 @@ namespace BackUp
 
             }
 
-            if (!File.Exists(Path.Combine(_Destination, "Init.txt"))) {
-                Log($"{_Source} 同步至 {_Destination}");
-                Log("檔案同步中...");
+            //if (!File.Exists(Path.Combine(_Destination, "Init.txt"))) {
+            Log($"{_Source} 同步至 {_Destination}");
+            Log("檔案同步中...");
 
-                Stopwatch sw = new Stopwatch();
-                sw.Start();
-                DirectoryCopy(_Source, _Destination, true);
-                sw.Stop();
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            DirectoryCopy(_Source, _Destination, true);
+            sw.Stop();
 
-                var ts = sw.Elapsed;
-                Msg.AppendLine($"{Emoji.shinyStar}總耗時{string.Format("{0}:{1}", Math.Floor(ts.TotalMinutes), ts.ToString("ss\\.ff"))}");
-                LineSend(Msg.ToString());
+            var ts = sw.Elapsed;
+            Msg.AppendLine($"{Emoji.shinyStar}總耗時{string.Format("{0}:{1}", Math.Floor(ts.TotalMinutes), ts.ToString("ss\\.ff"))}");
+            LineSend(Msg.ToString());
 
-                Log("檔案同步完成...");
-                Log($"  總耗時{string.Format("{0}:{1}", Math.Floor(ts.TotalMinutes), ts.ToString("ss\\.ff"))}");
+            Log("檔案同步完成...");
+            Log($"  總耗時{string.Format("{0}:{1}", Math.Floor(ts.TotalMinutes), ts.ToString("ss\\.ff"))}");
 
-                File.CreateText(Path.Combine(_Destination, "Init.txt"));
-            }
+            //File.CreateText(Path.Combine(_Destination, "Init.txt"));
+            //}
 
             Console.WriteLine("資料夾監測中...");
             try {
                 WatcherStrat(_Source, "");
             } catch (Exception e) {
-                LineSend(e.Message);
+                LineSend("WatcherStrat\t" + e.Message);
             }
 
             bool isContinue = true;
@@ -70,10 +70,10 @@ namespace BackUp
             SetConsoleCtrlHandler(t =>
             {
                 // 這邊簡單的顯示導致視窗關閉的來源是什麼
+                LineSend("Console Close\t" + t.ToString());
                 Log(t.ToString());
-                Log("123");
                 // 在這裡處理視窗關閉前想要執行的程式碼
-                Console.WriteLine("222");
+
                 // 返回 false 將事件交回原處理函式執行正常關閉
                 return false;
             },
@@ -292,7 +292,7 @@ namespace BackUp
 
         private static void OnCreated(object source, FileSystemEventArgs e)
         {
-            Log($">> {DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")}");
+
             var filePath = e.FullPath.Substring(e.FullPath.IndexOf("\\Upload")).Substring(7);
             var destPath = $"{_Destination}{filePath}";
 
@@ -307,7 +307,7 @@ namespace BackUp
                     Log(File.Exists(destPath) ? $"\tCreate Successful  ! {destPath}" : $"\t[ERROR] tCreate Failed ! {e.FullPath}");
                 }
             } catch (Exception e1) {
-                LineSend(e1.Message);
+                //LineSend(e1.Message);
             }
         }
 
@@ -319,7 +319,7 @@ namespace BackUp
 
         private static void OnDeleted(object source, FileSystemEventArgs e)
         {
-            Log($">> {DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")} ");
+
             var filePath = e.FullPath.Substring(e.FullPath.IndexOf("\\Upload")).Substring(7);
             var destPath = $"{_Destination}{filePath}";
             var backupPath = $"{_BackUp}{filePath}";
@@ -332,15 +332,15 @@ namespace BackUp
             }
 
             File.Copy(destPath, backupPath);
-            Log((File.Exists(destPath) ? $"\tBackUp Successfule !" : "\tBackUp Failed !") + backupPath);
+            Log((File.Exists(destPath) ? $"\tBackUp Successfule !" : "\t[ERROR] BackUp Failed !") + backupPath);
 
             File.Delete(destPath);
-            Log(!File.Exists(destPath) ? "\tDelete Successful  !" : "\t[ERROR] Delete Failed !" + destPath);
+            Log((!File.Exists(destPath) ? "\tDelete Successful  !" : "\t[ERROR] Delete Failed !") + destPath);
         }
 
         private static void OnRenamed(object source, RenamedEventArgs e)
         {
-            Log($">> {DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")} ");
+
             var filePath = e.FullPath.Substring(e.FullPath.IndexOf("\\Upload")).Substring(7);
             var oldFilePath = e.OldFullPath.Substring(e.OldFullPath.IndexOf("\\Upload")).Substring(7);
             var sourcePath = e.FullPath;
@@ -348,13 +348,12 @@ namespace BackUp
 
 
             File.Delete(destPath);
-            Log(File.Exists(destPath) ? "" : "\t目的檔案刪除 !");
+            Log(File.Exists(destPath) ? "\t[ERROR] 目的檔案尚未刪除 !" : "");
 
             destPath = $"{_Destination}{filePath}";
 
             File.Copy(sourcePath, destPath, true);
-            Log($"  複製檔案到 {destPath}");
-            Log(File.Exists(destPath) ? "\tReName Successful  !" : "\t[ERROR] ReName Failed !");
+            Log((File.Exists(destPath) ? "\tReName Successful  !" : "\t[ERROR] ReName Failed !") + $"{e.OldName} -> {e.Name}");
         }
 
 

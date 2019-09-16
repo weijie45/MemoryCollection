@@ -84,7 +84,7 @@ namespace BackUp.Components
                     if (whiteLine) sw.WriteLine("");
                 }
             } catch (Exception e) {
-                LineSend(e.Message);
+                //LineSend(e.Message);
             }
         }
 
