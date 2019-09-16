@@ -81,10 +81,8 @@
     <Compile Include="Components\Base.cs" />
     <Compile Include="Components\Common.cs" />
     <Compile Include="Components\Data.cs" />
-    <Compile Include="MyFileSystemWather.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WatcherProcess.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

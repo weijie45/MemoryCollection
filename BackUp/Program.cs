@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Web;
 using static BackUp.Components.Common;
 
@@ -255,25 +256,19 @@ namespace BackUp
 
         private static void WatcherStrat(string path, string filter)
         {
-            MyFileSystemWather myWather = new MyFileSystemWather(path, filter);
 
-            myWather.OnChanged += new FileSystemEventHandler(OnChanged);
-            myWather.OnCreated += new FileSystemEventHandler(OnCreated);
-            myWather.OnRenamed += new RenamedEventHandler(OnRenamed);
-            myWather.OnDeleted += new FileSystemEventHandler(OnDeleted);
-            myWather.Start();
 
-            //FileSystemWatcher watcher = new FileSystemWatcher();
-            //watcher.Path = path;
-            //watcher.IncludeSubdirectories = true;
-            ////watcher.Filter = filter;
+            FileSystemWatcher watcher = new FileSystemWatcher();
+            watcher.Path = path;
+            watcher.IncludeSubdirectories = true;
+            //watcher.Filter = filter;
 
-            //watcher.Changed += new FileSystemEventHandler(OnProcess);
-            //watcher.Created += new FileSystemEventHandler(OnProcess);
-            //watcher.Deleted += new FileSystemEventHandler(OnProcess);
-            //watcher.Renamed += new RenamedEventHandler(OnRenamed);
+            watcher.Changed += new FileSystemEventHandler(OnProcess);
+            watcher.Created += new FileSystemEventHandler(OnProcess);
+            watcher.Deleted += new FileSystemEventHandler(OnProcess);
+            watcher.Renamed += new RenamedEventHandler(OnRenamed);
 
-            //watcher.EnableRaisingEvents = true;
+            watcher.EnableRaisingEvents = true;
         }
 
         private static void OnProcess(object source, FileSystemEventArgs e)
@@ -302,12 +297,15 @@ namespace BackUp
 
             }
             try {
-                while (!IsFileLocked(new FileInfo(e.FullPath))) {
-                    File.Copy(e.FullPath, destPath);
-                    Log(File.Exists(destPath) ? $"\tCreate Successful  ! {destPath}" : $"\t[ERROR] tCreate Failed ! {e.FullPath}");
+                while (IsFileLocked(new FileInfo(e.FullPath))) {
+                    Thread.Sleep(500);
                 }
+
+                File.Copy(e.FullPath, destPath);
+                Log(File.Exists(destPath) ? $"\tCreate Successful  ! {destPath}" : $"\t[ERROR] tCreate Failed ! {e.FullPath}");
+
             } catch (Exception e1) {
-                //LineSend(e1.Message);
+                Log("OnCreated: " + e1.Message);
             }
         }
 
