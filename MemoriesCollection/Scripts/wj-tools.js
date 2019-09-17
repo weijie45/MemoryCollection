@@ -188,10 +188,11 @@ var Sys = (function (Sys) {
                         fn(data);
                     }
                 }
+                $.closeAll();
             },
             error: function (response) {
                 layer.alert(url + ' ajax Error !', { icon: 7 });
-                $.closeAll
+                $.closeAll();
             },
             complete: function (e) {
                 $('#navbar').removeClass('in');
@@ -437,6 +438,26 @@ $.waitProgress = function () {
 $.closeProgress = function () {
     $("body").removeClass("progressing");
 };
+
+function AES(val) {
+    if (typeof val != "string") {
+        val = $.toJSON(val);
+    }
+    var sEnc = "";
+    try {
+        var key = CryptoJS.enc.Utf8.parse("HeHeHaHaWeiWei00");
+        var iv = CryptoJS.enc.Utf8.parse("HeHeHaHaWeiWei00");
+        sEnc = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(val), key, {
+            keySize: 16,
+            iv: iv,
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7
+        });
+    } catch (e) {
+        sEnc = "";
+    }
+    return sEnc;
+}
 
 Array.prototype.max = function () {
     return Math.max.apply(null, this);

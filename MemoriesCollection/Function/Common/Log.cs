@@ -41,5 +41,23 @@ namespace MemoriesCollection.Function.Common
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ex"></param>
+        /// <param name="msg"></param>
+        /// <param name="appendErrMsg">顯示錯誤訊息</param>
+        public static void ErrLog(Exception ex, string msg, bool appendErrMsg = true)
+        {
+            var er = new ErrorLog();
+            er.Controller = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
+            er.Action = HttpContext.Current.Request.RequestContext.RouteData.Values["action"].ToString();
+            er.LogDate = DateTime.Now;
+            er.Message = appendErrMsg ? $"{msg} {ex.Message}" : ex.Message;
+            er.StackTrace = ex.StackTrace;
+            DbHelper.db.Insert(er);
+
+        }
+
     }
 }

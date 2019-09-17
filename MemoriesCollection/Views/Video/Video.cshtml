@@ -17,7 +17,7 @@
     var dwUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.VideoPath, Folder = "", FileName = fileName, DwName = dwName }) });
 
     <div class="box">
-        <a href="#" class="image fit showVideo" detail-param="@video" data-params="@($"{width},{height}")">
+        <a href="#" class="image fit showVideo" data-params="@($"{videoNo}*/*{ext}")">
             <img src="@(imgUrl)" alt="@name" />
         </a>
         <div class="inner">

@@ -32,7 +32,8 @@ namespace MemoriesCollection
                         "~/Scripts/exif.js",// 相片Exif
                         "~/Scripts/ua-parser.js",// User-Agent 
                         "~/Scripts/input-upload.js",// 上傳按鈕
-                        "~/Scripts/menu.js"
+                        "~/Scripts/menu.js",
+                        "~/Scripts/aes.min.js"// 前端 AES加密
                        ));
 
             // 使用開發版本的 Modernizr 進行開發並學習。然後，當您

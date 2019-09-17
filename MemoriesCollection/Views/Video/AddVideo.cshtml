@@ -7,9 +7,10 @@
     <input type="file" name="file-1[]" id="imgUpload" class="inputfile inputfile-1" data-multiple-caption="{count} files selected" multiple />
     <label for="imgUpload"><span>請選擇影片&hellip;</span></label>
 </div>
-@*<div class="wj-block-c">
-        <button id="Save" class="button btn-c1" onclick="UploadVideo($('#imgUpload').get(0).files)" disabled>確認上傳</button>
-    </div>*@
+
+<div class="txt-c txt-red msg-info">
+    <i class="fa fa-info-circle" aria-hidden="true">一次最多上傳10部影片</i>
+</div>
 
 <div id="result" class="gallery"></div>
 
@@ -22,9 +23,6 @@
 @section Scripts {
     <script>
         var $Video = "";
-        window.onbeforeunload = function () {
-            return true;
-        };
 
         $('.inputfile').on('change', function () {
             $('.items').empty();
@@ -131,6 +129,8 @@
         }
 
         function InitVideo(files, num) {
+            $('#result').empty();
+
             var size = 0;
             var len = files.length;
             if (len > 10) {
@@ -176,7 +176,7 @@
                 var html = "<div class='box wj-block-l' id='{0}_div'><button type='button' data-param='{2}' class='button btn-confirm'style='display:none' id='{0}_btn' onclick='Upload(\"{0}\",\"{1}\")'><i class='fa fa-cloud-upload' aria-hidden='true'>{2}</i></button></div>";
                 $('.items').append(html.format(videoId, i, name.replace(/\.[^/.]+$/, "")));
                 $('#{0}_div'.format(videoId)).append(video);
-                //video.addEventListener('playing', plaaaa(video));
+
                 plaaaa(video);
             }
         }

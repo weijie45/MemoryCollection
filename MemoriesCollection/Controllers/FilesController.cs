@@ -48,6 +48,8 @@ namespace MemoriesCollection.Controllers
                 Response.End();
                 return new EmptyResult();
             } else {
+
+                //return File(System.IO.File.OpenRead(Server.MapPath(root + fileName)), System.Net.Mime.MediaTypeNames.Application.Octet, dwName);
                 return File(Files.GetFile(root, folder, fileName, ""), System.Net.Mime.MediaTypeNames.Application.Octet, dwName);
                 //return File(Files.GetFile(root, folder, fileName, ""), GetMimeTypeByWindowsRegistry(Path.GetExtension(fileName)), dwName);
             }

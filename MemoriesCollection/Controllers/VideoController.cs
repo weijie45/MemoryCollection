@@ -273,7 +273,7 @@ namespace MemoriesCollection.Controllers
                     } catch (Exception e) {
                         Files.DelFile(VideoPath, fileName, fileExt);
                         Files.DelFile(VideoThbPath, fileName, ".jpg");
-                        Log.ErrLog(e);
+                        Log.ErrLog(e, $"[Error] {fileName}");
                         rtn[0] = e.Message;
                     }
 
@@ -299,6 +299,10 @@ namespace MemoriesCollection.Controllers
             return DateTime.Parse(dateTime, culture, DateTimeStyles.None);
         }
 
+        /// <summary>
+        /// 影片尺寸
+        /// </summary>
+        /// <returns></returns>
         public ActionResult ChkSize()
         {
             string[] rtn = new string[] { "", "" };

@@ -33,6 +33,12 @@
                 </div>
             </div>
         }
+
+        @if (Model.AlbumList.Count() == 0) {
+            <p class="txt-c txt-red msg-info">
+                @AppConfig.NoData
+            </p>
+        }
     </div>
     <div id="ListPanel-2"></div>
 </div>

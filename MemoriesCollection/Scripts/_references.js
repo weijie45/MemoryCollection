@@ -1,4 +1,5 @@
 ﻿/// <autosync enabled="true" />
+/// <reference path="aes.min.js" />
 /// <reference path="exif.js" />
 /// <reference path="input-upload.js" />
 /// <reference path="jquery.batch.js" />

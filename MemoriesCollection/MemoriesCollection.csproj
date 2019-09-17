@@ -282,6 +282,7 @@
     <Content Include="Images\video-play.png" />
     <Content Include="Images\vimeo-play.png" />
     <Content Include="Images\youtube-play.png" />
+    <Content Include="Scripts\aes.min.js" />
     <Content Include="Scripts\exif.js" />
     <Content Include="Scripts\i18n\af.js" />
     <Content Include="Scripts\i18n\ar.js" />

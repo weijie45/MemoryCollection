@@ -187,6 +187,7 @@
             var tags = $('#preview').tags();
             var msg = [];
             msg.push(IsEmpty(tags.Name) ? "標題不可為空 !" : "");
+            msg.push(/[\/\*\?\|<>:]/.test(tags.Name) ? "檔案不可包含違法字元 <span class='txt-red'>\ / : * ? | < ></span> !" : "");
             msg = msg.filter(Boolean);
 
             if (msg.length > 0) {
@@ -279,6 +280,7 @@
             var url = '@Url.Action("Save", "Video")';
             var tags = $('#preview').tags();
             msg.push(IsEmpty(tags.name) ? "影片名稱不可為空 !" : "");
+            msg.push(/[\/\*\?\|<>:]/.test(tags.name) ? "檔案不可包含違法字元(<span class='txt-red'>\ / : * ? | < ></span>) !" : "");
             msg = msg.filter(Boolean);
 
             if (msg.length > 0) {
@@ -321,12 +323,29 @@
         // 影片lightbox
         $(document).on('click', '.showVideo', function () {
             SaveScrollTop();
-            _VideoKey = $(this).attr('detail-param');
+            var fileName = $(this).attr('data-params').split('*/*')[0];
+            var ext = $(this).attr('data-params').split('*/*')[1];
+            _VideoKey = fileName;
             var currVideo = _VideoKey;
             var style = "max-height: 500px";
 
             $("body").addClass("loadingVideo");
-            $('.video-content').html('<video style="' + style + '" controls><source src="@($"{AppConfig.VideoPath.Replace("\\", "/")}"){0}"></video>'.format(currVideo));
+
+            var t = {
+                Root: '@AppConfig.VideoPath',
+                Folder: "",
+                FileName: fileName + ext
+            };
+            //https://stackoverflow.com/questions/37462263/open-filestreamresult-by-ajax-as-downloaded-file
+            var request = new XMLHttpRequest();
+            request.responseType = "blob";
+            request.open("GET", '/Files/GetLocal?t=' + AES(JSON.stringify(t)));
+            request.onload = function () {
+                var url = window.URL.createObjectURL(this.response);
+                $('.video-content').html('<video style="' + style + '" controls><source src="' + url + '"></video>')
+            }
+            request.send();
+
             $('.VideoModal').css('display', 'flex');
         });
 
