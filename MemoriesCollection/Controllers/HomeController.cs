@@ -36,8 +36,7 @@ namespace MemoriesCollection.Controllers
                 return PageSettion.VarTagsError(vt.ErrorMsg);
             }
             var tags = vt.Tags;
-            var imgNo = Key.Dict(ref tags, "ImgNo");
-            var prog = Key.Dict(ref tags, "Prog");// 從別頁面過來的
+            var imgNo = Key.Decrypt(Key.Dict(ref tags, "ImgNo"));
             string personList = "";
 
             Sql = " Select ";
@@ -83,7 +82,7 @@ namespace MemoriesCollection.Controllers
                 return PageSettion.VarTagsError(vt.ErrorMsg);
             }
             var tags = vt.Tags;
-            var imgNo = Key.Dict(ref tags, "ImgNo");
+            var imgNo = Key.Decrypt(Key.Dict(ref tags, "ImgNo"));
 
             if (imgNo != "") {
                 Sql = $" SELECT * FROM Photo WHERE imgNo = '{imgNo}' ";
@@ -155,8 +154,8 @@ namespace MemoriesCollection.Controllers
             var desc = Key.Dict(ref tags, "Desc");
             var location = Key.Dict(ref tags, "Location");
             var person = Key.Dict(ref tags, "Person");
-            var imgNo = Key.Dict(ref tags, "ImgNo").ToInt();
-            var albumNo = Key.Dict(ref tags, "AlbumNo").ToInt();
+            var imgNo = Key.Decrypt(Key.Dict(ref tags, "ImgNo")).ToInt();
+            var albumNo = Key.Decrypt(Key.Dict(ref tags, "AlbumNo")).ToInt();
             Sql = $"SELECT * FROM Photo WHERE ImgNo = '{imgNo}' ";
             var imgInfo = db.Query<Photo>(Sql).FirstOrDefault();
 
@@ -190,60 +189,7 @@ namespace MemoriesCollection.Controllers
         /// </summary>
         /// <returns></returns>
         public ActionResult TimeLine()
-        {
-            //Sql = " SELECT ";
-            //Sql += "   p.ImgNo, ";
-            //Sql += "   p.FileExt, ";
-            //Sql += "   p.Location, ";
-            //Sql += "   p.Person, ";
-            //Sql += "   CONVERT( VARCHAR(7), ";
-            //Sql += "            CASE p.OrgCreateDateTime ";
-            //Sql += "            WHEN '9999-12-31 00:00:00.000' ";
-            //Sql += "            THEN p.CreateDateTime ";
-            //Sql += "            ELSE p.OrgCreateDateTime END, 126 ) YearMon,";
-            //Sql += "   p.FileDesc, ";
-            //Sql += "   a.CNT ";
-            //Sql += " FROM ";
-            //Sql += "   Photo p , ";
-            //Sql += "   ( ";
-            //Sql += "   SELECT ";
-            //Sql += "   CONVERT( VARCHAR(7), ";
-            //Sql += "            CASE OrgCreateDateTime ";
-            //Sql += "            WHEN '9999-12-31 00:00:00.000' ";
-            //Sql += "            THEN CreateDateTime ";
-            //Sql += "            ELSE OrgCreateDateTime END, 126 ) YearMon,";
-            //Sql += "       COUNT(1) CNT ";
-            //Sql += "     FROM ";
-            //Sql += "       Photo ";
-            //Sql += "     GROUP BY ";
-            //Sql += "       CONVERT( VARCHAR(7), ";
-            //Sql += "                CASE OrgCreateDateTime ";
-            //Sql += "                WHEN '9999-12-31 00:00:00.000' ";
-            //Sql += "                THEN CreateDateTime ";
-            //Sql += "                ELSE OrgCreateDateTime END, 126 ) ";
-            //Sql += "   ) AS a ";
-            //Sql += " WHERE ";
-            //Sql += "   p.CreateDateTime IN( ";
-            //Sql += "     SELECT ";
-            //Sql += "       MAx(CreateDateTime) CrtTime ";
-            //Sql += "     FROM ";
-            //Sql += "       Photo ";
-            //Sql += "     GROUP BY ";
-            //Sql += "       CONVERT( VARCHAR(7), ";
-            //Sql += "                CASE OrgCreateDateTime ";
-            //Sql += "                WHEN '9999-12-31 00:00:00.000' ";
-            //Sql += "                THEN CreateDateTime ";
-            //Sql += "                ELSE OrgCreateDateTime END, 126 ) ";
-            //Sql += "   ) ";
-            //Sql += "  AND a.YearMon = ";
-            //Sql += "       CONVERT( VARCHAR(7), ";
-            //Sql += "                CASE OrgCreateDateTime ";
-            //Sql += "                WHEN '9999-12-31 00:00:00.000' ";
-            //Sql += "                THEN CreateDateTime ";
-            //Sql += "                ELSE OrgCreateDateTime END, 126 ) ";
-            //Sql += " ORDER BY YearMon DESC ";
-
-
+        {            
             Sql += " SELECT ";
             Sql += "   p.VideoNo No ,  ";
             Sql += "   p.FileExt,  ";

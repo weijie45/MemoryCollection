@@ -183,7 +183,7 @@ namespace MemoriesCollection.Controllers
             }
             var tags = vt.Tags;
 
-            Sql = $"SELECT * FROM Audio WHERE AudioNo = '{Key.Dict(ref tags, "AudioNo")}' ";
+            Sql = $"SELECT * FROM Audio WHERE AudioNo = '{Key.Decrypt(Key.Dict(ref tags, "AudioNo"))}' ";
             var audio = db.Query<Audio>(Sql).FirstOrDefault();
 
             if (audio != null) {

@@ -12,6 +12,7 @@ using System;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.IO.Compression;
+using Files = System.IO.File;
 
 namespace MemoriesCollection.Controllers
 {
@@ -29,8 +30,9 @@ namespace MemoriesCollection.Controllers
             return View(pv);
         }
 
+        [HttpPost]
         /// <summary>
-        /// 儲存相簿
+        /// 新增相簿
         /// </summary>
         /// <param name="vt"></param>
         /// <returns></returns>
@@ -64,6 +66,7 @@ namespace MemoriesCollection.Controllers
             return new JsonNetResult(rtn);
         }
 
+        [HttpPost]
         /// <summary>
         /// 刪除相簿
         /// </summary>
@@ -76,9 +79,11 @@ namespace MemoriesCollection.Controllers
                 return PageSettion.VarTagsError(vt.ErrorMsg);
             }
             var tags = vt.Tags;
-            var albumNo = Key.Dict(ref tags, "AlbumNo");
+            var albumNo = Key.Decrypt(Key.Dict(ref tags, "AlbumNo"));
             if (albumNo != "") {
+                var album = db.Query<Album>($"SELECT * FROM Album WHERE AlbumNo = '{albumNo}' ").FirstOrDefault();
                 db.Delete(new Album { AlbumNo = albumNo.FixInt() });
+                DelExportZip(album.AlbumNo, album.AlbumName);
                 rtn[1] = "刪除成功 !";
             } else {
                 rtn[0] = AppConfig.NoData;
@@ -87,6 +92,7 @@ namespace MemoriesCollection.Controllers
             return new JsonNetResult(rtn);
         }
 
+        [HttpPost]
         /// <summary>
         /// 相簿明細
         /// </summary>
@@ -103,6 +109,7 @@ namespace MemoriesCollection.Controllers
             return View("Detail", pv);
         }
 
+        [HttpPost]
         /// <summary>
         /// 批次讀取相片
         /// </summary>
@@ -116,7 +123,7 @@ namespace MemoriesCollection.Controllers
             }
             var tags = vt.Tags;
             var type = Key.Dict(ref tags, "Type");
-            var albumNo = Key.Dict(ref tags, "AlbumNo");
+            var albumNo = Key.Decrypt(Key.Dict(ref tags, "AlbumNo"));
             var sPic = Key.Dict(ref tags, "SPic").FixInt();
             var fmDate = Key.Dict(ref tags, "FmDate");
             var toDate = Key.Dict(ref tags, "ToDate");
@@ -199,6 +206,7 @@ namespace MemoriesCollection.Controllers
             return new JsonNetResult(rtn);
         }
 
+        [HttpPost]
         /// <summary>
         /// 加入相簿, 編修相簿名稱
         /// </summary>
@@ -212,8 +220,8 @@ namespace MemoriesCollection.Controllers
             }
             var tags = vt.Tags;
             PageTableViewModel pv = new PageTableViewModel();
-            var imgNo = Key.Dict(ref tags, "ImgNo");
-            var albumNo = Key.Dict(ref tags, "AlbumNo");
+            var imgNo = Key.Decrypt(Key.Dict(ref tags, "ImgNo"));
+            var albumNo = Key.Decrypt(Key.Dict(ref tags, "AlbumNo"));
             var albumDesc = Key.Dict(ref tags, "AlbumDesc");
             var albumName = Key.Dict(ref tags, "AlbumName");
 
@@ -233,7 +241,9 @@ namespace MemoriesCollection.Controllers
                 a.ModifyDateTime = Key.Now;
 
                 db.Update(a);
-                rtn[1] = "新增成功 !";
+                DelExportZip(a.AlbumNo, a.AlbumName);
+
+                rtn[1] = "相片加入成功 !";
             } else {
                 rtn[0] = AppConfig.NoData;
             }
@@ -241,6 +251,7 @@ namespace MemoriesCollection.Controllers
             return new JsonNetResult(rtn);
         }
 
+        [HttpPost]
         /// <summary>
         /// 移除相片
         /// </summary>
@@ -253,8 +264,8 @@ namespace MemoriesCollection.Controllers
                 return PageSettion.VarTagsError(vt.ErrorMsg);
             }
             var tags = vt.Tags;
-            var albumNo = Key.Dict(ref tags, "AlbumNo");
-            var imgNo = Key.Dict(ref tags, "ImgNo");
+            var albumNo =Key.Decrypt(Key.Dict(ref tags, "AlbumNo"));
+            var imgNo = Key.Decrypt(Key.Dict(ref tags, "ImgNo"));
 
             if (albumNo != "") {
                 Sql = $"Select * From Album WHERE AlbumNo = {albumNo} ";
@@ -270,6 +281,8 @@ namespace MemoriesCollection.Controllers
                 if (bgImg != "" && (imgNo == bgImg.Substring(0, bgImg.IndexOf('.')))) {
                     album.BgImg = "";
                 }
+
+                DelExportZip(album.AlbumNo, album.AlbumName);
             } else {
                 rtn[0] = AppConfig.NoData;
             }
@@ -277,6 +290,7 @@ namespace MemoriesCollection.Controllers
             return new JsonNetResult(rtn);
         }
 
+        [HttpPost]
         /// <summary>
         /// 設定背景
         /// </summary>
@@ -289,7 +303,7 @@ namespace MemoriesCollection.Controllers
                 return PageSettion.VarTagsError(vt.ErrorMsg);
             }
             var tags = vt.Tags;
-            var albumNo = Key.Dict(ref tags, "AlbumNo").ToInt();
+            var albumNo = Key.Decrypt(Key.Dict(ref tags, "AlbumNo")).ToInt();
             var fileName = Key.Dict(ref tags, "FileName");
             if (albumNo > 0) {
                 Sql = $"SELECT * FROM Album WHERE AlbumNo = {albumNo} ";
@@ -321,7 +335,7 @@ namespace MemoriesCollection.Controllers
                 return PageSettion.VarTagsError(vt.ErrorMsg);
             }
             var tags = vt.Tags;
-            var albumNo = Key.Dict(ref tags, "AlbumNo");
+            var albumNo = Key.Decrypt(Key.Dict(ref tags, "AlbumNo"));
             Sql = "SELECT * FROM Album";
             Sql += (albumNo == "") ? "" : $" WHERE AlbumNo = '{albumNo}' ";
             var album = db.Query<Album>(Sql).ToList();
@@ -349,14 +363,14 @@ namespace MemoriesCollection.Controllers
                         var source = $"{ImgPath}{p.ImgNo}{p.FileExt}";
                         var dest = $"{albumFolder}{p.FileName}{p.FileExt}";
                         // 檔名重複
-                        if (System.IO.File.Exists(dest)) {
+                        if (Files.Exists(dest)) {
                             dest = $"{albumFolder}{p.FileName}_{p.ImgNo}{p.FileExt}";
                         }
-                        System.IO.File.Copy(source, dest, true);
+                        Files.Copy(source, dest, true);
                     }
 
-                    if (System.IO.File.Exists(zipPath)) {
-                        System.IO.File.Delete(zipPath);
+                    if (Files.Exists(zipPath)) {
+                        Files.Delete(zipPath);
                     }
 
                     ZipFile.CreateFromDirectory($"{albumFolder}", zipPath);
@@ -384,7 +398,7 @@ namespace MemoriesCollection.Controllers
                 return PageSettion.VarTagsError(vt.ErrorMsg);
             }
             var tags = vt.Tags;
-            var albumNo = Key.Dict(ref tags, "AlbumNo");
+            var albumNo = Key.Decrypt(Key.Dict(ref tags, "AlbumNo"));
             // 相簿照片數量
             Sql = $" SELECT ImgNo FROM Album WHERE AlbumNo = '{albumNo}' ";
             var albumImg = db.Query<string>(Sql).ToArray().Join(",").Trim(',');
@@ -404,6 +418,20 @@ namespace MemoriesCollection.Controllers
             rtn[1] = obj.ToJson();
 
             return new JsonNetResult(rtn);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="albumNo"></param>
+        /// <param name="albumName"></param>
+        public void DelExportZip(int albumNo, string albumName)
+        {
+            var zipFileName = $"{albumNo}{albumName}.zip";
+            var zipPath = $"{ZipPath}{zipFileName}";
+            if (Files.Exists(zipPath)) {
+                Files.Delete(zipPath);
+            }
         }
 
     }

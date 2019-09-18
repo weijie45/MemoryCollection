@@ -114,8 +114,8 @@ namespace MemoriesCollection.Controllers
 
             if (imgNoList != "") {
 
-                foreach (var imgNo in imgNoList.Split(',')) {
-
+                foreach (string i in imgNoList.Split(',')) {
+                    string imgNo = Key.Decrypt(i);
                     Sql = $"SELECT * FROM Album WHERE ImgNo like '%{imgNo}%' ";
                     var album = db.Query<Album>(Sql).ToList();
 
@@ -128,8 +128,8 @@ namespace MemoriesCollection.Controllers
                             var bgImg = a.BgImg;
                             var imgList = a.ImgNo.Split(',').ToList();
 
-                            if (imgList.Contains(imgNo.ToString())) {
-                                imgList.Remove(imgNo.ToString());
+                            if (imgList.Contains(imgNo)) {
+                                imgList.Remove(imgNo);
                                 a.ImgNo = imgList.ToArray().Join(",");
                             }
 

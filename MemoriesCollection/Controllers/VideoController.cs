@@ -115,7 +115,7 @@ namespace MemoriesCollection.Controllers
             //var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(k);
             //var videoNo = Key.Dict(ref dict, "VideoNo");
             //var backUrl = Key.Dict(ref dict, "BackUrl");
-            var videoNo = Key.Dict(ref tags, "VideoNo");
+            var videoNo = Key.Decrypt(Key.Dict(ref tags, "VideoNo"));
             var backUrl = Key.Dict(ref tags, "BackUrl");
             ViewBag.IsData = false;
             if (videoNo != "") {
@@ -349,7 +349,7 @@ namespace MemoriesCollection.Controllers
             var desc = Key.Dict(ref tags, "desc");
             var location = Key.Dict(ref tags, "location");
             var person = Key.Dict(ref tags, "person");
-            var videoNo = Key.Dict(ref tags, "videoNo").ToInt();
+            var videoNo = Key.Decrypt(Key.Dict(ref tags, "videoNo")).ToInt();
             var base64Img = Key.Dict(ref tags, "Img");
             var isSuccess = false;
 
@@ -382,7 +382,7 @@ namespace MemoriesCollection.Controllers
                 return PageSettion.VarTagsError(vt.ErrorMsg);
             }
             var tags = vt.Tags;
-            var videoNo = Key.Dict(ref tags, "VideoNo");
+            var videoNo = Key.Decrypt(Key.Dict(ref tags, "VideoNo"));
 
             Sql = $" SELECT  CAST(VideoNo AS varchar) VideoNo, FileExt  FROM Video WHERE VideoNo = {videoNo} ";
             var info = db.Query(Sql).FirstOrDefault();

@@ -1,20 +1,22 @@
 ﻿@model MemoriesCollection.ViewModels.PageTableViewModel
 @{
     ViewBag.Title = "影片編輯";
-    int height = 500;
-    int width = 500;
+    int height = 500,width = 500;
+    var dr = Model.VideoList.FirstOrDefault();
+    var videoNo = dr!=null?dr.VideoNo.ToString():"0";
+    var encryptNo = Key.Encrypt(videoNo);
 }
 <div class="wj-block-c">
     <a href="#" class="button btn-outline-black" onclick="VideoBack()"><i class="fa fa-arrow-left"></i>回影片</a>
-    <a href="#" class="button btn-outline-confirm" onclick="SaveVideo()">儲存</a>
-    <a href="#" class="button btn-outline-red" onclick="DelVideo()">刪除</a>
+    <a href="#" class="button btn-outline-confirm" onclick="SaveVideo(@encryptNo)">儲存</a>
+    <a href="#" class="button btn-outline-red" onclick="DelVideo(@encryptNo)">刪除</a>
 </div>
-@if (Model.ViewBag.IsData) {
-    var dr = Model.VideoList.FirstOrDefault();
-    string ext = dr.FileExt;
-    string name = dr.FileName;
-    string desc = dr.FileDesc;
-    string videoNo = dr.VideoNo.ToString();
+@if (Model.ViewBag.IsData) {  
+    var ext = dr.FileExt;
+    var name = dr.FileName;
+    var desc = dr.FileDesc;
+     videoNo = dr.VideoNo.ToString();
+     encryptNo = Key.Encrypt(videoNo);
     int size = Convert.ToInt32(dr.Size);
     var imgUrl = Url.Action("GetLocal", "Files", new { k = Key.Encrypt(name), t = Key.Encrypt(new { Root = AppConfig.VideoThbPath, Folder = "", FileName = videoNo + ".jpg" }) });
     var personList = string.IsNullOrEmpty(dr.Person) ? new string[] { } : dr.Person.Split(',');
@@ -27,7 +29,7 @@
     <div id="preview" class="@((isHor)?"":"vertical")">
         <div class="inner">
             <div class="image fit">
-                <a href="#" class="showVideo" data-params="@($"{videoNo}*/*{ext}")">
+                <a href="#" class="showVideo" data-params="@($"{encryptNo}*/*{ext}")">
                     <img src="@(imgUrl)" alt="@name" id="video-Tb" />
                 </a>
             </div>

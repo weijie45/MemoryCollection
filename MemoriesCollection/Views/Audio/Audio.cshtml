@@ -2,6 +2,7 @@
 <!-- Boxes -->
 @foreach (var dr in Model.AudioList) {
     string audioNo = dr.AudioNo.ToString();
+    string encryptNo = Key.Encrypt(audioNo);
     string ext = dr.FileExt;
     string name = dr.FileName;
     string dwName = $"{name}{ext}";
@@ -20,7 +21,7 @@
                 <input type="text" name="FileName" value="@name" />
             </h3>
 
-            <button type="button" class="button btn-red" data-param="@audioNo" onclick="SaveAudio(this)">儲存</button>
+            <button type="button" class="button btn-red" data-param="@encryptNo" onclick="SaveAudio(this)">儲存</button>
             <button type="submit" onclick="window.open('@(dwUrl)')" class="button btn-c2">下載</button>
 
         </div>

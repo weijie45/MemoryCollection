@@ -1,9 +1,15 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "TimeLine";
     int cnt = 1;
     string tmp = "";
 }
+
+@if (ViewBag.Data.Count == 0){
+    <p class="txt-c txt-red msg-info">
+        @AppConfig.NoData
+    </p>
+}
+
 <div id="timeLineBlock">
     <div class="timeline">
         @foreach (var dr in ViewBag.Data) {

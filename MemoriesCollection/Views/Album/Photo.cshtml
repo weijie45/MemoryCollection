@@ -2,13 +2,14 @@
 @{
     int cnt = 0;
     var album = Model.Album;
-    var albumNo = album.AlbumNo;
+    var albumNo = Key.Encrypt(album!=null? album.AlbumNo:0);
     var type = Model.ViewBag.Type;
 }
 @if (Model.ViewBag.IsData) {
 
     foreach (var dr in Model.PhotoList) {
         var imgNo = dr.ImgNo;
+        var encryptNo = Key.Encrypt(imgNo);
         var name = dr.FileName;
         var desc = dr.FileDesc;
         var width = (double)dr.Width;
@@ -21,14 +22,14 @@
         double styleWidth = width * 200 / height;
         double padding = height / width * 100;
 
-        <div id="p_@imgNo" style="width:@(styleWidth)px;flex-grow:@(styleWidth)">
+        <div id="p_@cnt" style="width:@(styleWidth)px;flex-grow:@(styleWidth)">
             <i style="padding-bottom:@(padding)%"></i>
             @if (type == "tab_2") {
-                <div id="caption_@imgNo" style="display:none">
+                <div id="caption_@cnt" style="display:none">
                     <h4>@name</h4><p>@Key.FullDateTime(dr.OrgCreateDateTime)</p>
                 </div>
-                <a href="@imgUrl" class="item" data-sub-html="#caption_@imgNo" onclick="return false;">
-                    <img class="lazy" src="" data-src="@imgTbUrl" action="RmImg" data-params="@(imgNo)" data-album="@(albumNo)" data-imgExt="@dr.FileExt" />
+                <a href="@imgUrl" class="item" data-sub-html="#caption_@cnt" onclick="return false;">
+                    <img class="lazy" src="" data-src="@imgTbUrl" action="RmImg" data-params="@(encryptNo)" data-album="@(albumNo)" data-imgExt="@dr.FileExt" />
                     <div class="info">
                         <p>@name</p>
                     </div>
@@ -38,7 +39,7 @@
                     <img class="lazy" src="" title="@name" data-src="@imgTbUrl" />
                 </a>
                 <div class="info" func="ChoseImg">
-                    <input type="checkbox" class="chk-parallel" id="@cnt" name="imgNo" value="@(imgNo)" />
+                    <input type="checkbox" class="chk-parallel" id="@cnt" name="imgNo" value="@(encryptNo)" />
                     <label for="@cnt" class="chk-parallel">@name</label>
                 </div>
             }

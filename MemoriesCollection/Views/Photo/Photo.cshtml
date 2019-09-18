@@ -6,6 +6,7 @@
 
     foreach (var dr in Model.PhotoList) {
         var imgNo = dr.ImgNo;
+        var encrypt = Key.Encrypt(imgNo);
         var name = dr.FileName;
         var desc = dr.FileDesc;
         var width = (double)dr.Width;
@@ -18,13 +19,13 @@
         double styleWidth = width * 200 / height;
         double padding = height / width * 100;
 
-        <div id="p_@imgNo" style="width:@(styleWidth)px;flex-grow:@(styleWidth)" func="ChoseImg">
+        <div id="p_@cnt" style="width:@(styleWidth)px;flex-grow:@(styleWidth)" func="ChoseImg">
             <i style="padding-bottom:@(padding)%"></i>
             <a href="javascript:void();" data-src="@imgUrl">
                 <img class="lazy" src="" title="@name" data-src="@imgTbUrl" />
             </a>
             <div class="info">
-                <input type="checkbox" class="chk-parallel" id="@cnt" name="imgNo" value="@(imgNo)" />
+                <input type="checkbox" class="chk-parallel" id="@cnt" name="imgNo" value="@(encrypt)" />
                 <label for="@cnt" class="chk-parallel">@name</label>
             </div>
         </div>

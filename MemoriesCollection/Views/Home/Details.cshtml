@@ -4,16 +4,17 @@
     string name = "", ext = "", desc = "", imgUrl = "", date = "", loaction = "", size = "", uploadDate = "";
     var dr = Model.SqlData;
     var imgNo = (Model.IsData) ? dr.ImgNo : "0";
+    var encryptNo = Key.Encrypt(imgNo);
     var editStatus = Model.EditStatus == "Y";
 }
 <div class="wj-block-c">
     @if (editStatus) {
-        <button class="button btn-red" onclick="SavePhoto()">儲存</button>
-        <button class="button btn-secondary" onclick="EditPhoto('Cancel')">取消</button>
+        <button class="button btn-red" onclick="SavePhoto()" data-params="@encryptNo">儲存</button>
+        <button class="button btn-secondary" onclick="EditPhoto('Cancel')"data-params="@encryptNo">取消</button>
     } else {
         <button class="button btn-outline-black " onclick="PhotoBack()"><i class="fa fa-arrow-left"></i>上一頁</button>
-        <button class="button btn-secondary" onclick="EditPhoto('Edit')">編輯</button>
-        <button class="button btn-red" onclick="DelImg(this)">刪除</button>
+        <button class="button btn-secondary" onclick="EditPhoto('Edit')" data-params="@encryptNo">編輯</button>
+        <button class="button btn-red" onclick="DelImg(this)" data-params="@encryptNo">刪除</button>
     }
 </div>
 @if (Model.IsData) {
