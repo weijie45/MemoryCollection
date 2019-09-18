@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Mvc;
 
@@ -47,14 +48,15 @@ namespace MemoriesCollection.Controllers
                 return new EmptyResult();
             } else if (isZip) {
                 string zipPath = $"{Server.MapPath(root)}{fileName}";
+
                 System.IO.FileInfo TargetFile = new System.IO.FileInfo(zipPath);//讀進檔案
                 Response.Clear();
+                Response.BufferOutput = false; //若下載的檔案太大, 需要將Response.BufferOutput 設為false, 不然由於IIS的限制,可能會讓我們遇到 Overflow or underflow in the arithmetic operation的錯訊息
                 Response.AddHeader("Content-Disposition", "attachment; filename=" + TargetFile.Name);
                 Response.AddHeader("Content-Length", TargetFile.Length.ToString());
                 Response.ContentType = "application/octet-stream";
-                Response.WriteFile(TargetFile.FullName);
-                Response.End();
-                return new EmptyResult();
+                
+                return File( new FileStream(zipPath, FileMode.Open, FileAccess.Read), System.Net.Mime.MediaTypeNames.Application.Octet, dwName);
             } else {
 
                 //return File(System.IO.File.OpenRead(Server.MapPath(root + fileName)), System.Net.Mime.MediaTypeNames.Application.Octet, dwName);

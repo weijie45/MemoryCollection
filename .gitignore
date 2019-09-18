@@ -246,3 +246,4 @@ Upload/Images/
 Upload
 
 *.pubxml
+/MemoriesCollection/ZipFile

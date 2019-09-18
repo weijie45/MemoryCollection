@@ -247,7 +247,6 @@
             tags.AlbumNo = $this.attr('data-album');
             tags.ImgNo = $this.attr('data-params');
             tags.ImgExt = $this.attr('data-imgExt');
-            tags.FileName = tags.ImgNo + tags.ImgExt;
             Sys.AjaxExec(url, tags, function (data) {
                 layer.alert("相簿背景圖設定成功 !", { icon: 1 });
                 $('#albumTitle').css('background-image', 'url(../..{0}{1})'.format('@AppConfig.ImgPath', tags.FileName));

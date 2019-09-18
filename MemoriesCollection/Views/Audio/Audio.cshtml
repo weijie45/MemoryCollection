@@ -31,7 +31,5 @@
 
 
 @if (Model.AudioList.Count() == 0) {
-    <p class="txt-c txt-red msg-info">
-        @AppConfig.NoData
-    </p>
+    <div class="txt-c txt-red msg-info"><p>@AppConfig.NoData</p></div>
 }

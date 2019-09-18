@@ -62,6 +62,7 @@ namespace MemoriesCollection.Controllers
             }
             var tags = vt.Tags;
             var sPic = Key.Dict(ref tags, "SPic").FixInt();
+            var soFar = Key.Dict(ref tags, "SoFar").FixInt();
             var fmDate = Key.Dict(ref tags, "FmDate");
             var toDate = Key.Dict(ref tags, "ToDate");
             var keyWord = Key.Dict(ref tags, "KeyWord");
@@ -83,7 +84,11 @@ namespace MemoriesCollection.Controllers
             Sql += "   ) a ";
             Sql += " WHERE ";
             Sql += $"    a.row > {sPic} ";
-            Sql += $"    and a.row <= {sPic + PhotoLimit} ";
+            if (soFar != 0) {
+                Sql += $"    and a.row <= {soFar + PhotoLimit} ";
+            } else {
+                Sql += $"    and a.row <= {sPic + PhotoLimit} ";
+            }           
             Sql += " Order By a.ModifyDateTime Desc ";
             pv.PhotoList = db.Query<Photo>(Sql).ToList();
 

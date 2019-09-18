@@ -19,7 +19,7 @@
         double styleWidth = width * 200 / height;
         double padding = height / width * 100;
 
-        <div id="p_@cnt" style="width:@(styleWidth)px;flex-grow:@(styleWidth)" func="ChoseImg">
+        <div id="p_@Key.escapeJq(encryptNo)" style="width:@(styleWidth)px;flex-grow:@(styleWidth)" func="ChoseImg">
             <i style="padding-bottom:@(padding)%"></i>
             <a href="javascript:void();" data-src="@imgUrl">
                 <img class="lazy" src="" title="@name" data-src="@imgTbUrl" />
@@ -33,8 +33,6 @@
     }
 }
 
-@if (Model.ViewBag.IsEnd) {
-    <p class="txt-c txt-red msg-info">到底了</p>
-} else if (Model.PhotoList.Count() == 0) {
-    <p class="txt-c txt-red msg-info">@AppConfig.NoData</p>
+@if (!Model.ViewBag.IsEnd && Model.PhotoList.Count() == 0) {
+    <div class="txt-c txt-red msg-info"><p>@AppConfig.NoData</p></div>
 }

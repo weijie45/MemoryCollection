@@ -359,7 +359,7 @@ namespace MemoriesCollection.Controllers
             Sql += " WHERE ";
             Sql += $"    a.row > {sPic} ";
             if (soFar != 0) {
-                Sql += $"    and a.row <= {soFar} ";
+                Sql += $"    and a.row <= {soFar + PhotoLimit} ";
             } else {
                 Sql += $"    and a.row <= {sPic + PhotoLimit} ";
             }

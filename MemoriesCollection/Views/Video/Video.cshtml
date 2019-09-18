@@ -46,8 +46,6 @@
 
 
 
-@if (Model.ViewBag.IsEnd) {
-    <p class="txt-c txt-red msg-info">到底了</p>
-} else if (Model.VideoList.Count() == 0) {
-    <p class="txt-c txt-red msg-info">@AppConfig.NoData</p>
+@if (!Model.ViewBag.IsEnd && Model.VideoList.Count() == 0) {
+    <div class="txt-c txt-red msg-info"><p>@AppConfig.NoData</p></div>
 }
