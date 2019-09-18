@@ -59,7 +59,8 @@ namespace MemoriesCollection.Controllers
                 personList = db.Query<string>(Sql).ToArray().Join(",");
             }
             rtn[1] = page.View("Details",
-                new {
+                new
+                {
                     SqlData = data,
                     Orientation = orientation,
                     IsData = (data != null),
@@ -189,7 +190,7 @@ namespace MemoriesCollection.Controllers
         /// </summary>
         /// <returns></returns>
         public ActionResult TimeLine()
-        {            
+        {
             Sql += " SELECT ";
             Sql += "   p.VideoNo No ,  ";
             Sql += "   p.FileExt,  ";
@@ -326,6 +327,7 @@ namespace MemoriesCollection.Controllers
             var tags = vt.Tags;
             var pv = new PageTableViewModel();
             var sPic = Key.Dict(ref tags, "SPic").FixInt();
+            var soFar = Key.Dict(ref tags, "SoFar").FixInt();
             var fmDate = Key.Dict(ref tags, "FmDate");
             var toDate = Key.Dict(ref tags, "ToDate");
             var keyWord = Key.Dict(ref tags, "KeyWord");
@@ -356,13 +358,17 @@ namespace MemoriesCollection.Controllers
             Sql += "   ) a ";
             Sql += " WHERE ";
             Sql += $"    a.row > {sPic} ";
-            Sql += $"    and a.row <= {sPic + PhotoLimit} ";
+            if (soFar != 0) {
+                Sql += $"    and a.row <= {soFar} ";
+            } else {
+                Sql += $"    and a.row <= {sPic + PhotoLimit} ";
+            }
             Sql += " Order By a.ModifyDateTime Desc ";
 
             pv.PhotoList = db.Query<Photo>(Sql).ToList();
             pv.IsData = pv.PhotoList.Count > 0;
 
-            ViewBag.IsEnd = pv.PhotoList.Count < PhotoLimit;
+            ViewBag.IsEnd = sPic > 0 && pv.PhotoList.Count < PhotoLimit;
 
             pv.ViewBag = ViewBag;
             rtn[1] = page.View("Photo", pv);

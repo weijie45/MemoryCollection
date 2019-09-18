@@ -2,7 +2,7 @@
 @{
     int cnt = 0;
     var album = Model.Album;
-    var albumNo = Key.Encrypt(album!=null? album.AlbumNo:0);
+    var albumNo = Key.Encrypt(album != null ? album.AlbumNo : 0);
     var type = Model.ViewBag.Type;
 }
 @if (Model.ViewBag.IsData) {
@@ -15,7 +15,7 @@
         var width = (double)dr.Width;
         var height = (double)dr.Height;
 
-        var fileName = $"{imgNo}{dr.FileExt}";
+        var fileName = Key.Encrypt($"{imgNo}{dr.FileExt}");
         var dwName = $"{dr.FileName}{dr.FileExt}";
         var imgTbUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.ImgThbPath, Folder = "", FileName = fileName, DwName = dwName }) });
         var imgUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.ImgPath, Folder = "", FileName = fileName, DwName = dwName }) });

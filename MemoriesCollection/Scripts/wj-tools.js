@@ -87,6 +87,11 @@ function Controller() {
         var args = $.extend.apply(true, arguments);
         return $.extend(NameVals(this), args);
     };
+
+    b.fn.esacpeJq = function (val) {
+        return val.replace(/(:|\.|\[|\]|,|=|@)/g, "");
+    };
+
 })(jQuery)
 
 // 將form轉成json

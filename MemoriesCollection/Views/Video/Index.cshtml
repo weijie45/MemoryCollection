@@ -4,7 +4,7 @@
 <div id="main-div-data">
     <div id="ListPanel-1">
         <div class="wj-l">
-            <a href="@Url.Action("AddVideo", "Video")" class="txt-deepPink"><i class="fa fa-upload"> 新增影片</i></a>
+            <a href="@Url.Action("AddVideo", "Video")" class="txt-deepPink"><i class="fa fa-upload">上傳影片</i></a>
             <a href="#" id="more-cond" class="hidden" onclick="$('.more-cond').toggle();">進階查詢</a>
         </div>
         <div id="qry-block" class="wj-block-l">
@@ -77,6 +77,7 @@
             $.extend(tags, _Params);
             $.wait('影片搜尋中...');
             Sys.AjaxExec("/Video/VideoList", tags, function (data) {
+                if (tags.Reset == 'Y') _Params = '';
                 _IsLoading = data[2]=="Y"?true:false;
                 $.close();
             });

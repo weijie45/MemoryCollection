@@ -10,7 +10,7 @@
 <div class="wj-block-c">
     @if (editStatus) {
         <button class="button btn-red" onclick="SavePhoto()" data-params="@encryptNo">儲存</button>
-        <button class="button btn-secondary" onclick="EditPhoto('Cancel')"data-params="@encryptNo">取消</button>
+        <button class="button btn-secondary" onclick="EditPhoto('Cancel')" data-params="@encryptNo">取消</button>
     } else {
         <button class="button btn-outline-black " onclick="PhotoBack()"><i class="fa fa-arrow-left"></i>上一頁</button>
         <button class="button btn-secondary" onclick="EditPhoto('Edit')" data-params="@encryptNo">編輯</button>
@@ -27,7 +27,7 @@
     loaction = dr.Location;
     size = $"{dr.Width} * {dr.Height}";
     uploadDate = Key.EnglishDate(dr.CreateDateTime);
-    var fileName = $"{imgNo}{ext}";
+    var fileName = Key.Encrypt($"{imgNo}{ext}");
 
     imgUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.ImgPath, Folder = "", FileName = fileName }) });
     personList = string.IsNullOrEmpty(dr.Person) ? new string[] { } : dr.Person.Split(',');

@@ -89,7 +89,7 @@ namespace MemoriesCollection.Controllers
 
             ViewBag.IsData = pv.PhotoList.Count() > 0;
             ViewBag.TargetID = Key.Dict(ref tags, "TargetID");
-            ViewBag.IsEnd = pv.PhotoList.Count < PhotoLimit;
+            ViewBag.IsEnd = sPic > 0 && pv.PhotoList.Count < PhotoLimit;
 
             pv.ViewBag = ViewBag;
 

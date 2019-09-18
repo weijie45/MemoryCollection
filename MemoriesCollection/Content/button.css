@@ -18,6 +18,8 @@
     text-decoration: none;
     white-space: nowrap;
     min-width: 50px;
+    word-break: break-word;
+    white-space: normal;
 }
 
 .btn-r {

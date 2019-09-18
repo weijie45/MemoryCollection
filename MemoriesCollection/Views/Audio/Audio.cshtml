@@ -6,21 +6,22 @@
     string ext = dr.FileExt;
     string name = dr.FileName;
     string dwName = $"{name}{ext}";
-    string fileName = $"{audioNo}{ext}";
+    string fileName = Key.Encrypt($"{audioNo}{ext}");
     int size = dr.Size;
     string audio = $"{audioNo}{ext}";
     var audioUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.AudioPath, Folder = "", FileName = fileName }) });
     var dwUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.AudioPath, Folder = "", FileName = fileName, DwName = dwName }) });
 
     <div class="box">
-        <audio controls>
-            <source src="@audioUrl">
-        </audio>
+        @*<audio controls><source src="@audioUrl"></audio>*@
+
         <div class="inner">
             <h3 class="txt-black">
-                <input type="text" name="FileName" value="@name" />
+                @*<input type="text" name="FileName" maxlength="50" value="@name">*@
+                <textarea name="FileName" maxlength="50" rows="4">@name</textarea>
             </h3>
 
+            <button type="button" class="button btn-outline-confirm showVideo" data-params="@fileName" is-video="N">播放</button>
             <button type="button" class="button btn-red" data-param="@encryptNo" onclick="SaveAudio(this)">儲存</button>
             <button type="submit" onclick="window.open('@(dwUrl)')" class="button btn-c2">下載</button>
 

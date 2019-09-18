@@ -17,14 +17,22 @@ namespace MemoriesCollection.Controllers
         {
             string t = Key.Decrypt(Request.QueryString["t"].FixReq());
             var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(t); ;
-            string fileName = !dict.ContainsKey("FileName") ? "" : dict["FileName"].ToString();
-            string root = !dict.ContainsKey("Root") ? "" : dict["Root"].ToString();
-            string folder = !dict.ContainsKey("Folder") ? "" : dict["Folder"].ToString();
-            string dwName = !dict.ContainsKey("DwName") ? "" : dict["DwName"].ToString();
+            string fileName = Key.Decrypt(Key.Dict(ref dict, "FileName"));
+            //string ext = Key.Decrypt(Key.Dict(ref dict, "Ext")).ToLower();
+            string root = Key.Dict(ref dict, "Root");
+            string folder = Key.Dict(ref dict, "Folder");
+            string dwName = Key.Dict(ref dict, "DwName");
 
             if (fileName == "") {
-                fileName = DateTime.UtcNow.Ticks.ToString();
+                return new EmptyResult();
+                //fileName = DateTime.UtcNow.Ticks.ToString();
             }
+
+            // 檔名不含副檔名處理方式
+            //if (Path.GetExtension(fileName) == "") {
+            //    fileName += ext;
+            //    ext = "";
+            //}
 
             var isPdf = fileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase);
             var isZip = fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);

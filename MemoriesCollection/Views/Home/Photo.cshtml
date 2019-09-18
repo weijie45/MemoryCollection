@@ -10,7 +10,7 @@
     var width = (double)dr.Width;
     var height = (double)dr.Height;
 
-    var fileName = $"{imgNo}{dr.FileExt}";
+    var fileName = Key.Encrypt($"{imgNo}{dr.FileExt}");
     var dwName = $"{dr.FileName}{dr.FileExt}";
 
     var imgTbUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.ImgThbPath, Folder = "", FileName = fileName, DwName = dwName }) });
@@ -19,12 +19,12 @@
     double styleWidth = width * 200 / height;
     double padding = height / width * 100;
 
-    <div id="p_@cnt" style="width:@(styleWidth)px;flex-grow:@(styleWidth)">
+    <div id="p_@Key.escapeJq(encryptNo)" style="width:@(styleWidth)px;flex-grow:@(styleWidth)">
         <i style="padding-bottom:@(padding)%"></i>
-        <div id="caption_@cnt" style="display:none">
+        <div id="caption_@Key.escapeJq(encryptNo)" style="display:none">
             <h4>@name</h4><p>@Key.FullDateTime(dr.OrgCreateDateTime)</p>
         </div>
-        <a href="@imgUrl" class="item" data-sub-html="#caption_@cnt" onclick="return false;">
+        <a href="@imgUrl" class="item" data-sub-html="#caption_@Key.escapeJq(encryptNo)" onclick="return false;">
             <img class="lazy" src="" data-src="@imgTbUrl" data-params="@(encryptNo)" action="DelImg" />
             <div class="info">
                 <p>@name</p>
@@ -34,8 +34,8 @@
     cnt++;
 }
 
-@if (Model.PhotoList.Count() == 0) {
-    <p class="txt-c txt-red msg-info">
-        @AppConfig.NoData
-    </p>
+@if (Model.ViewBag.IsEnd) {
+    <p class="txt-c txt-red msg-info">到底了</p>
+} else if (Model.PhotoList.Count() == 0) {
+    <p class="txt-c txt-red msg-info">@AppConfig.NoData</p>
 }

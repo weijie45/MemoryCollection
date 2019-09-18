@@ -60,7 +60,6 @@
                     _Num = 0; //重置
                     MorePhoto();
                     break;
-
             }
 
         });
@@ -74,6 +73,7 @@
             $.extend(tags, _Params);
             $.wait('相片搜尋中...');
             Sys.AjaxExec("/Home/Photo", tags, function (data) {
+                if (tags.Reset == 'Y') _Params = '';
                 $('.lazy').Lazy();
                 _IsEnd = data[2] == "Y" ? true : false;
                 InitGallery();

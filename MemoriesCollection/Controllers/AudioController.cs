@@ -60,7 +60,7 @@ namespace MemoriesCollection.Controllers
             pv.AudioList = db.Query<Audio>(Sql).ToList();
             pv.IsData = pv.AudioList.Count > 0;
 
-            ViewBag.IsEnd = pv.AudioList.Count < AudioLimit;
+            ViewBag.IsEnd = sPic > 0 && pv.AudioList.Count < AudioLimit;
 
             pv.ViewBag = ViewBag;
             rtn[1] = page.View("Audio", pv);

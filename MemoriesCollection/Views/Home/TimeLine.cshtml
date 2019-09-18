@@ -4,7 +4,7 @@
     string tmp = "";
 }
 
-@if (ViewBag.Data.Count == 0){
+@if (ViewBag.Data.Count == 0) {
     <p class="txt-c txt-red msg-info">
         @AppConfig.NoData
     </p>
@@ -19,8 +19,8 @@
             string yearMon = dr.YearMon;
             if (yearMon != tmp) {
                 tmp = yearMon;
-                var url = Url.Action("GetLocal", "Files", new { k = Key.Encrypt(no), t = Key.Encrypt(new { Root = AppConfig.ImgThbPath, Folder = "", FileName = no + ext }) });
-                url = type.ToUpper() != "V" ? url : Url.Action("GetLocal", "Files", new { k = Key.Encrypt(no), t = Key.Encrypt(new { Root = AppConfig.VideoThbPath, Folder = "", FileName = no + ".jpg" }) });
+                var url = Url.Action("GetLocal", "Files", new { k = Key.Encrypt(no), t = Key.Encrypt(new { Root = AppConfig.ImgThbPath, Folder = "", FileName = Key.Encrypt(no + ext) }) });
+                url = type.ToUpper() != "V" ? url : Url.Action("GetLocal", "Files", new { k = Key.Encrypt(no), t = Key.Encrypt(new { Root = AppConfig.VideoThbPath, Folder = "", FileName = Key.Encrypt(no + ".jpg") }) });
                 if (cnt % 2 == 1) {
                     <div class="container left">
                         <div class="content">
@@ -156,6 +156,7 @@
             $.extend(tags, _Params);
             $.wait('影片搜尋中...');
             Sys.AjaxExec("/Video/VideoList", tags, function (data) {
+                if (tags.Reset == 'Y') _Params = '';
                 _IsLoading = data[2]=="Y"?true:false;
                 $.close();
             });
@@ -172,6 +173,7 @@
             $.wait('相片搜尋中...');
             Sys.AjaxExec("/Home/Photo", tags, function (data) {
                 $('.lazy').Lazy();
+                if (tags.Reset == 'Y') _Params = '';
                 _IsLoading = data[2]=="Y"?true:false;
                 InitGallery();
                 $.close();

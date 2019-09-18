@@ -90,7 +90,7 @@ namespace MemoriesCollection.Controllers
             pv.VideoList = db.Query<VideoInfo>(Sql).ToList();
             pv.IsData = pv.VideoList.Count > 0;
 
-            ViewBag.IsEnd = pv.VideoList.Count < VideoLimit;
+            ViewBag.IsEnd = sPic > 0 && pv.VideoList.Count < VideoLimit;
 
             pv.ViewBag = ViewBag;
             rtn[1] = page.View("Video", pv);
@@ -253,8 +253,8 @@ namespace MemoriesCollection.Controllers
 
                                 Sql = $"SELECT * FROM Video WHERE VideoNo = '{vd.VideoNo}' ";
                                 var res = db.Query<VideoInfo>(Sql).FirstOrDefault();
-                                res.Width = videoW.FixInt();
-                                res.Height = videoH.FixInt();
+                                res.Width = Math.Round(videoW.FixNum(), 0).FixInt();
+                                res.Height = Math.Round(videoH.FixNum(), 0).FixInt();
                                 res.OrgCreateDateTime = DateTime.Compare(modDate, orgCrt) == -1 ? modDate : orgCrt; // 選日期小的
                                 res.OrgModifyDateTime = DateTime.Compare(modDate, orgMod) == -1 ? modDate : orgCrt;
 

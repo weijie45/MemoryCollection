@@ -2,7 +2,7 @@
 @{
     ViewBag.Title = "編輯相簿";
     var album = Model.Album;
-    int imgCnt = 0,  albumNo = 0;
+    int imgCnt = 0, albumNo = 0;
     string bgImg = "";
 }
 @if (album != null) {
@@ -10,46 +10,46 @@
     bgImg = (album.BgImg.FixNull() != "") ? $"background-image:url(../..{AppConfig.ImgPath}{album.BgImg})" : "";
     imgCnt = (album.ImgNo.FixNull() == "") ? 0 : album.ImgNo.Split(',').Length;
 
-<div id="main-div-data" class="album">
-    <div id="ListPanel-1">
-        <div class="wj-block-c">
-            <a href="@Url.Action("Index", "Album")" class="button btn-outline-black"><i class="fa fa-arrow-left"></i>回相簿</a>
-            <a href="#" class="button btn-outline-red" id="addImg">儲存</a>
-            <a href="@Url.Action("AddPhoto", "Photo", new { k = Key.Encrypt(new { AlbumNo = albumNo, album.AlbumName }) })" class="button btn-outline-confirm"><i class="fa fa-upload">上傳</i></a>
-        </div>
-        <div class="imgHead">
-            <div id="albumTitle" class="albumTitle" style="@(bgImg)">
-                <div>
-                    <input type="text" class="albumTxt" id="editAlbumName" name="albumName" value="@album.AlbumName" />
-                </div>
-                <div>
-                    <textarea class="albumTxt" id="editAlbumDesc" name="albumDesc" maxlength="50" rows="10">@album.AlbumDesc</textarea>
+    <div id="main-div-data" class="album">
+        <div id="ListPanel-1">
+            <div class="wj-block-c">
+                <a href="@Url.Action("Index", "Album")" class="button btn-outline-black"><i class="fa fa-arrow-left"></i>回相簿</a>
+                <a href="#" class="button btn-outline-red" id="addImg">儲存</a>
+                <a href="@Url.Action("AddPhoto", "Photo", new { k = Key.Encrypt(new { AlbumNo = albumNo, album.AlbumName }) })" class="button btn-outline-confirm"><i class="fa fa-upload">上傳</i></a>
+            </div>
+            <div class="imgHead">
+                <div id="albumTitle" class="albumTitle" style="@(bgImg)">
+                    <div>
+                        <input type="text" class="albumTxt" id="editAlbumName" name="albumName" value="@album.AlbumName" />
+                    </div>
+                    <div>
+                        <textarea class="albumTxt" id="editAlbumDesc" name="albumDesc" maxlength="50" rows="10">@album.AlbumDesc</textarea>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div id="qry-block" class="wj-block-l">
-            <label for="" class="more-cond">關鍵字</label>
-            <input type="search" name="KeyWord" value="" class="more-cond" />
-            <label for="" class="more-cond">拍攝日期</label>
-            <input type="search" class="more-cond" id="fmDate" name="FmDate" onclick="WdatePicker({ maxDate: '#F{$dp.$D(\'toDate\');}' })" />
-            <input type="search" class="more-cond" id="toDate" name="ToDate" onclick="WdatePicker({ minDate: '#F{$dp.$D(\'fmDate\');}' })" />
-            <select name="Type">
-                <option value="tab_2" @(imgCnt == 0 ? "" : "selected")>相簿照片</option>
-                <option value="tab_3" @(imgCnt != 0 ? "" : "selected")>非相簿照片</option>
-                <option value="tab_4">未分類照片</option>
-            </select>
-            <input type="button" class="button btn-c1" func="Query" value="查詢" />
-            結果:<span id="TotalCnt" class="txt-red">0</span>張
-            <a href="#" id="more-cond" class="hidden" onclick="$('.more-cond').toggle();">進階查詢</a>
+            <div id="qry-block" class="wj-block-l">
+                <label for="" class="more-cond">關鍵字</label>
+                <input type="search" name="KeyWord" value="" class="more-cond" />
+                <label for="" class="more-cond">拍攝日期</label>
+                <input type="search" class="more-cond" id="fmDate" name="FmDate" onclick="WdatePicker({ maxDate: '#F{$dp.$D(\'toDate\');}' })" />
+                <input type="search" class="more-cond" id="toDate" name="ToDate" onclick="WdatePicker({ minDate: '#F{$dp.$D(\'fmDate\');}' })" />
+                <select name="Type">
+                    <option value="tab_2" @(imgCnt == 0 ? "" : "selected")>相簿照片</option>
+                    <option value="tab_3" @(imgCnt != 0 ? "" : "selected")>非相簿照片</option>
+                    <option value="tab_4">未分類照片</option>
+                </select>
+                <input type="button" class="button btn-c1" func="Query" value="查詢" />
+                結果:<span id="TotalCnt" class="txt-red">0</span>張
+                <a href="#" id="more-cond" class="hidden" onclick="$('.more-cond').toggle();">進階查詢</a>
+            </div>
+            <section id="blockSection"></section>
         </div>
-        <section id="blockSection"></section>
+        <!-- Detail -->
+        <div id="ListPanel-2" style="display:none;"></div>
+        <!-- Edit -->
+        <div id="ListPanel-3" style="display:none;"></div>
     </div>
-    <!-- Detail -->
-    <div id="ListPanel-2" style="display:none;"></div>
-    <!-- Edit -->
-    <div id="ListPanel-3" style="display:none;"></div>
-</div>
 }
 @section Scripts{
     <script>
@@ -161,6 +161,7 @@
                 if(tags.SPic==0){
                     $('#TotalCnt').text(json.Cnt);
                 }
+                if (tags.Reset == 'Y') _Params = '';
                 $('.spanBlock').show();
                 $('.lazy').Lazy();
                 InitGallery();

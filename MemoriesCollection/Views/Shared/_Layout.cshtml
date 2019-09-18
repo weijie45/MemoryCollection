@@ -144,6 +144,7 @@
             _Loading = false;
             SaveScrollTop();
             $.wait();
+
             Sys.AjaxExec(url, tags, function () {
                 $('.lg-backdrop.in,.lg-outer.lg-visible,#ListPanel-1').hide();
                 $('#person').select2({ tags: true });
@@ -154,11 +155,11 @@
         }
 
         function PhotoBack() {
-            RestoreScrollTop();
             _Loading = true;
             _PhotoKey = -1; //重新抓新的\
             $('#ListPanel-2').hide();
             $('.lg-backdrop.in,.lg-outer.lg-visible,#ListPanel-1').show();
+            RestoreScrollTop();
         }
 
         function EditPhoto(func) {
@@ -200,6 +201,7 @@
                     tags.Person = $('[name=person]').vals().toString();
                     Sys.AjaxExec(url, tags, function (data) {
                         $.close();
+                        LocateSavePhoto();
                         layer.alert('修改成功 !', { icon: 1 }, function (index) {
                             layer.close(index);
                             EditPhoto('Cancel');
@@ -207,6 +209,17 @@
                     });
                 });
             }
+        }
+
+        function LocateSavePhoto() {
+            // 儲存後定位
+            var tags = $('#qry-block').tags();
+            tags.Append = false;
+            tags.SoFar = _Num;
+            tags.SPic = 0;
+            tags.Reset = 'Y';
+            _Params = tags;
+            MorePhoto();
         }
 
         function DelImg($this) {
@@ -223,7 +236,7 @@
                     title: 0
                 });
                 GetSum();
-                $('#p_{0}'.format(_PhotoKey)).remove();
+                $('#p_{0}'.format($.esacpeJq(_PhotoKey))).remove();
                 _PhotoKey = -1;
             });
         }
@@ -281,7 +294,6 @@
             msg.push(IsEmpty(tags.name) ? "影片名稱不可為空 !" : "");
             msg.push(/[\/\*\?\|<>:]/.test(tags.name) ? "檔案不可包含違法字元(<span class='txt-red'>\ / : * ? | < ></span>) !" : "");
             msg = msg.filter(Boolean);
-
             if (msg.length > 0) {
                 layer.alert(msg.join("<br>"), { title: '請輸入正確資料', icon: 0 });
             } else {
@@ -292,17 +304,33 @@
                     tags.person = $('[name=person]').vals().toString();
                     tags.Img = $('#video-Tb').attr('src');
                     Sys.AjaxExec(url, tags, function (data) {
-                        EditVideo(val);
+                        $.close();
+                        LocateSaveVideo();
+                        layer.alert('修改成功 !', { icon: 1 }, function (index) {
+                            layer.close(index);
+                        });
+
                     });
                 });
             }
+        }
+
+        function LocateSaveVideo() {
+            // 儲存後定位
+            var tags = $('#qry-block').tags();
+            tags.Append = false;
+            tags.SoFar = _Num;
+            tags.SPic = 0;
+            tags.Reset = 'Y';
+            _Params = tags;
+            MoreVideo();
         }
 
         function DelVideo(val) {
             var url = '@Url.Action("Del", "Video")';
             var tags = {};
             tags.VideoNo = val;
-            layer.confirm('確認儲存 ?', { title: '儲存', icon: 3 }, function (index) {
+            layer.confirm('確認刪除 ?', { title: '刪除', icon: 3 }, function (index) {
                 layer.close(index);
                 $.wait('資料刪除中...');
                 Sys.AjaxExec(url, tags, function (data) {
@@ -312,33 +340,40 @@
         }
 
         function VideoBack() {
-            RestoreScrollTop();
+            console.log(g_iTopScrollTop);
             _Loading = true;
             $('#ListPanel-2').hide();
             $('#ListPanel-1').show();
+            RestoreScrollTop();
         }
 
         // 影片lightbox
         $(document).on('click', '.showVideo', function () {
             SaveScrollTop();
-            var videoNo = $(this).attr('data-params').split('*/*')[0];
-            var ext = $(this).attr('data-params').split('*/*')[1];        
+            var fileName = $(this).attr('data-params')
+            var isVideo = $(this).attr('is-video') != "N";
             var style = "max-height: 500px";
 
             $("body").addClass("loadingVideo");
 
             var t = {
-                Root: '@AppConfig.VideoPath',
+                Root: isVideo ? '@AppConfig.VideoPath' : '@AppConfig.AudioPath',
                 Folder: "",
-                FileName: videoNo + ext
+                FileName: fileName
             };
+
+            // byte to blob
             //https://stackoverflow.com/questions/37462263/open-filestreamresult-by-ajax-as-downloaded-file
             var request = new XMLHttpRequest();
             request.responseType = "blob";
             request.open("GET", '/Files/GetLocal?t=' + AES(JSON.stringify(t)));
             request.onload = function () {
                 var url = window.URL.createObjectURL(this.response);
-                $('.video-content').html('<video style="' + style + '" controls><source src="' + url + '"></video>')
+                if (isVideo) {
+                    $('.video-content').html('<video style="' + style + '" controls><source src="' + url + '"></video>');
+                } else {
+                    $('.video-content').html('<audio controls><source src="' + url + '"></audio>');
+                }
             }
             request.send();
 
@@ -347,6 +382,7 @@
 
         $('.video-close').on('click', function () {
             RestoreScrollTop();
+            window.URL.revokeObjectURL($(this).parent().find('source').attr('src'));
             $('.VideoModal').css('display', 'none');
             $('.video-content').html('');
             $("body").removeClass("loadingVideo");

@@ -17,25 +17,9 @@ namespace MemoriesCollection.Function.Common
     {
         public static string DataKey = "12345678";
 
-        public static string LocFilePath(string type, string name, string ext)
+        public static string escapeJq(string selector)
         {
-            string url = "";
-            switch (type) {
-                case "video":
-                    url = $"{AppConfig.VideoPath.Replace("\\", "/")}{name}{ext}";
-                    break;
-                case "videothumbnail":
-                    url = $"{AppConfig.VideoThbPath.Replace("\\", "/")}{name}{ext}";
-                    break;
-                case "image":
-                    url = $"{AppConfig.ImgPath.Replace("\\", "/")}{name}{ext}";
-                    break;
-                case "imagethumbnail":
-                    url = $"{AppConfig.ImgThbPath.Replace("\\", "/")}{name}{ext}";
-                    break;
-
-            }
-            return url;
+            return Regex.Replace(selector, @"[\W_]+", "", RegexOptions.IgnoreCase);
         }
 
         /// <summary>

@@ -13,7 +13,7 @@
             var noImg = (imgNo == "" ? "noImgAlbum" : "");
             var photoCnt = (imgNo == "" ? 0 : a.ImgNo.Split(',').Length);
             var zipName = a.AlbumNo + a.AlbumName + ".zip";
-            var url = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.ZipPath, Folder = "", FileName = zipName }) });
+            var url = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.ZipPath, Folder = "", FileName = Key.Encrypt(zipName) }) });
             var albumNo = a.AlbumNo;
 
             <div class="albumBlock @noImg" style="@(bgImg)">

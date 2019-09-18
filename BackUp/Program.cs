@@ -341,10 +341,10 @@ namespace BackUp
             }
 
             Copy(destPath, backupPath);
-            Log((File.Exists(destPath) ? $"\tBackUp Successfule !" : "\t[ERROR] BackUp Failed !") + backupPath);
+            Log((File.Exists(destPath) ? $"\t BackUp Successfule !" : "\t[ERROR] BackUp Failed !") + backupPath);
 
             File.Delete(destPath);
-            Log((!File.Exists(destPath) ? "\tDelete Successful  !" : "\t[ERROR] Delete Failed !") + destPath);
+            Log((!File.Exists(destPath) ? "\t Delete Successful  !" : "\t[ERROR] Delete Failed !") + destPath);
         }
 
         private static void OnRenamed(object source, RenamedEventArgs e)

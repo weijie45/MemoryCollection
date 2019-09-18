@@ -6,13 +6,13 @@
 
     foreach (var dr in Model.PhotoList) {
         var imgNo = dr.ImgNo;
-        var encrypt = Key.Encrypt(imgNo);
+        var encryptNo = Key.Encrypt(imgNo);
         var name = dr.FileName;
         var desc = dr.FileDesc;
         var width = (double)dr.Width;
         var height = (double)dr.Height;
 
-        var fileName = $"{imgNo}{dr.FileExt}";
+        var fileName = Key.Encrypt($"{imgNo}{dr.FileExt}");
         var dwName = $"{dr.FileName}{dr.FileExt}";
         var imgTbUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.ImgThbPath, Folder = "", FileName = fileName, DwName = dwName }) });
         var imgUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.ImgPath, Folder = "", FileName = fileName, DwName = dwName }) });
@@ -25,7 +25,7 @@
                 <img class="lazy" src="" title="@name" data-src="@imgTbUrl" />
             </a>
             <div class="info">
-                <input type="checkbox" class="chk-parallel" id="@cnt" name="imgNo" value="@(encrypt)" />
+                <input type="checkbox" class="chk-parallel" id="@cnt" name="imgNo" value="@(encryptNo)" />
                 <label for="@cnt" class="chk-parallel">@name</label>
             </div>
         </div>
@@ -33,9 +33,8 @@
     }
 }
 
-
-@if (Model.PhotoList.Count() == 0) {
-    <div class="txt-c txt-red msg-info">
-        <span>@AppConfig.NoData</span>
-    </div>
+@if (Model.ViewBag.IsEnd) {
+    <p class="txt-c txt-red msg-info">到底了</p>
+} else if (Model.PhotoList.Count() == 0) {
+    <p class="txt-c txt-red msg-info">@AppConfig.NoData</p>
 }

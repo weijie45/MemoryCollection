@@ -30,7 +30,7 @@ namespace MemoriesCollection.Controllers
             return View(pv);
         }
 
-        [HttpPost]
+
         /// <summary>
         /// 新增相簿
         /// </summary>
@@ -66,7 +66,7 @@ namespace MemoriesCollection.Controllers
             return new JsonNetResult(rtn);
         }
 
-        [HttpPost]
+
         /// <summary>
         /// 刪除相簿
         /// </summary>
@@ -92,7 +92,7 @@ namespace MemoriesCollection.Controllers
             return new JsonNetResult(rtn);
         }
 
-        [HttpPost]
+
         /// <summary>
         /// 相簿明細
         /// </summary>
@@ -109,7 +109,7 @@ namespace MemoriesCollection.Controllers
             return View("Detail", pv);
         }
 
-        [HttpPost]
+
         /// <summary>
         /// 批次讀取相片
         /// </summary>
@@ -194,7 +194,7 @@ namespace MemoriesCollection.Controllers
 
             ViewBag.Type = type;
             ViewBag.TargetID = Key.Dict(ref tags, "TargetID");
-            ViewBag.IsEnd = pv.PhotoList.Count < PhotoLimit;
+            ViewBag.IsEnd = sPic > 0 && pv.PhotoList.Count < PhotoLimit;
 
             pv.Album = albumInfo;
             pv.ViewBag = ViewBag;
@@ -206,7 +206,7 @@ namespace MemoriesCollection.Controllers
             return new JsonNetResult(rtn);
         }
 
-        [HttpPost]
+
         /// <summary>
         /// 加入相簿, 編修相簿名稱
         /// </summary>
@@ -220,30 +220,34 @@ namespace MemoriesCollection.Controllers
             }
             var tags = vt.Tags;
             PageTableViewModel pv = new PageTableViewModel();
-            var imgNo = Key.Decrypt(Key.Dict(ref tags, "ImgNo"));
+            var imgNoList = Key.Dict(ref tags, "ImgNo");
+            var imgNo = imgNoList.Split(',').Select(s => Key.Decrypt(s)).ToArray().Join(",");
             var albumNo = Key.Decrypt(Key.Dict(ref tags, "AlbumNo"));
             var albumDesc = Key.Dict(ref tags, "AlbumDesc");
             var albumName = Key.Dict(ref tags, "AlbumName");
 
             Album a = db.Query<Album>($" SELECT * FROM Album WHERE AlbumNo={albumNo} ").FirstOrDefault();
             if (a != null) {
-                if (imgNo != "") {
+                if (imgNo == "") {
+                    rtn[0] = "相片加入失敗 !";
+                } else {
                     a.ImgNo = $"{a.ImgNo},{imgNo}".Trim(',');
                     if (string.IsNullOrEmpty(a.BgImg)) {
                         var bgImgNo = imgNo.Split(',')[0].Replace("'", "").Trim(',');
                         Sql = $"SELECT CAST(ImgNo AS varchar) + FileExt FileName FROM Photo  WHERE ImgNo = {bgImgNo} ";
                         a.BgImg = db.Query<string>(Sql).FirstOrDefault();
                     }
+
+
+                    a.AlbumDesc = albumDesc;
+                    a.AlbumName = albumName;
+                    a.ModifyDateTime = Key.Now;
+
+                    db.Update(a);
+                    DelExportZip(a.AlbumNo, a.AlbumName);
+
+                    rtn[1] = "相片加入成功 !";
                 }
-
-                a.AlbumDesc = albumDesc;
-                a.AlbumName = albumName;
-                a.ModifyDateTime = Key.Now;
-
-                db.Update(a);
-                DelExportZip(a.AlbumNo, a.AlbumName);
-
-                rtn[1] = "相片加入成功 !";
             } else {
                 rtn[0] = AppConfig.NoData;
             }
@@ -251,7 +255,7 @@ namespace MemoriesCollection.Controllers
             return new JsonNetResult(rtn);
         }
 
-        [HttpPost]
+
         /// <summary>
         /// 移除相片
         /// </summary>
@@ -264,7 +268,7 @@ namespace MemoriesCollection.Controllers
                 return PageSettion.VarTagsError(vt.ErrorMsg);
             }
             var tags = vt.Tags;
-            var albumNo =Key.Decrypt(Key.Dict(ref tags, "AlbumNo"));
+            var albumNo = Key.Decrypt(Key.Dict(ref tags, "AlbumNo"));
             var imgNo = Key.Decrypt(Key.Dict(ref tags, "ImgNo"));
 
             if (albumNo != "") {
@@ -283,6 +287,7 @@ namespace MemoriesCollection.Controllers
                 }
 
                 DelExportZip(album.AlbumNo, album.AlbumName);
+                db.Update(album);
             } else {
                 rtn[0] = AppConfig.NoData;
             }
@@ -290,7 +295,7 @@ namespace MemoriesCollection.Controllers
             return new JsonNetResult(rtn);
         }
 
-        [HttpPost]
+
         /// <summary>
         /// 設定背景
         /// </summary>
@@ -322,7 +327,7 @@ namespace MemoriesCollection.Controllers
             return new JsonNetResult(rtn);
         }
 
-        [HttpPost]
+
         /// <summary>
         /// 將相簿資料, 複製到實體檔案到資料夾並改名為fileName
         /// </summary>

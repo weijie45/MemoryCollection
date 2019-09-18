@@ -104,6 +104,7 @@
             Sys.AjaxExec("/Photo/Photos", tags, function (data) {
                 $('.spanBlock').show();
                 $('.lazy').Lazy();
+                if (tags.Reset == 'Y') _Params = '';
                 _IsEnd = data[2] == "Y" ? true : false;
                 InitGallery();
                 $.close();
