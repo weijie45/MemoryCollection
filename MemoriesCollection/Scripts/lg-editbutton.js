@@ -34,7 +34,7 @@
 
             var index = that.core.index;
             var $sel = $('#' + that.core.$el.children()[index].getAttribute('id')).find('img');
-            console.log($sel.attr('data-params'));
+
             PhotoDetail($sel.attr('data-params'));
 
         });

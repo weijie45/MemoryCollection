@@ -30,6 +30,6 @@
 }
 
 
-@if (Model.AudioList.Count() == 0) {
+@if (!Model.ViewBag.IsEnd && Model.AudioList.Count() == 0) {
     <div class="txt-c txt-red msg-info"><p>@AppConfig.NoData</p></div>
 }

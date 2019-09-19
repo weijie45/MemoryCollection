@@ -182,7 +182,7 @@ namespace MemoriesCollection.Controllers
                 Sql += $"    a.row > {sPic} ";
                 if (soFar != 0) {
                     Sql += $"    and a.row <= {soFar + PhotoLimit} ";
-                }else {
+                } else {
                     Sql += $"    and a.row <= {sPic + PhotoLimit} ";
                 }
                 Sql += " Order By a.ModifyDateTime Desc ";
@@ -314,15 +314,18 @@ namespace MemoriesCollection.Controllers
             }
             var tags = vt.Tags;
             var albumNo = Key.Decrypt(Key.Dict(ref tags, "AlbumNo")).ToInt();
-            var fileName = Key.Decrypt(Key.Dict(ref tags, "ImgNo"))+Key.Dict(ref tags,"ImgExt");
+            var fileName = Key.Decrypt(Key.Dict(ref tags, "ImgNo")) + Key.Dict(ref tags, "ImgExt");
             if (albumNo > 0) {
                 Sql = $"SELECT * FROM Album WHERE AlbumNo = {albumNo} ";
                 var photo = db.Query<Album>(Sql).FirstOrDefault();
                 rtn[0] = (photo != null) ? "" : AppConfig.NoData;
+
                 if (photo != null) {
                     photo.BgImg = fileName;
                     photo.ModifyDateTime = DateTime.Now;
-                    db.Update(photo);
+                    if (db.Update(photo)) {
+                        rtn[1] = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.ImgPath, Folder = "", FileName = Key.Encrypt(photo.BgImg) }) });
+                    }
                 }
 
             } else {

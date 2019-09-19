@@ -222,11 +222,19 @@
             MorePhoto();
         }
 
+        function askDelImg($this) {
+            layer.confirm("確認刪除照片 ?", { icon: 3 }, function (index) {
+                layer.close(index);
+                DelImg($this);
+            });
+        }
+
         function DelImg($this) {
             var url = '@Url.Action("DelImg", "Home")';
             _PhotoKey = (_PhotoKey == -1) ? $this.attr('data-params') : _PhotoKey;
             var tags = {};
             tags.ImgNo = _PhotoKey;
+
             Sys.AjaxExec(url, tags, function () {
                 layer.open({
                     content: '刪除成功 !',
@@ -236,7 +244,11 @@
                     title: 0
                 });
                 GetSum();
-                $('#p_{0}'.format($.esacpeJq(_PhotoKey))).remove();
+                $('#p_' + $.esacpeJq(tags.ImgNo) + ',.lg-thumb-item.active').remove();
+                _Gallery.data('lightGallery').goToNextSlide();
+                if ($('#GoBack').is(':visible')) {
+                    $('#GoBack').trigger('click');
+                }
                 _PhotoKey = -1;
             });
         }
@@ -247,9 +259,9 @@
             tags.AlbumNo = $this.attr('data-album');
             tags.ImgNo = $this.attr('data-params');
             tags.ImgExt = $this.attr('data-imgExt');
-            Sys.AjaxExec(url, tags, function (data) {
+            Sys.AjaxExec(url, tags, function (rtn) {
                 layer.alert("相簿背景圖設定成功 !", { icon: 1 });
-                $('#albumTitle').css('background-image', 'url(../..{0}{1})'.format('@AppConfig.ImgPath', tags.FileName));
+                $('#albumTitle').css('background-image', 'url({0})'.format(rtn[1]));
             });
         }
 
@@ -339,7 +351,6 @@
         }
 
         function VideoBack() {
-            console.log(g_iTopScrollTop);
             _Loading = true;
             $('#ListPanel-2').hide();
             $('#ListPanel-1').show();

@@ -88,10 +88,6 @@ function Controller() {
         return $.extend(NameVals(this), args);
     };
 
-    b.fn.esacpeJq = function (val) {
-        return val.replace(/(:|\.|\[|\]|,|=|@)/g, "");
-    };
-
 })(jQuery)
 
 // 將form轉成json
@@ -420,6 +416,10 @@ function Vals(sNameList, sSelector) {
 $.closeAll = function () {
     $.close();
     $.closeProgress();
+};
+
+$.esacpeJq = function (val) {
+    return val.replace(/[\W_]+/g, "");
 };
 
 //  屏蔽

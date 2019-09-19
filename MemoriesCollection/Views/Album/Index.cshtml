@@ -9,21 +9,23 @@
     <div id="ListPanel-1" style="display: flex;flex-wrap: wrap;justify-content: space-around;">
         @foreach (var a in Model.AlbumList) {
             var imgNo = a.ImgNo.FixNull();
-            var bgImg = a.BgImg.FixNull() == "" ? "" : $"background-image:url(../..{AppConfig.ImgThbPath}{a.BgImg})";
+            var imgTbUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.ImgThbPath, Folder = "", FileName = Key.Encrypt(a.BgImg) }) });
+            var bgImg = a.BgImg.FixNull() == "" ? "" : $"background-image:url({imgTbUrl})";
             var noImg = (imgNo == "" ? "noImgAlbum" : "");
             var photoCnt = (imgNo == "" ? 0 : a.ImgNo.Split(',').Length);
             var zipName = a.AlbumNo + a.AlbumName + ".zip";
             var url = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.ZipPath, Folder = "", FileName = Key.Encrypt(zipName) }) });
             var albumNo = a.AlbumNo;
+            var encryptNo = Key.Encrypt(albumNo);
 
             <div class="albumBlock @noImg" style="@(bgImg)">
                 <div class="info" url="@Url.Action("Detail","Album",new { k=Key.Encrypt(a.AlbumNo)})">
-                    <button class="button btn-red" func="DelAlbum" data-params="@albumNo">刪除</button>
+                    <button class="button btn-red" onclick="window.event.cancelBubble = true;DelAlbum('@encryptNo');">刪除</button>
                     @if (photoCnt > 0) {
                         if (System.IO.File.Exists($"{Server.MapPath(AppConfig.ZipPath)}{zipName}")) {
                             <button url="@url" class="button btn-confirm">下載</button>
                         } else {
-                            <button class="button btn-black" func="AlbumExport" data-params="@albumNo">匯出</button>
+                            <button class="button btn-black" onclick="window.event.cancelBubble = true;AlbumExport('@encryptNo')">匯出</button>
                         }
                     }
                     <p>
@@ -52,36 +54,30 @@
             location.href = $(this).attr('url');
         });
 
-        // 圖片編輯
-        $('#main-div-data [func]').on('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            var $this = $(this);
+        function AlbumExport(val) {
             var tags = {
-                "Func": $this.attr('func')
+                AlbumNo: val
             };
-            var url = '/Album/{0}'.format(tags.Func);
 
-            switch (tags.Func) {
-                case "AlbumExport":
-                    url = '@Url.Action("AlbumExport", "Album")';
-                    tags.AlbumNo = $this.attr('data-params');
-                    $.wait('照片匯出中，請稍候...');
-                    Sys.AjaxExec(url, tags, function () {
-                        location.reload();
-                    });
-                    break;
-                case "DelAlbum":
-                    tags.AlbumNo = $this.attr('data-params');
-                    layer.confirm('確認刪除相簿 ?', { title: '刪除', icon: 3 }, function (index) {
-                        layer.close(index);
-                        $.wait("刪除資料中，請稍候...");
-                        Sys.AjaxExec(url, tags, function () {
-                            location.reload();
-                        });
-                    });
-                    break;
-            }
-        });
+            $.wait('照片匯出中，請稍候...');
+            Sys.AjaxExec('@Url.Action("AlbumExport", "Album")', tags, function () {
+                location.reload();
+            });
+        }
+
+        function DelAlbum(val) {
+            var tags = {
+                AlbumNo: val
+            };
+
+            layer.confirm('確認刪除相簿 ?', { title: '刪除', icon: 3 }, function (index) {
+                layer.close(index);
+                $.wait("刪除相簿中，請稍候...");
+                Sys.AjaxExec('@Url.Action("DelAlbum", "Album")', tags, function () {
+                    location.reload();
+                });
+            });
+        }
+
     </script>
 }

@@ -7,7 +7,8 @@
 }
 @if (album != null) {
     albumNo = album.AlbumNo;
-    bgImg = (album.BgImg.FixNull() != "") ? $"background-image:url(../..{AppConfig.ImgPath}{album.BgImg})" : "";
+    var imgTbUrl = Url.Action("GetLocal", "Files", new { t = Key.Encrypt(new { Root = AppConfig.ImgPath, Folder = "", FileName = Key.Encrypt(album.BgImg) }) });
+    bgImg = (album.BgImg.FixNull() != "") ? $"background-image:url({imgTbUrl})" : "";
     imgCnt = (album.ImgNo.FixNull() == "") ? 0 : album.ImgNo.Split(',').Length;
 
     <div id="main-div-data" class="album">
